@@ -1,0 +1,10 @@
+deadmethods is an ant task that will find uncalled methods regardless of access qualifier.
+
+This project uses ant, to build do
+
+ant
+
+You can run deadmethods on itself, by running
+
+ant test
+
