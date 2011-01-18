@@ -12,6 +12,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
@@ -30,7 +32,7 @@ public class FindDeadMethods extends Task {
     public void addConfiguredClasspath(final Path classpath) {
         path = classpath;
     }
-    
+
     public void setPackages(String packageList) {
     	packages = new HashSet<String>(Arrays.asList(packageList.split("\\s*,\\s*")));
     }
@@ -40,7 +42,7 @@ public class FindDeadMethods extends Task {
         if (path == null) {
             throw new BuildException("classpath attribute not set");
         }
-        
+
         if (packages == null) {
         	throw new BuildException("packages attribute not set");
         }
@@ -64,10 +66,13 @@ public class FindDeadMethods extends Task {
             FileResource fr = it.next();
             File dir = fr.getFile();
             if (dir.isFile()) {
-                throw new BuildException("Only directories are supported: " + dir.getPath());
+            	File jar = dir;
+            	if (jar.getName().endsWith(".jar")) {
+            		collectMethodNamesFromJar(dir);
+            	}
+            } else {
+            	collectMethodNamesFromDir(dir);
             }
-
-            collectMethodNamesFromDir(dir);
         }
     }
 
@@ -91,6 +96,25 @@ public class FindDeadMethods extends Task {
                 }
             }
         }
+    }
+
+    private void collectMethodNamesFromJar(final File jar) {
+    	JarInputStream jis = null;
+    	try {
+    		jis = new JarInputStream(new BufferedInputStream(new FileInputStream(jar)));
+    		JarEntry entry = jis.getNextJarEntry();
+    		while (entry != null) {
+    			if (entry.getName().endsWith(".class")) {
+                    ClassReader cr = new ClassReader(jis);
+                    cr.accept(methodCollectingVisitor, ClassReader.SKIP_CODE|ClassReader.SKIP_DEBUG);
+    			}
+    			entry = jis.getNextJarEntry();
+    		}
+    	} catch (IOException ioe) {
+    		throw new BuildException("Failed reading method names from: " + jar, ioe);
+    	} finally {
+    		Closer.close(jis);
+    	}
     }
 
     private void findDeadMethods() {
