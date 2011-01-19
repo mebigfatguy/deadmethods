@@ -27,16 +27,14 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-class MethodCollectingVisitor implements ClassVisitor {
-    /**
-	 *
-	 */
+class CalledMethodCollectingVisitor implements ClassVisitor {
+
 	private final FindDeadMethods findDeadMethods;
 
 	/**
 	 * @param findDeadMethods
 	 */
-	MethodCollectingVisitor(FindDeadMethods findDeadMethods) {
+	CalledMethodCollectingVisitor(FindDeadMethods findDeadMethods) {
 		this.findDeadMethods = findDeadMethods;
 	}
 

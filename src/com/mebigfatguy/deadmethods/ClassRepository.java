@@ -17,6 +17,7 @@
  */
 package com.mebigfatguy.deadmethods;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -33,9 +34,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.tools.ant.types.Path;
+import org.apache.tools.ant.types.resources.FileResource;
 import org.objectweb.asm.ClassReader;
-
-import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Opcodes;
 
 public class ClassRepository {
 
@@ -65,20 +66,21 @@ public class ClassRepository {
 		return Collections.<MethodInfo>unmodifiableSet(info.getMethodInfo());
 	}
 
-	public final ClassLoader createClassLoader(final Path classpath) {
+	private final ClassLoader createClassLoader(final Path classpath) {
 		return AccessController.<URLClassLoader>doPrivileged(new PrivilegedAction<URLClassLoader>() {
 			@Override
 			public URLClassLoader run() {
 				List<URL> urls = new ArrayList<URL>();
 				@SuppressWarnings("unchecked")
-				Iterator<String> it = classpath.iterator();
+				Iterator<FileResource> it = classpath.iterator();
 				while (it.hasNext()) {
 					try {
-						String path = it.next();
-						if (path.endsWith(".jar")) {
-							urls.add(new URL("jar", "", "file://" + path + "!/"));
+						FileResource resource = it.next();
+						File file = resource.getFile();
+						if (file.getAbsolutePath().endsWith(".jar")) {
+							urls.add(new URL("jar", "", "file://" + file.getAbsolutePath() + "!/"));
 						} else {
-							urls.add(new URL("file://" + path));
+							urls.add(new URL("file://" + file.getAbsolutePath()));
 						}
 					} catch (MalformedURLException murle) {
 						//do something

@@ -43,7 +43,7 @@ public class FindDeadMethods extends Task {
     Map<String, Set<String>> hierarchy;
     Set<String> methodNames;
     Set<String> packages;
-    MethodCollectingVisitor methodCollectingVisitor;
+    CalledMethodCollectingVisitor methodCollectingVisitor;
     CalledMethodRemovingClassVisitor calledMethodRemovingVisitor;
 
     public void addConfiguredClasspath(final Path classpath) {
@@ -66,7 +66,7 @@ public class FindDeadMethods extends Task {
 
         methodNames = new TreeSet<String>();
         hierarchy = new HashMap<String, Set<String>>();
-        methodCollectingVisitor =  new MethodCollectingVisitor(this);
+        methodCollectingVisitor =  new CalledMethodCollectingVisitor(this);
         calledMethodRemovingVisitor = new CalledMethodRemovingClassVisitor(this);
 
         collectMethodNames();
@@ -78,6 +78,7 @@ public class FindDeadMethods extends Task {
 
     private void collectMethodNames() throws BuildException
     {
+    	@SuppressWarnings("unchecked")
         Iterator<FileResource> it = path.iterator();
         while (it.hasNext()) {
             FileResource fr = it.next();
