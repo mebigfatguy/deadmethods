@@ -1,4 +1,5 @@
 deadmethods is an ant task that will find uncalled methods regardless of access qualifier.
+Licensed by Apache 2.0 license
 
 This project uses ant, to build do
 
