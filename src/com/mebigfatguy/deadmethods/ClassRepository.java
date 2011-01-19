@@ -17,24 +17,37 @@
  */
 package com.mebigfatguy.deadmethods;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.tools.ant.types.Path;
+import org.objectweb.asm.ClassReader;
 
 import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 
 public class ClassRepository {
 
-	Map<String, ClassInfo> classInfo = new HashMap<String, ClassInfo>();
+	private final ClassLoader loader;
+	private final Map<String, ClassInfo> classInfo;
 
 	public ClassRepository(Path classpath) {
-
+		loader = createClassLoader(classpath);
+		classInfo = new HashMap<String, ClassInfo>();
 	}
 
-	public boolean isInterface(String clsName) {
+	public boolean isInterface(String clsName) throws IOException {
 		ClassInfo info = classInfo.get(clsName);
 		if (info == null) {
 			info = loadClassIntoRepository(clsName);
@@ -43,7 +56,7 @@ public class ClassRepository {
 		return (info.getAccess() & Opcodes.ACC_INTERFACE) != 0;
 	}
 
-	public Set<MethodInfo> getMethodInfo(String clsName) {
+	public Set<MethodInfo> getMethodInfo(String clsName) throws IOException {
 		ClassInfo info = classInfo.get(clsName);
 		if (info == null) {
 			info = loadClassIntoRepository(clsName);
@@ -52,7 +65,42 @@ public class ClassRepository {
 		return Collections.<MethodInfo>unmodifiableSet(info.getMethodInfo());
 	}
 
-	private ClassInfo loadClassIntoRepository(String clsName) {
-		return null;
+	public final ClassLoader createClassLoader(final Path classpath) {
+		return AccessController.<URLClassLoader>doPrivileged(new PrivilegedAction<URLClassLoader>() {
+			@Override
+			public URLClassLoader run() {
+				List<URL> urls = new ArrayList<URL>();
+				@SuppressWarnings("unchecked")
+				Iterator<String> it = classpath.iterator();
+				while (it.hasNext()) {
+					try {
+						String path = it.next();
+						if (path.endsWith(".jar")) {
+							urls.add(new URL("jar", "", "file://" + path + "!/"));
+						} else {
+							urls.add(new URL("file://" + path));
+						}
+					} catch (MalformedURLException murle) {
+						//do something
+					}
+				}
+				return new URLClassLoader(urls.toArray(new URL[urls.size()]));
+			}
+		});
+	}
+
+	private ClassInfo loadClassIntoRepository(String clsName) throws IOException {
+		InputStream is = null;
+		try {
+			is = loader.getResourceAsStream("/" + clsName + ".class");
+			ClassReader cr = new ClassReader(is);
+			ClassRepositoryVisitor crv = new ClassRepositoryVisitor();
+			cr.accept(crv, ClassReader.SKIP_DEBUG|ClassReader.SKIP_CODE);
+			ClassInfo info = crv.getClassInfo();
+			classInfo.put(clsName, info);
+			return info;
+		} finally {
+			Closer.close(is);
+		}
 	}
 }
