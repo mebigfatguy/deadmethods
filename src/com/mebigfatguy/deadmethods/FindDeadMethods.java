@@ -72,8 +72,7 @@ public class FindDeadMethods extends Task {
 	        }
 
 	        // Remove interface methods implemented in classes that implement the interface
-	        for (String className : repo) {
-	        	ClassInfo classInfo = repo.getClassInfo(className);
+	        for (ClassInfo classInfo : repo.getAllClassInfos()) {
 	        	if (classInfo.isInterface()) {
 	        		for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
 	        			clearDerivedMethods(allMethods, classInfo, methodInfo.getMethodName() + methodInfo.getMethodSignature());

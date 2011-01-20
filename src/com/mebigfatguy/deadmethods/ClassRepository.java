@@ -26,6 +26,7 @@ import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -58,6 +59,10 @@ public class ClassRepository implements Iterable<String> {
 			info = loadClassIntoRepository(clsName);
 		}
 		return info;
+	}
+
+	public Collection<ClassInfo> getAllClassInfos() {
+		return Collections.<ClassInfo>unmodifiableCollection(classInfo.values());
 	}
 
 	public Set<MethodInfo> getMethodInfo(String clsName) throws IOException {
