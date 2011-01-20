@@ -63,6 +63,24 @@ public class FindDeadMethods extends Task {
 	        	}
 	        }
 
+	        // Remove methods in Object
+	        {
+	        	ClassInfo info = repo.getClassInfo("java/lang/Object");
+	        	for (MethodInfo methodInfo : info.getMethodInfo()) {
+        			clearDerivedMethods(allMethods, info, methodInfo.getMethodName() + methodInfo.getMethodSignature());
+        		}
+	        }
+
+	        // Remove interface methods implemented in classes that implement the interface
+	        for (String className : repo) {
+	        	ClassInfo classInfo = repo.getClassInfo(className);
+	        	if (classInfo.isInterface()) {
+	        		for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
+	        			clearDerivedMethods(allMethods, classInfo, methodInfo.getMethodName() + methodInfo.getMethodSignature());
+	        		}
+	        	}
+	        }
+
 	        for (String className : repo) {
 	        	InputStream is = null;
 	        	try {
@@ -82,6 +100,15 @@ public class FindDeadMethods extends Task {
         } catch (IOException ioe) {
         	throw new BuildException("Failed collecting methods", ioe);
         }
+    }
+
+    private void clearDerivedMethods(Set<String> methods, ClassInfo info, String methodInfo) throws IOException {
+    	Set<ClassInfo> derivedInfos = info.getDerivedClasses();
+
+    	for (ClassInfo derivedInfo : derivedInfos) {
+    		methods.remove(derivedInfo.getClassName() + ":" + methodInfo);
+    		clearDerivedMethods(methods, derivedInfo, methodInfo);
+    	}
     }
 
     /** for testing only */
