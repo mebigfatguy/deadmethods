@@ -17,6 +17,7 @@
  */
 package com.mebigfatguy.deadmethods;
 
+import java.io.IOException;
 import java.util.Set;
 
 import org.objectweb.asm.AnnotationVisitor;
@@ -108,6 +109,12 @@ public class CalledMethodRemovingMethodVisitor implements MethodVisitor {
     public void visitMethodInsn(final int opcode, final String owner, final String name, final String desc) {
     	String methodInfo = owner + ":" + name + desc;
     	methods.remove(methodInfo);
+
+    	try {
+    		ClassInfo info = repo.getClassInfo(owner);
+    		clearDerivedMethods(info, name + desc);
+    	} catch (IOException ioe) {
+    	}
     }
 
     @Override
@@ -133,5 +140,14 @@ public class CalledMethodRemovingMethodVisitor implements MethodVisitor {
 
     @Override
     public void visitVarInsn(final int opcode, final int var) {
+    }
+
+    private void clearDerivedMethods(ClassInfo info, String methodInfo) throws IOException {
+    	Set<ClassInfo> derivedInfos = info.getDerivedClasses();
+
+    	for (ClassInfo derivedInfo : derivedInfos) {
+    		methods.remove(derivedInfo.getClassName() + ":" + methodInfo);
+    		clearDerivedMethods(derivedInfo, methodInfo);
+    	}
     }
 }

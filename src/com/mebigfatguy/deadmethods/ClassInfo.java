@@ -17,6 +17,7 @@
  */
 package com.mebigfatguy.deadmethods;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -69,6 +70,10 @@ public class ClassInfo {
 
 	public void addDerivedClass(ClassInfo derived) {
 		derivedClasses.add(derived);
+	}
+
+	public Set<ClassInfo> getDerivedClasses() {
+		return Collections.<ClassInfo>unmodifiableSet(derivedClasses);
 	}
 
 	@Override
