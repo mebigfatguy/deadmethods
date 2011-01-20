@@ -17,8 +17,6 @@
  */
 package com.mebigfatguy.deadmethods;
 
-import java.util.Set;
-
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.Label;
@@ -104,7 +102,7 @@ public class CalledMethodRemovingMethodVisitor implements MethodVisitor {
 
     @Override
     public void visitMethodInsn(final int opcode, final String owner, final String name, final String desc) {
-        this.findDeadMethods.methodNames.remove(owner + ":" + name + desc);
+//        this.findDeadMethods.methodNames.remove(owner + ":" + name + desc);
         removeDerivedCalls(owner, name + desc);
     }
 
@@ -134,12 +132,12 @@ public class CalledMethodRemovingMethodVisitor implements MethodVisitor {
     }
 
     private void removeDerivedCalls(final String clsName, final String methodDesc) {
-        Set<String> children = this.findDeadMethods.hierarchy.get(clsName);
-        if (children != null) {
-            for (String child : children) {
-                this.findDeadMethods.methodNames.remove(child + ":" + methodDesc);
-                removeDerivedCalls(child, methodDesc);
-            }
-        }
+//        Set<String> children = this.findDeadMethods.hierarchy.get(clsName);
+//        if (children != null) {
+//            for (String child : children) {
+//                this.findDeadMethods.methodNames.remove(child + ":" + methodDesc);
+//                removeDerivedCalls(child, methodDesc);
+//            }
+//        }
     }
 }

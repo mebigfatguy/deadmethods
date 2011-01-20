@@ -127,8 +127,9 @@
 			<classpath refid="deadmethods.test.classpath"/>
 		</taskdef>
 	
-		<deadmethods packages="com.mebigfatguy">
+		<deadmethods>
 			<classpath refid="deadmethods.classes.classpath"/>
+			<auxClasspath refid="deadmethods.test.classpath"/>
 		</deadmethods>
 	</target>
 </project>

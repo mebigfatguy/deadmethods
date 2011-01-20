@@ -40,4 +40,9 @@ public class MethodInfo {
 	public int getMethodAccess() {
 		return methodAccess;
 	}
+
+	@Override
+	public String toString() {
+		return methodName + methodSignature;
+	}
 }

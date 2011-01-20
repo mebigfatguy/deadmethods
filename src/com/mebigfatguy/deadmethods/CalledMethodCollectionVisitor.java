@@ -17,9 +17,6 @@
  */
 package com.mebigfatguy.deadmethods;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
@@ -54,14 +51,14 @@ class CalledMethodCollectingVisitor implements ClassVisitor {
     }
 
     private void addHierarchy(final String superName, final String subName) {
-        if (!superName.equals(subName)) {
-            Set<String> children = this.findDeadMethods.hierarchy.get(superName);
-            if (children == null) {
-                children = new HashSet<String>();
-                this.findDeadMethods.hierarchy.put(superName, children);
-            }
-            children.add(subName);
-        }
+//        if (!superName.equals(subName)) {
+//            Set<String> children = this.findDeadMethods.hierarchy.get(superName);
+//            if (children == null) {
+//                children = new HashSet<String>();
+//                this.findDeadMethods.hierarchy.put(superName, children);
+//            }
+//            children.add(subName);
+//        }
     }
 
     @Override
@@ -88,13 +85,13 @@ class CalledMethodCollectingVisitor implements ClassVisitor {
 
     @Override
     public MethodVisitor visitMethod(final int access, final String name, final String desc, final String signature, final String[] exceptions) {
-        if (!name.equals("<clinit>")) {
-            if (!m_skip) {
-                if ((access & Opcodes.ACC_SYNTHETIC) == 0) {
-                    this.findDeadMethods.methodNames.add(m_clsName + ":" + name + desc);
-                }
-            }
-        }
+//        if (!name.equals("<clinit>")) {
+//            if (!m_skip) {
+//                if ((access & Opcodes.ACC_SYNTHETIC) == 0) {
+//                    this.findDeadMethods.methodNames.add(m_clsName + ":" + name + desc);
+//                }
+//            }
+//        }
         return null;
     }
 

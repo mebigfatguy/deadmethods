@@ -28,6 +28,7 @@ import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -38,13 +39,17 @@ import org.apache.tools.ant.types.resources.FileResource;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 
-public class ClassRepository {
+public class ClassRepository implements Iterable<String> {
 
+	private final Path path;
+	private final Path auxPath;
 	private final ClassLoader loader;
 	private final Map<String, ClassInfo> classInfo;
 
-	public ClassRepository(Path classpath) {
-		loader = createClassLoader(classpath);
+	public ClassRepository(Path classpath, Path auxClassPath) {
+		path = classpath;
+		auxPath = auxClassPath;
+		loader = createClassLoader(classpath, auxClassPath);
 		classInfo = new HashMap<String, ClassInfo>();
 	}
 
@@ -66,35 +71,53 @@ public class ClassRepository {
 		return Collections.<MethodInfo>unmodifiableSet(info.getMethodInfo());
 	}
 
-	private final ClassLoader createClassLoader(final Path classpath) {
+
+
+	@Override
+	public Iterator<String> iterator() {
+		return new PathIterator(path);
+	}
+
+	private final ClassLoader createClassLoader(final Path classpath, final Path auxClassPath) {
 		return AccessController.<URLClassLoader>doPrivileged(new PrivilegedAction<URLClassLoader>() {
 			@Override
 			public URLClassLoader run() {
-				List<URL> urls = new ArrayList<URL>();
-				@SuppressWarnings("unchecked")
-				Iterator<FileResource> it = classpath.iterator();
-				while (it.hasNext()) {
-					try {
-						FileResource resource = it.next();
-						File file = resource.getFile();
-						if (file.getAbsolutePath().endsWith(".jar")) {
-							urls.add(new URL("jar", "", "file://" + file.getAbsolutePath() + "!/"));
-						} else {
-							urls.add(new URL("file://" + file.getAbsolutePath()));
-						}
-					} catch (MalformedURLException murle) {
-						//do something
-					}
-				}
+				Set<URL> urls = new HashSet<URL>();
+
+				urls.addAll(convertPathToURLs(classpath));
+				urls.addAll(convertPathToURLs(auxClassPath));
+
 				return new URLClassLoader(urls.toArray(new URL[urls.size()]));
 			}
 		});
 	}
 
+	private List<URL> convertPathToURLs(Path path) {
+		List<URL> urls = new ArrayList<URL>();
+
+		@SuppressWarnings("unchecked")
+		Iterator<FileResource> it = path.iterator();
+		while (it.hasNext()) {
+			try {
+				FileResource resource = it.next();
+				File file = resource.getFile();
+				if (file.getAbsolutePath().endsWith(".jar")) {
+					urls.add(new URL("jar", "", "file://" + file.getAbsolutePath() + "!/"));
+				} else {
+					urls.add(file.toURI().toURL());
+				}
+			} catch (MalformedURLException murle) {
+				//do something
+			}
+		}
+
+		return urls;
+	}
+
 	private ClassInfo loadClassIntoRepository(String clsName) throws IOException {
 		InputStream is = null;
 		try {
-			is = loader.getResourceAsStream("/" + clsName + ".class");
+			is = loader.getResourceAsStream(clsName + ".class");
 			ClassReader cr = new ClassReader(is);
 			ClassRepositoryVisitor crv = new ClassRepositoryVisitor();
 			cr.accept(crv, ClassReader.SKIP_DEBUG|ClassReader.SKIP_CODE);
