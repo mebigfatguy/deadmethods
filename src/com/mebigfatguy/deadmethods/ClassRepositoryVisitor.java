@@ -34,7 +34,7 @@ public class ClassRepositoryVisitor implements ClassVisitor {
 
     @Override
     public void visit(final int version, final int access, final String name, final String signature, final String superName, final String[] interfaces) {
-    	classInfo = new ClassInfo(name, access);
+    	classInfo = new ClassInfo(name, superName, interfaces, access);
     }
 
     @Override

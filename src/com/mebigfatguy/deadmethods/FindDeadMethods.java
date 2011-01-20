@@ -55,10 +55,11 @@ public class FindDeadMethods extends Task {
         Set<String> allMethods = new HashSet<String>();
         try {
 	        for (String className : repo) {
-	        	Set<MethodInfo> methods = repo.getMethodInfo(className);
+	        	ClassInfo classInfo = repo.getClassInfo(className);
+        		Set<MethodInfo> methods = classInfo.getMethodInfo();
 
-	        	for (MethodInfo info : methods) {
-	        		allMethods.add(className + ":" + info.getMethodName() + info.getMethodSignature());
+	        	for (MethodInfo methodInfo : methods) {
+	        		allMethods.add(className + ":" + methodInfo.getMethodName() + methodInfo.getMethodSignature());
 	        	}
 	        }
 

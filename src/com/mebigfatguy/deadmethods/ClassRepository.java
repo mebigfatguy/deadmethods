@@ -37,7 +37,6 @@ import java.util.Set;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.resources.FileResource;
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.Opcodes;
 
 public class ClassRepository implements Iterable<String> {
 
@@ -53,13 +52,12 @@ public class ClassRepository implements Iterable<String> {
 		classInfo = new HashMap<String, ClassInfo>();
 	}
 
-	public boolean isInterface(String clsName) throws IOException {
+	public ClassInfo getClassInfo(String clsName) throws IOException {
 		ClassInfo info = classInfo.get(clsName);
 		if (info == null) {
 			info = loadClassIntoRepository(clsName);
 		}
-
-		return (info.getAccess() & Opcodes.ACC_INTERFACE) != 0;
+		return info;
 	}
 
 	public Set<MethodInfo> getMethodInfo(String clsName) throws IOException {
@@ -127,6 +125,19 @@ public class ClassRepository implements Iterable<String> {
 			cr.accept(crv, ClassReader.SKIP_DEBUG|ClassReader.SKIP_CODE);
 			ClassInfo info = crv.getClassInfo();
 			classInfo.put(clsName, info);
+
+			if (!"java/lang/Object".equals(clsName)) {
+				String superClassName = info.getSuperClassName();
+				ClassInfo superInfo = getClassInfo(superClassName);
+				superInfo.addDerivedClass(info);
+
+				String[] interfaceNames = info.getInterfaceNames();
+				for (String interfaceName : interfaceNames) {
+					ClassInfo infInfo = getClassInfo(interfaceName);
+					infInfo.addDerivedClass(info);
+				}
+			}
+
 			return info;
 		} finally {
 			Closer.close(is);

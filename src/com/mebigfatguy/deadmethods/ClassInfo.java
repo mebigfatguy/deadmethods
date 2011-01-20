@@ -20,15 +20,23 @@ package com.mebigfatguy.deadmethods;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
+
 public class ClassInfo {
 	private final String className;
+	private final String superClassName;
+	private final String[] interfaces;
 	private final int classAccess;
 	private final Set<MethodInfo> methodInfo;
+	private final Set<ClassInfo> derivedClasses;
 
-	public ClassInfo(String name, int access) {
+	public ClassInfo(String name, String superName, String[] infs, int access) {
 		className = name;
+		superClassName = superName;
+		interfaces = infs;
 		classAccess = access;
 		methodInfo = new HashSet<MethodInfo>();
+		derivedClasses = new HashSet<ClassInfo>();
 	}
 
 	public void addMethod(String name, String signature, int access) {
@@ -39,6 +47,18 @@ public class ClassInfo {
 		return className;
 	}
 
+	public String getSuperClassName() {
+		return superClassName;
+	}
+
+	public String[] getInterfaceNames() {
+		return interfaces;
+	}
+
+	public boolean isInterface() {
+		return (classAccess & Opcodes.ACC_INTERFACE) != 0;
+	}
+
 	public int getAccess() {
 		return classAccess;
 	}
@@ -47,5 +67,12 @@ public class ClassInfo {
 		return methodInfo;
 	}
 
+	public void addDerivedClass(ClassInfo derived) {
+		derivedClasses.add(derived);
+	}
 
+	@Override
+	public String toString() {
+		return className;
+	}
 }
