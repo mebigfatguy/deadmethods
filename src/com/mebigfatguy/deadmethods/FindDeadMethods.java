@@ -19,12 +19,15 @@ package com.mebigfatguy.deadmethods;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Path;
+import org.objectweb.asm.ClassReader;
 
 public class FindDeadMethods extends Task {
     Path path;
@@ -49,11 +52,32 @@ public class FindDeadMethods extends Task {
         }
 
         ClassRepository repo = new ClassRepository(path, auxPath);
-
+        Set<String> allMethods = new HashSet<String>();
         try {
 	        for (String className : repo) {
 	        	Set<MethodInfo> methods = repo.getMethodInfo(className);
+
+	        	for (MethodInfo info : methods) {
+	        		allMethods.add(className + ":" + info.getMethodName() + info.getMethodSignature());
+	        	}
 	        }
+
+	        for (String className : repo) {
+	        	InputStream is = null;
+	        	try {
+	        		is = repo.getClassStream(className);
+
+	        		ClassReader r = new ClassReader(is);
+	        		r.accept(new CalledMethodRemovingClassVisitor(repo, allMethods), ClassReader.SKIP_DEBUG);
+	        	} finally {
+	        		Closer.close(is);
+	        	}
+	        }
+
+	        for (String m : allMethods) {
+	        	System.out.println(m);
+	        }
+
         } catch (IOException ioe) {
         	throw new BuildException("Failed collecting methods", ioe);
         }

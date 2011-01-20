@@ -17,6 +17,8 @@
  */
 package com.mebigfatguy.deadmethods;
 
+import java.util.Set;
+
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.Label;
@@ -24,10 +26,12 @@ import org.objectweb.asm.MethodVisitor;
 
 public class CalledMethodRemovingMethodVisitor implements MethodVisitor {
 
-	private final FindDeadMethods findDeadMethods;
+	private final ClassRepository repo;
+	private final Set<String> methods;
 
-	public CalledMethodRemovingMethodVisitor(FindDeadMethods findDeadMethods) {
-		this.findDeadMethods = findDeadMethods;
+	public CalledMethodRemovingMethodVisitor(ClassRepository repository, Set<String> allMethods) {
+		repo = repository;
+		methods = allMethods;
 	}
 
 	@Override
@@ -102,8 +106,8 @@ public class CalledMethodRemovingMethodVisitor implements MethodVisitor {
 
     @Override
     public void visitMethodInsn(final int opcode, final String owner, final String name, final String desc) {
-//        this.findDeadMethods.methodNames.remove(owner + ":" + name + desc);
-        removeDerivedCalls(owner, name + desc);
+    	String methodInfo = owner + ":" + name + desc;
+    	methods.remove(methodInfo);
     }
 
     @Override
@@ -129,15 +133,5 @@ public class CalledMethodRemovingMethodVisitor implements MethodVisitor {
 
     @Override
     public void visitVarInsn(final int opcode, final int var) {
-    }
-
-    private void removeDerivedCalls(final String clsName, final String methodDesc) {
-//        Set<String> children = this.findDeadMethods.hierarchy.get(clsName);
-//        if (children != null) {
-//            for (String child : children) {
-//                this.findDeadMethods.methodNames.remove(child + ":" + methodDesc);
-//                removeDerivedCalls(child, methodDesc);
-//            }
-//        }
     }
 }

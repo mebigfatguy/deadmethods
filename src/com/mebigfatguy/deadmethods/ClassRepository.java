@@ -114,10 +114,14 @@ public class ClassRepository implements Iterable<String> {
 		return urls;
 	}
 
+	public InputStream getClassStream(String clsName) {
+		return loader.getResourceAsStream(clsName + ".class");
+	}
+
 	private ClassInfo loadClassIntoRepository(String clsName) throws IOException {
 		InputStream is = null;
 		try {
-			is = loader.getResourceAsStream(clsName + ".class");
+			is = getClassStream(clsName);
 			ClassReader cr = new ClassReader(is);
 			ClassRepositoryVisitor crv = new ClassRepositoryVisitor();
 			cr.accept(crv, ClassReader.SKIP_DEBUG|ClassReader.SKIP_CODE);

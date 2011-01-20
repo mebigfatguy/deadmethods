@@ -17,6 +17,8 @@
  */
 package com.mebigfatguy.deadmethods;
 
+import java.util.Set;
+
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
@@ -28,8 +30,8 @@ class CalledMethodRemovingClassVisitor implements ClassVisitor {
 
     private final CalledMethodRemovingMethodVisitor m_calledMethodRemovingMethodVisitor;
 
-    public CalledMethodRemovingClassVisitor(FindDeadMethods findDeadMethods) {
-        m_calledMethodRemovingMethodVisitor = new CalledMethodRemovingMethodVisitor(findDeadMethods);
+    public CalledMethodRemovingClassVisitor(ClassRepository repository, Set<String> methods) {
+        m_calledMethodRemovingMethodVisitor = new CalledMethodRemovingMethodVisitor(repository, methods);
     }
 
     @Override
