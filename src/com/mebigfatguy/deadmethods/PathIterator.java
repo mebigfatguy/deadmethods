@@ -34,10 +34,10 @@ import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.resources.FileResource;
 
 public class PathIterator implements Iterator<String> {
-	@SuppressWarnings("unchecked")
 	Iterator<FileResource> frIt;
 	Iterator<String> subIt = null;
 
+	@SuppressWarnings("unchecked")
 	public PathIterator(Path classPath) {
 		frIt = classPath.iterator();
 	}
@@ -182,7 +182,7 @@ public class PathIterator implements Iterator<String> {
 		private String nextFile;
 
 
-		public DirectoryIterator(File dir) throws IOException {
+		public DirectoryIterator(File dir) {
 			root = dir.getAbsolutePath();
 			paths = new ArrayList<File>();
 			paths.add(dir);
