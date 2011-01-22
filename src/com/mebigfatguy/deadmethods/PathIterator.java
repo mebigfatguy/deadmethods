@@ -105,7 +105,7 @@ public class PathIterator implements Iterator<String> {
 		}
 	}
 
-	class JarIterator implements Iterator<String> {
+	static class JarIterator implements Iterator<String> {
 
 		private JarInputStream jis;
 		private String nextEntry;
@@ -176,7 +176,7 @@ public class PathIterator implements Iterator<String> {
 		}
 	}
 
-	class DirectoryIterator implements Iterator<String> {
+	static class DirectoryIterator implements Iterator<String> {
 		private final String root;
 		private final List<File> paths;
 		private String nextFile;

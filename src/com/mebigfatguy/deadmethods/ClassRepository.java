@@ -42,13 +42,11 @@ import org.objectweb.asm.ClassReader;
 public class ClassRepository implements Iterable<String> {
 
 	private final Path path;
-	private final Path auxPath;
 	private final ClassLoader loader;
 	private final Map<String, ClassInfo> classInfo;
 
 	public ClassRepository(Path classpath, Path auxClassPath) {
 		path = classpath;
-		auxPath = auxClassPath;
 		loader = createClassLoader(classpath, auxClassPath);
 		classInfo = new HashMap<String, ClassInfo>();
 	}
