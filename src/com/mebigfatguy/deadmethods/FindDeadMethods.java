@@ -20,6 +20,7 @@ package com.mebigfatguy.deadmethods;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -77,6 +78,11 @@ public class FindDeadMethods extends Task {
 	        	clearMainMethods(repo, allMethods);
 	        }
 
+	        //Remove no-arg constructors for serializable classes
+	        {
+	        	clearNoArgCtors(repo, allMethods);
+	        }
+
 	        // Remove interface methods implemented in classes that implement the interface
 	        for (ClassInfo classInfo : repo.getAllClassInfos()) {
 	        	if (classInfo.isInterface()) {
@@ -114,6 +120,20 @@ public class FindDeadMethods extends Task {
     		Set<MethodInfo> methodInfo = classInfo.getMethodInfo();
     		if (methodInfo.contains(mainInfo)) {
     		    methods.remove(className + ":" + methodInfo);
+    		}
+    	}
+    }
+
+    private void clearNoArgCtors(ClassRepository repo, Set<String> methods) throws IOException {
+    	MethodInfo ctorInfo = new MethodInfo("<init>", "()V", Opcodes.ACC_STATIC);
+    	for (String className : repo) {
+    		ClassInfo classInfo = repo.getClassInfo(className);
+    		Set<String> infs = new HashSet<String>(Arrays.asList(classInfo.getInterfaceNames()));
+    		if (infs.contains("java/lang/Serializable")) {
+	    		Set<MethodInfo> methodInfo = classInfo.getMethodInfo();
+	    		if (methodInfo.contains(ctorInfo)) {
+	    			methods.remove(className + ":" + methodInfo);
+	    		}
     		}
     	}
     }
