@@ -17,6 +17,8 @@
  */
 package com.mebigfatguy.deadmethods;
 
+import org.objectweb.asm.Opcodes;
+
 public class MethodInfo {
 
 	private final String methodName;
@@ -41,6 +43,21 @@ public class MethodInfo {
 		return methodAccess;
 	}
 
+	@Override
+	public int hashCode() {
+		return methodName.hashCode() ^ methodSignature.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof MethodInfo) {
+			MethodInfo that = (MethodInfo) o;
+			return methodName.equals(that.methodName)
+			    && methodSignature.equals(that.methodSignature)
+			  && ((methodAccess & Opcodes.ACC_STATIC) == (that.methodAccess & Opcodes.ACC_STATIC));
+		}
+		return false;
+	}
 	@Override
 	public String toString() {
 		return methodName + methodSignature;
