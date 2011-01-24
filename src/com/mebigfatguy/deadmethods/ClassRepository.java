@@ -142,6 +142,8 @@ public class ClassRepository implements Iterable<String> {
 			}
 
 			return info;
+		} catch (IOException ioe) {
+			throw new IOException("Failed opening class into repository: " + clsName, ioe);
 		} finally {
 			Closer.close(is);
 		}
