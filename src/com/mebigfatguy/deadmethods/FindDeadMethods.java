@@ -28,6 +28,7 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Path;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Opcodes;
 
 public class FindDeadMethods extends Task {
     Path path;
@@ -71,6 +72,11 @@ public class FindDeadMethods extends Task {
         		}
 	        }
 
+	        // Remove main methods
+	        {
+	        	clearMainMethods(repo, allMethods);
+	        }
+
 	        // Remove interface methods implemented in classes that implement the interface
 	        for (ClassInfo classInfo : repo.getAllClassInfos()) {
 	        	if (classInfo.isInterface()) {
@@ -99,6 +105,17 @@ public class FindDeadMethods extends Task {
         } catch (IOException ioe) {
         	throw new BuildException("Failed collecting methods", ioe);
         }
+    }
+
+    private void clearMainMethods(ClassRepository repo, Set<String> methods) throws IOException {
+    	MethodInfo mainInfo = new MethodInfo("main", "([Ljava/lang/String;)V", Opcodes.ACC_STATIC);
+    	for (String className : repo) {
+    		ClassInfo classInfo = repo.getClassInfo(className);
+    		Set<MethodInfo> methodInfo = classInfo.getMethodInfo();
+    		if (methodInfo.contains(mainInfo)) {
+    		    methods.remove(className + ":" + methodInfo);
+    		}
+    	}
     }
 
     private void clearDerivedMethods(Set<String> methods, ClassInfo info, String methodInfo) throws IOException {
