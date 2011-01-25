@@ -124,7 +124,7 @@ public class FindDeadMethods extends Task {
     	}
     }
 
-    private void removeJUnitMethods(ClassRepository repo, Set<String> methods) throws IOException {
+    private void removeJUnitMethods(ClassRepository repo, Set<String> methods) {
     	for (ClassInfo classInfo : repo.getAllClassInfos()) {
     		for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
     			if (methodInfo.isTest()) {
