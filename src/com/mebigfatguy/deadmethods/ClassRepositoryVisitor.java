@@ -61,8 +61,8 @@ public class ClassRepositoryVisitor implements ClassVisitor {
 
     @Override
     public MethodVisitor visitMethod(final int access, final String name, final String desc, final String signature, final String[] exceptions) {
-        classInfo.addMethod(name, desc, access);
-        return null;
+        MethodInfo minfo = classInfo.addMethod(name, desc, access);
+        return new MethodRepositoryVisitor(minfo);
     }
 
     @Override

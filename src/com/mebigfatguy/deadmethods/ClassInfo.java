@@ -40,8 +40,10 @@ public class ClassInfo {
 		derivedClasses = new HashSet<ClassInfo>();
 	}
 
-	public void addMethod(String name, String signature, int access) {
-		methodInfo.add(new MethodInfo(name, signature, access));
+	public MethodInfo addMethod(String name, String signature, int access) {
+		MethodInfo minfo = new MethodInfo(name, signature, access);
+		methodInfo.add(minfo);
+		return minfo;
 	}
 
 	public String getClassName() {

@@ -24,11 +24,13 @@ public class MethodInfo {
 	private final String methodName;
 	private final String methodSignature;
 	private final int methodAccess;
+	private boolean isTest;
 
 	public MethodInfo(String name, String signature, int access) {
 		methodName = name;
 		methodSignature = signature;
 		methodAccess = access;
+		isTest = false;
 	}
 
 	public String getMethodName() {
@@ -41,6 +43,14 @@ public class MethodInfo {
 
 	public int getMethodAccess() {
 		return methodAccess;
+	}
+
+	public boolean isTest() {
+		return isTest;
+	}
+
+	public void setTest(boolean test) {
+		isTest = test;
 	}
 
 	@Override

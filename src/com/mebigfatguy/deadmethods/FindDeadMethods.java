@@ -65,32 +65,11 @@ public class FindDeadMethods extends Task {
 	        	}
 	        }
 
-	        // Remove methods in Object
-	        {
-	        	ClassInfo info = repo.getClassInfo("java/lang/Object");
-	        	for (MethodInfo methodInfo : info.getMethodInfo()) {
-        			clearDerivedMethods(allMethods, info, methodInfo.getMethodName() + methodInfo.getMethodSignature());
-        		}
-	        }
-
-	        // Remove main methods
-	        {
-	        	clearMainMethods(repo, allMethods);
-	        }
-
-	        //Remove no-arg constructors for serializable classes
-	        {
-	        	clearNoArgCtors(repo, allMethods);
-	        }
-
-	        // Remove interface methods implemented in classes that implement the interface
-	        for (ClassInfo classInfo : repo.getAllClassInfos()) {
-	        	if (classInfo.isInterface()) {
-	        		for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
-	        			clearDerivedMethods(allMethods, classInfo, methodInfo.getMethodName() + methodInfo.getMethodSignature());
-	        		}
-	        	}
-	        }
+	        removeObjectMethods(repo, allMethods);
+	        removeMainMethods(repo, allMethods);
+	        removeNoArgCtors(repo, allMethods);
+	        removeJUnitMethods(repo, allMethods);
+	        removeInterfaceImplementationMethods(repo, allMethods);
 
 	        for (String className : repo) {
 	        	InputStream is = null;
@@ -113,7 +92,14 @@ public class FindDeadMethods extends Task {
         }
     }
 
-    private void clearMainMethods(ClassRepository repo, Set<String> methods) throws IOException {
+    private void removeObjectMethods(ClassRepository repo, Set<String> methods) throws IOException {
+    	ClassInfo info = repo.getClassInfo("java/lang/Object");
+    	for (MethodInfo methodInfo : info.getMethodInfo()) {
+			clearDerivedMethods(methods, info, methodInfo.toString());
+		}
+
+    }
+    private void removeMainMethods(ClassRepository repo, Set<String> methods) throws IOException {
     	MethodInfo mainInfo = new MethodInfo("main", "([Ljava/lang/String;)V", Opcodes.ACC_STATIC);
     	for (String className : repo) {
     		ClassInfo classInfo = repo.getClassInfo(className);
@@ -124,7 +110,7 @@ public class FindDeadMethods extends Task {
     	}
     }
 
-    private void clearNoArgCtors(ClassRepository repo, Set<String> methods) throws IOException {
+    private void removeNoArgCtors(ClassRepository repo, Set<String> methods) throws IOException {
     	MethodInfo ctorInfo = new MethodInfo("<init>", "()V", Opcodes.ACC_STATIC);
     	for (String className : repo) {
     		ClassInfo classInfo = repo.getClassInfo(className);
@@ -136,6 +122,26 @@ public class FindDeadMethods extends Task {
 	    		}
     		}
     	}
+    }
+
+    private void removeJUnitMethods(ClassRepository repo, Set<String> methods) throws IOException {
+    	for (ClassInfo classInfo : repo.getAllClassInfos()) {
+    		for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
+    			if (methodInfo.isTest()) {
+    				methods.remove(classInfo.getClassName() + ":" + methodInfo);
+    			}
+    		}
+    	}
+    }
+
+    private void removeInterfaceImplementationMethods(ClassRepository repo, Set<String> methods) throws IOException {
+    	for (ClassInfo classInfo : repo.getAllClassInfos()) {
+        	if (classInfo.isInterface()) {
+        		for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
+        			clearDerivedMethods(methods, classInfo, methodInfo.toString());
+        		}
+        	}
+        }
     }
 
     private void clearDerivedMethods(Set<String> methods, ClassInfo info, String methodInfo) throws IOException {
