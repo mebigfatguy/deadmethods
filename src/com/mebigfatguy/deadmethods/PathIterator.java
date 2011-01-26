@@ -54,7 +54,7 @@ public class PathIterator implements Iterator<String> {
 			}
 
 			subIt = null;
-		} while (subIt == null);
+		} while ((subIt == null) && frIt.hasNext());
 
 		return false;
 	}
