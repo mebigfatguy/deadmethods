@@ -32,7 +32,9 @@ public class MethodRepositoryVisitor implements MethodVisitor {
 
 	@Override
     public AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
-        if ("Lorg/junit/Test;".equals(desc) || "Lorg/junit/Before;".equals(desc)) {
+        if ("Lorg/junit/Test;".equals(desc)
+        ||  "Lorg/junit/Before;".equals(desc)
+        ||  "Lorg/junit/After;".equals(desc)) {
         	methodInfo.setTest(true);
         }
         return null;
