@@ -53,6 +53,8 @@ public class FindDeadMethods extends Task {
         	auxPath = new Path(getProject());
         }
 
+        TaskFactory.setTask(this);
+
         ClassRepository repo = new ClassRepository(path, auxPath);
         Set<String> allMethods = new HashSet<String>();
         try {
