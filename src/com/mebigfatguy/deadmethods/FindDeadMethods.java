@@ -59,11 +59,13 @@ public class FindDeadMethods extends Task {
         Set<String> allMethods = new HashSet<String>();
         try {
 	        for (String className : repo) {
-	        	ClassInfo classInfo = repo.getClassInfo(className);
-        		Set<MethodInfo> methods = classInfo.getMethodInfo();
+	        	if (!className.startsWith("[")) {
+		        	ClassInfo classInfo = repo.getClassInfo(className);
+	        		Set<MethodInfo> methods = classInfo.getMethodInfo();
 
-	        	for (MethodInfo methodInfo : methods) {
-	        		allMethods.add(className + ":" + methodInfo.getMethodName() + methodInfo.getMethodSignature());
+		        	for (MethodInfo methodInfo : methods) {
+		        		allMethods.add(className + ":" + methodInfo.getMethodName() + methodInfo.getMethodSignature());
+		        	}
 	        	}
 	        }
 
@@ -99,28 +101,26 @@ public class FindDeadMethods extends Task {
     	for (MethodInfo methodInfo : info.getMethodInfo()) {
 			clearDerivedMethods(methods, info, methodInfo.toString());
 		}
-
     }
-    private void removeMainMethods(ClassRepository repo, Set<String> methods) throws IOException {
+
+    private void removeMainMethods(ClassRepository repo, Set<String> methods) {
     	MethodInfo mainInfo = new MethodInfo("main", "([Ljava/lang/String;)V", Opcodes.ACC_STATIC);
-    	for (String className : repo) {
-    		ClassInfo classInfo = repo.getClassInfo(className);
+    	for (ClassInfo classInfo : repo.getAllClassInfos()) {
     		Set<MethodInfo> methodInfo = classInfo.getMethodInfo();
     		if (methodInfo.contains(mainInfo)) {
-    		    methods.remove(className + ":" + methodInfo);
+    		    methods.remove(classInfo.getClassName() + ":" + methodInfo);
     		}
     	}
     }
 
-    private void removeNoArgCtors(ClassRepository repo, Set<String> methods) throws IOException {
+    private void removeNoArgCtors(ClassRepository repo, Set<String> methods) {
     	MethodInfo ctorInfo = new MethodInfo("<init>", "()V", Opcodes.ACC_STATIC);
-    	for (String className : repo) {
-    		ClassInfo classInfo = repo.getClassInfo(className);
+    	for (ClassInfo classInfo : repo.getAllClassInfos()) {
     		Set<String> infs = new HashSet<String>(Arrays.asList(classInfo.getInterfaceNames()));
     		if (infs.contains("java/lang/Serializable")) {
 	    		Set<MethodInfo> methodInfo = classInfo.getMethodInfo();
 	    		if (methodInfo.contains(ctorInfo)) {
-	    			methods.remove(className + ":" + methodInfo);
+	    			methods.remove(classInfo.getClassName() + ":" + methodInfo);
 	    		}
     		}
     	}

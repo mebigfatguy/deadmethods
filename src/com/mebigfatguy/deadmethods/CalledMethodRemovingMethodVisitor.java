@@ -111,8 +111,10 @@ public class CalledMethodRemovingMethodVisitor implements MethodVisitor {
     	methods.remove(methodInfo);
 
     	try {
-    		ClassInfo info = repo.getClassInfo(owner);
-    		clearDerivedMethods(info, name + desc);
+    		if (!owner.startsWith("[")) {
+	    		ClassInfo info = repo.getClassInfo(owner);
+	    		clearDerivedMethods(info, name + desc);
+    		}
     	} catch (IOException ioe) {
     	}
     }

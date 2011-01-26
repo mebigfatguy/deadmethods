@@ -53,7 +53,7 @@ public class ClassRepository implements Iterable<String> {
 
 	public ClassInfo getClassInfo(String clsName) throws IOException {
 		ClassInfo info = classInfo.get(clsName);
-		if (info == null) {
+		if ((info == null) && !clsName.startsWith("[")) {
 			info = loadClassIntoRepository(clsName);
 		}
 		return info;
@@ -132,7 +132,9 @@ public class ClassRepository implements Iterable<String> {
 			if (!"java/lang/Object".equals(clsName)) {
 				String superClassName = info.getSuperClassName();
 				ClassInfo superInfo = getClassInfo(superClassName);
-				superInfo.addDerivedClass(info);
+				if (superInfo != null) {
+					superInfo.addDerivedClass(info);
+				}
 
 				String[] interfaceNames = info.getInterfaceNames();
 				for (String interfaceName : interfaceNames) {
