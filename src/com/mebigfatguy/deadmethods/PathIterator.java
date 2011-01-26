@@ -44,20 +44,35 @@ public class PathIterator implements Iterator<String> {
 
 	@Override
 	public boolean hasNext() {
-		if (subIt == null) {
-			initializeSubIterator();
-		}
+		do {
+			if (subIt == null) {
+				initializeSubIterator();
+			}
 
-		return subIt.hasNext();
+			if (subIt.hasNext()) {
+				return true;
+			}
+
+			subIt = null;
+		} while (subIt == null);
+
+		return false;
 	}
 
 	@Override
 	public String next() {
-		if (subIt == null) {
-			initializeSubIterator();
-		}
+		do {
+			if (subIt == null) {
+				initializeSubIterator();
+			}
 
-		return subIt.next();
+			if (subIt.hasNext()) {
+				return subIt.next();
+			}
+
+			subIt = null;
+		} while (subIt == null);
+		throw new NoSuchElementException();
 	}
 
 	@Override
@@ -227,22 +242,26 @@ public class PathIterator implements Iterator<String> {
 			while (!paths.isEmpty()) {
 
 				File file = paths.remove(paths.size() - 1);
-				if (file.isFile()) {
-					if (file.getName().endsWith(".class")) {
-						String className = file.getAbsolutePath();
-						className = className.substring(root.length() + 1);
-						className = className.substring(0, className.length() - ".class".length());
-						className = className.replaceAll("\\\\", "/");
-						return className;
+				if (file.exists()) {
+					if (file.isFile()) {
+						if (file.getName().endsWith(".class")) {
+							String className = file.getAbsolutePath();
+							className = className.substring(root.length() + 1);
+							className = className.substring(0, className.length() - ".class".length());
+							className = className.replaceAll("\\\\", "/");
+							return className;
+						}
+					} else {
+						File[] files = file.listFiles(new FileFilter() {
+							@Override
+							public boolean accept(File f) {
+								return f.isDirectory() || (f.isFile() && f.getName().endsWith(".class"));
+							}
+						});
+						paths.addAll(Arrays.asList(files));
 					}
 				} else {
-					File[] files = file.listFiles(new FileFilter() {
-						@Override
-						public boolean accept(File f) {
-							return f.isDirectory() || (f.isFile() && f.getName().endsWith(".class"));
-						}
-					});
-					paths.addAll(Arrays.asList(files));
+					TaskFactory.getTask().log("Classpath element doesn't exist - ignored: " + file.getPath());
 				}
 			}
 
