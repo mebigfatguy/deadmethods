@@ -62,6 +62,10 @@ public class ClassInfo {
 		return (classAccess & Opcodes.ACC_INTERFACE) != 0;
 	}
 
+	public boolean isSynthetic() {
+		return (classAccess & Opcodes.ACC_SYNTHETIC) != 0;
+	}
+
 	public int getAccess() {
 		return classAccess;
 	}
