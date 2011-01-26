@@ -88,7 +88,7 @@ public class FindDeadMethods extends Task {
 	        }
 
         } catch (IOException ioe) {
-        	throw new BuildException("Failed collecting methods", ioe);
+        	throw new BuildException("Failed collecting methods: " + ioe.getMessage(), ioe);
         }
     }
 
