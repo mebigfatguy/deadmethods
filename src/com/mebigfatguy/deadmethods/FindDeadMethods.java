@@ -75,6 +75,7 @@ public class FindDeadMethods extends Task {
 	        removeJUnitMethods(repo, allMethods);
 	        removeInterfaceImplementationMethods(repo, allMethods);
 	        removeSyntheticMethods(repo, allMethods);
+	        removeStandardEnumMethods(repo, allMethods);
 
 	        for (String className : repo) {
 	        	InputStream is = null;
@@ -147,7 +148,7 @@ public class FindDeadMethods extends Task {
         }
     }
 
-    private void removeSyntheticMethods(ClassRepository repo, Set<String> methods) throws IOException {
+    private void removeSyntheticMethods(ClassRepository repo, Set<String> methods)  {
     	for (ClassInfo classInfo : repo.getAllClassInfos()) {
     		for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
     			if (methodInfo.isSynthetic()) {
@@ -155,6 +156,13 @@ public class FindDeadMethods extends Task {
     			}
     		}
     	}
+    }
+
+    private void removeStandardEnumMethods(ClassRepository repo, Set<String> methods) throws IOException {
+    	ClassInfo info = repo.getClassInfo("java/lang/Enum");
+    	for (MethodInfo methodInfo : info.getMethodInfo()) {
+			clearDerivedMethods(methods, info, methodInfo.toString());
+		}
     }
 
     private void clearDerivedMethods(Set<String> methods, ClassInfo info, String methodInfo) throws IOException {
