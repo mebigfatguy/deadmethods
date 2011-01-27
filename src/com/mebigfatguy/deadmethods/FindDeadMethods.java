@@ -74,6 +74,7 @@ public class FindDeadMethods extends Task {
 	        removeNoArgCtors(repo, allMethods);
 	        removeJUnitMethods(repo, allMethods);
 	        removeInterfaceImplementationMethods(repo, allMethods);
+	        removeSyntheticMethods(repo, allMethods);
 
 	        for (String className : repo) {
 	        	InputStream is = null;
@@ -144,6 +145,16 @@ public class FindDeadMethods extends Task {
         		}
         	}
         }
+    }
+
+    private void removeSyntheticMethods(ClassRepository repo, Set<String> methods) throws IOException {
+    	for (ClassInfo classInfo : repo.getAllClassInfos()) {
+    		for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
+    			if (methodInfo.isSynthetic()) {
+    				methods.remove(classInfo.getClassName() + ":" + methodInfo);
+    			}
+    		}
+    	}
     }
 
     private void clearDerivedMethods(Set<String> methods, ClassInfo info, String methodInfo) throws IOException {

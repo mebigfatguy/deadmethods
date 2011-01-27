@@ -41,6 +41,10 @@ public class MethodInfo {
 		return methodSignature;
 	}
 
+	public boolean isSynthetic() {
+		return (methodAccess & Opcodes.ACC_SYNTHETIC) != 0;
+	}
+
 	public int getMethodAccess() {
 		return methodAccess;
 	}
