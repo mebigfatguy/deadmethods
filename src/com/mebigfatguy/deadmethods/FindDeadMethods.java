@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
@@ -56,7 +57,7 @@ public class FindDeadMethods extends Task {
         TaskFactory.setTask(this);
 
         ClassRepository repo = new ClassRepository(path, auxPath);
-        Set<String> allMethods = new HashSet<String>();
+        Set<String> allMethods = new TreeSet<String>();
         try {
 	        for (String className : repo) {
 	        	if (!className.startsWith("[")) {
