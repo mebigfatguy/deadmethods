@@ -35,6 +35,7 @@ import org.objectweb.asm.Opcodes;
 public class FindDeadMethods extends Task {
     Path path;
     Path auxPath;
+    Set<String> ignorePackages;
 
     public void addConfiguredClasspath(final Path classpath) {
         path = classpath;
@@ -42,6 +43,11 @@ public class FindDeadMethods extends Task {
 
     public void addConfiguredAuxClasspath(final Path auxClassPath) {
     	auxPath = auxClassPath;
+    }
+
+    public void setIgnorePackages(String packages) {
+    	String[] packs = packages.split("\\s*,\\s*");
+    	ignorePackages = new HashSet<String>(Arrays.asList(packs));
     }
 
     @Override
@@ -54,6 +60,10 @@ public class FindDeadMethods extends Task {
         	auxPath = new Path(getProject());
         }
 
+        if (ignorePackages == null) {
+			ignorePackages = new HashSet<String>();
+		}
+
         TaskFactory.setTask(this);
 
         ClassRepository repo = new ClassRepository(path, auxPath);
@@ -62,10 +72,13 @@ public class FindDeadMethods extends Task {
 	        for (String className : repo) {
 	        	if (!className.startsWith("[")) {
 		        	ClassInfo classInfo = repo.getClassInfo(className);
-	        		Set<MethodInfo> methods = classInfo.getMethodInfo();
+		        	String packageName = classInfo.getPackageName();
+		        	if (!ignorePackages.contains(packageName)) {
+		        		Set<MethodInfo> methods = classInfo.getMethodInfo();
 
-		        	for (MethodInfo methodInfo : methods) {
-		        		allMethods.add(className + ":" + methodInfo.getMethodName() + methodInfo.getMethodSignature());
+			        	for (MethodInfo methodInfo : methods) {
+			        		allMethods.add(className + ":" + methodInfo.getMethodName() + methodInfo.getMethodSignature());
+			        	}
 		        	}
 	        	}
 	        }

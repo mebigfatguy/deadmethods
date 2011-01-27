@@ -50,6 +50,15 @@ public class ClassInfo {
 		return className;
 	}
 
+	public String getPackageName() {
+		int slashPos = className.lastIndexOf('/');
+		if (slashPos < 0) {
+			return "";
+		}
+
+		return className.substring(0, slashPos).replaceAll("/", ".");
+	}
+
 	public String getSuperClassName() {
 		return superClassName;
 	}
