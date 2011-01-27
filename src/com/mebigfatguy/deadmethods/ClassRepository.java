@@ -102,10 +102,14 @@ public class ClassRepository implements Iterable<String> {
 			try {
 				FileResource resource = it.next();
 				File file = resource.getFile();
-				if (file.getAbsolutePath().endsWith(".jar")) {
-					urls.add(new URL("jar", "", "file://" + file.getAbsolutePath() + "!/"));
+				if (file.exists()) {
+					if (file.getAbsolutePath().endsWith(".jar")) {
+						urls.add(new URL("jar", "", "file://" + file.getAbsolutePath() + "!/"));
+					} else {
+						urls.add(file.toURI().toURL());
+					}
 				} else {
-					urls.add(file.toURI().toURL());
+					TaskFactory.getTask().log("ClassPath root does not exist: " + file.getAbsolutePath());
 				}
 			} catch (MalformedURLException murle) {
 				//do something
