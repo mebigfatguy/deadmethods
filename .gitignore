@@ -3,3 +3,5 @@ javadoc/
 
 deadmethods-*.jar
 deadmethods-*.zip
+
+*.class
