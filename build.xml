@@ -23,6 +23,7 @@
 	<property file="build.properties"/>
 
 	<property name="src.dir" value="${basedir}/src"/>
+	<property name="samples.dir" value="${basedir}/samples"/>
 	<property name="classes.dir" value="${basedir}/classes"/>
 	<property name="lib.dir" value="${basedir}/lib"/>
 	<property name="javadoc.dir" value="${basedir}/javadoc"/>
@@ -35,12 +36,14 @@
 	<path id="deadmethods.classpath">
 		<pathelement location="${lib.dir}/ant-1.8.1.jar"/>
 		<pathelement location="${lib.dir}/asm-3.3.jar"/>
+		<pathelement location="${lib.dir}/junit-4.8.2.jar"/>
 	</path>
 	
 	<path id="deadmethods.test.classpath">
 		<pathelement location="${classes.dir}"/>
 		<pathelement location="${lib.dir}/ant-1.8.1.jar"/>
 		<pathelement location="${lib.dir}/asm-3.3.jar"/>
+		<pathelement location="${lib.dir}/junit-4.8.2.jar"/>
 	</path>
 	
 	<path id="deadmethods.classes.classpath">
@@ -66,6 +69,18 @@
 	<target name="compile" depends="-init" description="compiles java files">
 		<javac srcdir="${src.dir}"
 				destdir="${classes.dir}"
+				source="${javac.source}"
+				target="${javac.target}"
+				deprecation="${javac.deprecation}"
+				debug="${javac.debug}"
+				includeantruntime="false">
+			<classpath refid="deadmethods.classpath"/>
+		</javac>
+	</target>
+	
+	<target name="compile_samples" depends="-init" description="compiles java files">
+		<javac srcdir="${samples.dir}"
+				destdir="${samples.dir}"
 				source="${javac.source}"
 				target="${javac.target}"
 				deprecation="${javac.deprecation}"
@@ -117,7 +132,7 @@
 		</javadoc>
 	</target>
 
-	<target name="build" depends="clean, -init, compile, jar" description="builds the deadmethods jar">
+	<target name="build" depends="clean, -init, compile, compile_samples, jar" description="builds the deadmethods jar">
 	</target>
 
 	<target name="release" depends="build, srczip, javadoc" description="prepares everything for a release"/>

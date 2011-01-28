@@ -190,18 +190,20 @@ public class FindDeadMethods extends Task {
 
     /** for testing only */
     public static void main(String[] args) {
+
+    	if (args.length < 1) {
+    		throw new IllegalArgumentException("args must contain classpath root");
+    	}
+
+
     	FindDeadMethods fdm = new FindDeadMethods();
     	Project project = new Project();
     	fdm.setProject(project);
 
     	Path path = new Path(project);
-    	path.setLocation(new File("/home/dave/dev/deadmethods/classes"));
+    	path.setLocation(new File(args[0]));
     	fdm.addConfiguredClasspath(path);
-
-    	Path auxpath = new Path(project);
-    	auxpath.setLocation(new File("/home/dave/dev/deadmethods/lib/ant-1.8.1.jar"));
-    	auxpath.setLocation(new File("/home/dave/dev/deadmethods/lib/asm-3.3.jar"));
-    	fdm.addConfiguredAuxClasspath(auxpath);
+    	fdm.setIgnorePackages("test.ignored");
 
     	fdm.execute();
     }
