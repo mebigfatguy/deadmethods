@@ -174,16 +174,22 @@ public class FindDeadMethods extends Task {
 
     private void removeStandardEnumMethods(ClassRepository repo, Set<String> methods) throws IOException {
     	ClassInfo info = repo.getClassInfo("java/lang/Enum");
-    	for (MethodInfo methodInfo : info.getMethodInfo()) {
-			clearDerivedMethods(methods, info, methodInfo.toString());
-		}
+    	{
+	    	MethodInfo methodInfo = new MethodInfo("valueOf", "(Ljava/lang/String;)?", Opcodes.ACC_PUBLIC);
+	    	clearDerivedMethods(methods, info, methodInfo.toString());
+    	}
+    	{
+	    	MethodInfo methodInfo = new MethodInfo("values", "()[?", Opcodes.ACC_PUBLIC);
+	    	clearDerivedMethods(methods, info, methodInfo.toString());
+    	}
+
     }
 
     private void clearDerivedMethods(Set<String> methods, ClassInfo info, String methodInfo) throws IOException {
     	Set<ClassInfo> derivedInfos = info.getDerivedClasses();
 
     	for (ClassInfo derivedInfo : derivedInfos) {
-    		methods.remove(derivedInfo.getClassName() + ":" + methodInfo);
+    		methods.remove(derivedInfo.getClassName() + ":" + methodInfo.replaceAll("\\?", "L" + derivedInfo.getClassName() + ";"));
     		clearDerivedMethods(methods, derivedInfo, methodInfo);
     	}
     }
