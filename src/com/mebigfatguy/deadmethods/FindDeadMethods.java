@@ -124,7 +124,7 @@ public class FindDeadMethods extends Task {
     	for (ClassInfo classInfo : repo.getAllClassInfos()) {
     		Set<MethodInfo> methodInfo = classInfo.getMethodInfo();
     		if (methodInfo.contains(mainInfo)) {
-    		    methods.remove(classInfo.getClassName() + ":" + methodInfo);
+    		    methods.remove(classInfo.getClassName() + ":main([Ljava/lang/String;)V");
     		}
     	}
     }
