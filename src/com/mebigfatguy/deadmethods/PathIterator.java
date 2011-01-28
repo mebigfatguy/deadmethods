@@ -248,8 +248,7 @@ public class PathIterator implements Iterator<String> {
 							String className = file.getAbsolutePath();
 							className = className.substring(root.length() + 1);
 							className = className.substring(0, className.length() - ".class".length());
-							className = className.replaceAll("\\\\", "/");
-							return className;
+							return className.replaceAll("\\\\", "/");
 						}
 					} else {
 						File[] files = file.listFiles(new FileFilter() {
