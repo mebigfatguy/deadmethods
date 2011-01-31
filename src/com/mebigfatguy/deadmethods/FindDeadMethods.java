@@ -189,7 +189,17 @@ public class FindDeadMethods extends Task {
     	Set<ClassInfo> derivedInfos = info.getDerivedClasses();
 
     	for (ClassInfo derivedInfo : derivedInfos) {
-    		methods.remove(derivedInfo.getClassName() + ":" + methodInfo.replaceAll("\\?", "L" + derivedInfo.getClassName() + ";"));
+    		//regex chokes because of the $ in output classname, so do it the old way
+    		int qMarkPos = methodInfo.indexOf('?');
+    		String appliedMethodInfo;
+    		if (qMarkPos >= 0) {
+    			appliedMethodInfo = methodInfo.substring(0, qMarkPos);
+    			appliedMethodInfo += "L" + derivedInfo.getClassName() + ";";
+    			appliedMethodInfo += methodInfo.substring(qMarkPos+1);
+    		} else {
+    			appliedMethodInfo = methodInfo;
+    		}
+    		methods.remove(derivedInfo.getClassName() + ":" + appliedMethodInfo);
     		clearDerivedMethods(methods, derivedInfo, methodInfo);
     	}
     }
