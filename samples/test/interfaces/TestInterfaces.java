@@ -2,11 +2,11 @@ package test.interfaces;
 
 public class TestInterfaces {
 
-	public void callThruInterface(W w) {
-		w.a();
-		w.b();
-		w.c();
-		w.plain();
+	public void callThruInterface(C c) {
+		c.a();
+		c.b();
+		c.c();
+		((W) c).plain();
 	}
 
 	static class W implements C {
