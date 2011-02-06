@@ -175,10 +175,6 @@ public class PathIterator implements Iterator<String> {
 				while (entry != null) {
 					if (entry.getName().endsWith(".class")) {
 						nextEntry = entry.getName();
-						int slashPos = nextEntry.lastIndexOf('/');
-						if (slashPos >= 0) {
-							nextEntry = nextEntry.substring(slashPos + 1);
-						}
 						nextEntry = nextEntry.substring(0, nextEntry.length() - ".class".length());
 						return nextEntry;
 					}
