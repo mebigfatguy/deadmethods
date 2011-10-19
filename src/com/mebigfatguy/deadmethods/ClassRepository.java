@@ -52,6 +52,10 @@ public class ClassRepository implements Iterable<String> {
 	}
 
 	public ClassInfo getClassInfo(String clsName) throws IOException {
+		if (clsName == null) {
+			return null;
+		}
+
 		ClassInfo info = classInfo.get(clsName);
 		if ((info == null) && !clsName.startsWith("[")) {
 			info = loadClassIntoRepository(clsName);

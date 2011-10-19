@@ -114,6 +114,7 @@ public class CalledMethodRemovingMethodVisitor implements MethodVisitor {
     		if (!owner.startsWith("[")) {
 	    		ClassInfo info = repo.getClassInfo(owner);
 	    		clearDerivedMethods(info, name + desc);
+				clearInheritedMethods(info, name + desc);
     		}
     	} catch (IOException ioe) {
     	}
@@ -150,6 +151,15 @@ public class CalledMethodRemovingMethodVisitor implements MethodVisitor {
     	for (ClassInfo derivedInfo : derivedInfos) {
     		methods.remove(derivedInfo.getClassName() + ":" + methodInfo);
     		clearDerivedMethods(derivedInfo, methodInfo);
+    	}
+    }
+
+    private void clearInheritedMethods(ClassInfo info, String methodInfo) throws IOException {
+    	ClassInfo superInfo = repo.getClassInfo(info.getSuperClassName());
+        while (superInfo != null) {
+    		methods.remove(superInfo.getClassName() + ":" + methodInfo);
+    		clearInheritedMethods(superInfo, methodInfo);
+			superInfo = repo.getClassInfo(superInfo.getSuperClassName());
     	}
     }
 }
