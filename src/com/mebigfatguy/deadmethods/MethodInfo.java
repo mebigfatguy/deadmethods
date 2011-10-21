@@ -17,6 +17,9 @@
  */
 package com.mebigfatguy.deadmethods;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.objectweb.asm.Opcodes;
 
 public class MethodInfo {
@@ -24,6 +27,7 @@ public class MethodInfo {
 	private final String methodName;
 	private final String methodSignature;
 	private final int methodAccess;
+	private Set<String> annotations;
 	private boolean isTest;
 
 	public MethodInfo(String name, String signature, int access) {
@@ -55,6 +59,17 @@ public class MethodInfo {
 
 	public void setTest(boolean test) {
 		isTest = test;
+	}
+	
+	public void addAnnotation(String annotation) {
+	    if (annotations == null) {
+	        annotations = new HashSet<String>();
+	    }
+	    annotations.add(annotation);
+	}
+	
+	public boolean hasAnnotation(String annotation) {
+	    return (annotations != null) && annotations.contains(annotation);
 	}
 
 	@Override

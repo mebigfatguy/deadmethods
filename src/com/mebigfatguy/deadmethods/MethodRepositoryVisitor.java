@@ -37,6 +37,9 @@ public class MethodRepositoryVisitor implements MethodVisitor {
         ||  "Lorg/junit/After;".equals(desc)) {
         	methodInfo.setTest(true);
         }
+        
+        String annotationName = desc.substring(1, desc.length() - 1).replaceAll("/", ".");
+        methodInfo.addAnnotation(annotationName);
         return null;
     }
 
