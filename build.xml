@@ -145,8 +145,6 @@
 		<deadmethods>
 			<classpath refid="deadmethods.classes.classpath"/>
 			<auxClasspath refid="deadmethods.test.classpath"/>
-			<reflectiveAnnotation name="foo.bar.Dud"/>
-			<reflectiveAnnotation name="foo.bar.Nop"/>
 		</deadmethods>
 	</target>
 </project>

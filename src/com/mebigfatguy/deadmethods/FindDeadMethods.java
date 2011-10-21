@@ -239,6 +239,8 @@ public class FindDeadMethods extends Task {
     	Path path = new Path(project);
     	path.setLocation(new File(args[0]));
     	fdm.addConfiguredClasspath(path);
+    	ReflectiveAnnotation ra = fdm.createReflectiveAnnotation();
+    	ra.setName("foo.Bar");
     	fdm.setIgnorePackages("test.ignored");
 
     	fdm.execute();
