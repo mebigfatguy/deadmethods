@@ -36,6 +36,7 @@ public class FindDeadMethods extends Task {
     Path path;
     Path auxPath;
     Set<String> ignorePackages;
+	Set<ReflectiveAnnotation> reflectiveAnnotations = new HashSet<ReflectiveAnnotation>();
 
     public void addConfiguredClasspath(final Path classpath) {
         path = classpath;
@@ -50,6 +51,12 @@ public class FindDeadMethods extends Task {
     	ignorePackages = new HashSet<String>(Arrays.asList(packs));
     }
 
+	public ReflectiveAnnotation createReflectiveAnnotation() {
+		ReflectiveAnnotation ra = new ReflectiveAnnotation();
+		reflectiveAnnotations.add(ra);
+		return ra;
+	}
+	
     @Override
     public void execute() throws BuildException {
         if (path == null) {
@@ -203,6 +210,19 @@ public class FindDeadMethods extends Task {
     		clearDerivedMethods(methods, derivedInfo, methodInfo);
     	}
     }
+
+	public class ReflectiveAnnotation {
+		private String annotationName;
+
+		public void setName(String name) {
+			annotationName = name;
+		}
+
+		@Override
+		public String toString() {	
+			return annotationName;
+		}
+	}
 
     /** for testing only */
     public static void main(String[] args) {
