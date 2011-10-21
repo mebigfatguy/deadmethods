@@ -94,6 +94,7 @@ public class FindDeadMethods extends Task {
 	        removeMainMethods(repo, allMethods);
 	        removeNoArgCtors(repo, allMethods);
 	        removeJUnitMethods(repo, allMethods);
+	        removeReflectiveAnnotatedMethods(repo, allMethods);
 	        removeInterfaceImplementationMethods(repo, allMethods);
 	        removeSyntheticMethods(repo, allMethods);
 	        removeStandardEnumMethods(repo, allMethods);
@@ -157,6 +158,20 @@ public class FindDeadMethods extends Task {
     			}
     		}
     	}
+    }
+    
+    private void removeReflectiveAnnotatedMethods(ClassRepository repo, Set<String> methods) {
+        for (ClassInfo classInfo : repo.getAllClassInfos()) {
+            for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
+                if (methodInfo.hasAnnotations()) {
+                    for (ReflectiveAnnotation ra : reflectiveAnnotations) {
+                        if (methodInfo.hasAnnotation(ra.toString())) {
+                            methods.remove(classInfo.getClassName() + ":" + methodInfo);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private void removeInterfaceImplementationMethods(ClassRepository repo, Set<String> methods) throws IOException {
@@ -240,7 +255,7 @@ public class FindDeadMethods extends Task {
     	path.setLocation(new File(args[0]));
     	fdm.addConfiguredClasspath(path);
     	ReflectiveAnnotation ra = fdm.createReflectiveAnnotation();
-    	ra.setName("foo.Bar");
+    	ra.setName("test.reflective.ReflectiveUse");
     	fdm.setIgnorePackages("test.ignored");
 
     	fdm.execute();
