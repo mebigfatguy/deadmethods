@@ -36,10 +36,12 @@ import org.apache.tools.ant.types.resources.FileResource;
 public class PathIterator implements Iterator<String> {
 	Iterator<FileResource> frIt;
 	Iterator<String> subIt = null;
+	String extension;
 
 	@SuppressWarnings("unchecked")
-	public PathIterator(Path classPath) {
+	public PathIterator(Path classPath, String fileExtension) {
 		frIt = classPath.iterator();
+		extension = fileExtension;
 	}
 
 	@Override
@@ -88,10 +90,10 @@ public class PathIterator implements Iterator<String> {
 	            if (dir.isFile()) {
 	            	File jar = dir;
 	            	if (jar.getName().endsWith(".jar")) {
-	            		subIt = new JarIterator(jar);
+	            		subIt = new JarIterator(jar, extension);
 	            	}
 	            } else {
-	            	subIt = new DirectoryIterator(dir);
+	            	subIt = new DirectoryIterator(dir, extension);
 	            }
 			} catch (IOException ioe) {
 
@@ -124,10 +126,12 @@ public class PathIterator implements Iterator<String> {
 
 		private JarInputStream jis;
 		private String nextEntry;
+		private String extension;
 
-		public JarIterator(File jar) throws IOException {
+		public JarIterator(File jar, String fileExtension) throws IOException {
 			jis = new JarInputStream(new BufferedInputStream(new FileInputStream(jar)));
 			nextEntry = null;
+			extension = fileExtension;
 		}
 
 		@Override
@@ -173,9 +177,11 @@ public class PathIterator implements Iterator<String> {
 			try {
 				JarEntry entry = jis.getNextJarEntry();
 				while (entry != null) {
-					if (entry.getName().endsWith(".class")) {
+					if (entry.getName().endsWith(extension)) {
 						nextEntry = entry.getName();
-						nextEntry = nextEntry.substring(0, nextEntry.length() - ".class".length());
+						if (nextEntry.endsWith(".class")) {
+						    nextEntry = nextEntry.substring(0, nextEntry.length() - ".class".length());
+						}
 						return nextEntry;
 					}
 					entry = jis.getNextJarEntry();
@@ -191,13 +197,15 @@ public class PathIterator implements Iterator<String> {
 		private final String root;
 		private final List<File> paths;
 		private String nextFile;
+		private String extension;
 
 
-		public DirectoryIterator(File dir) {
+		public DirectoryIterator(File dir, String fileExtension) {
 			root = dir.getAbsolutePath();
 			paths = new ArrayList<File>();
 			paths.add(dir);
 			nextFile = null;
+			extension = fileExtension;
 		}
 
 		@Override
@@ -240,17 +248,19 @@ public class PathIterator implements Iterator<String> {
 				File file = paths.remove(paths.size() - 1);
 				if (file.exists()) {
 					if (file.isFile()) {
-						if (file.getName().endsWith(".class")) {
-							String className = file.getAbsolutePath();
-							className = className.substring(root.length() + 1);
-							className = className.substring(0, className.length() - ".class".length());
-							return className.replaceAll("\\\\", "/");
+						if (file.getName().endsWith(extension)) {
+							String fileName = file.getAbsolutePath();
+							fileName = fileName.substring(root.length() + 1);
+							if (fileName.endsWith(".class")) {
+							    fileName = fileName.substring(0, fileName.length() - ".class".length());
+							}
+							return fileName.replaceAll("\\\\", "/");
 						}
 					} else {
 						File[] files = file.listFiles(new FileFilter() {
 							@Override
 							public boolean accept(File f) {
-								return f.isDirectory() || (f.isFile() && f.getName().endsWith(".class"));
+								return f.isDirectory() || (f.isFile() && f.getName().endsWith(extension));
 							}
 						});
 						paths.addAll(Arrays.asList(files));

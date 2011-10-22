@@ -80,7 +80,7 @@ public class ClassRepository implements Iterable<String> {
 
 	@Override
 	public Iterator<String> iterator() {
-		return new PathIterator(path);
+		return new PathIterator(path, ".class");
 	}
 
 	private final ClassLoader createClassLoader(final Path classpath, final Path auxClassPath) {
