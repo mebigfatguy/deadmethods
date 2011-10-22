@@ -82,6 +82,10 @@ public class ClassRepository implements Iterable<String> {
 	public Iterator<String> iterator() {
 		return new PathIterator(path, ".class");
 	}
+	
+	public Iterator<String> xmlIterator() {
+	    return new PathIterator(path, ".xml");
+	}
 
 	private final ClassLoader createClassLoader(final Path classpath, final Path auxClassPath) {
 		return AccessController.<URLClassLoader>doPrivileged(new PrivilegedAction<URLClassLoader>() {
@@ -125,6 +129,10 @@ public class ClassRepository implements Iterable<String> {
 
 	public InputStream getClassStream(String clsName) {
 		return loader.getResourceAsStream(clsName + ".class");
+	}
+	
+	public InputStream getXMLStream(String xmlName) {
+	    return loader.getResourceAsStream(xmlName);
 	}
 
 	private ClassInfo loadClassIntoRepository(String clsName) throws IOException {

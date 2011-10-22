@@ -17,13 +17,24 @@
  */
 package com.mebigfatguy.deadmethods;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
@@ -31,6 +42,10 @@ import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Path;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 public class FindDeadMethods extends Task {
     Path path;
@@ -99,7 +114,8 @@ public class FindDeadMethods extends Task {
 	        removeSyntheticMethods(repo, allMethods);
 	        removeStandardEnumMethods(repo, allMethods);
 	        removeSpecialSerializableMethods(repo, allMethods);
-	        removeAnnotations(repo, allMethods);
+	        removeAnnotations(repo, allMethods);     
+	        removeSpringMethods(repo, allMethods);
 
 	        for (String className : repo) {
 	        	InputStream is = null;
@@ -116,8 +132,7 @@ public class FindDeadMethods extends Task {
 	        for (String m : allMethods) {
 	        	System.out.println(m);
 	        }
-
-        } catch (IOException ioe) {
+        } catch (Exception ioe) {
         	throw new BuildException("Failed collecting methods: " + ioe.getMessage(), ioe);
         }
     }
@@ -230,6 +245,68 @@ public class FindDeadMethods extends Task {
                 for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
                     methods.remove(classInfo.getClassName() + ":" + methodInfo);
                 }
+            }
+        }
+    }
+    
+    private void removeSpringMethods(ClassRepository repo, Set<String> methods) throws ParserConfigurationException, XPathExpressionException {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        XPathFactory xpf = XPathFactory.newInstance();
+        XPath xp = xpf.newXPath();
+        XPathExpression beanExpression = xp.compile("/beans/bean");
+        XPathExpression beanClassExpression = xp.compile("@class");
+        XPathExpression initMethodExpression = xp.compile("@init-method");
+        XPathExpression destroyMethodExpression = xp.compile("@destroy-method");
+        XPathExpression propertyExpression = xp.compile("property");
+        XPathExpression propertyNameExpression = xp.compile("@name");
+        XPathExpression propertyRefExpression = xp.compile("@ref");
+        
+        Iterator<String> xmlIterator = repo.xmlIterator();
+        while (xmlIterator.hasNext()) {
+            String xmlName = xmlIterator.next();
+            BufferedInputStream bis = null;
+            try {
+                bis = new BufferedInputStream(repo.getXMLStream(xmlName));
+                Document doc = db.parse(bis);
+                
+                NodeList beans = (NodeList) beanExpression.evaluate(doc, XPathConstants.NODESET);
+                for (int i = 0; i < beans.getLength(); i++) {
+                    Element bean = (Element) beans.item(i);
+                    Attr beanClass = (Attr) beanClassExpression.evaluate(bean, XPathConstants.NODE);
+                    Attr initMethod = (Attr) initMethodExpression.evaluate(bean, XPathConstants.NODE);
+                    Attr destroyMethod = (Attr) destroyMethodExpression.evaluate(bean, XPathConstants.NODE);
+                    NodeList properties = (NodeList) propertyExpression.evaluate(bean, XPathConstants.NODESET);
+                    
+                    ClassInfo classInfo = repo.getClassInfo(beanClass.getValue().replaceAll("\\.", "/"));
+                    if (classInfo != null) {
+                        if (initMethod != null) {
+                            String initMethodName = initMethod.getValue();
+                            methods.remove(classInfo.getClassName() + ":" + initMethodName + "()V");
+                        }
+                        if (destroyMethod != null) {
+                            String destroyMethodName = destroyMethod.getValue();
+                            methods.remove(classInfo.getClassName() + ":" + destroyMethodName + "()V");
+                        }
+                        for (int j = 0; j < properties.getLength(); j++) {
+                            Element property = (Element) properties.item(j);
+                            Attr propertyAttr = (Attr)propertyNameExpression.evaluate(property, XPathConstants.NODE);
+                            String propNameValue = propertyAttr.getValue();
+                            Attr refAttr = (Attr)propertyRefExpression.evaluate(property, XPathConstants.NODE);
+                            XPathExpression refClassExpression = xp.compile("/beans/bean[@id='" + refAttr.getValue() + "']/@class");
+                            Attr refClassAttr = (Attr)refClassExpression.evaluate(doc, XPathConstants.NODE);
+
+                            String methodName = "set" + Character.toUpperCase(propNameValue.charAt(0)) + propNameValue.substring(1);
+                            String methodSig = "(L" + refClassAttr.getValue().replaceAll("\\.", "/") + ";)V";
+                            methods.remove(classInfo.getClassName() + ":" +  methodName + methodSig);
+                        }
+                    }
+                }
+                
+            } catch (Exception ioe) {
+                throw new BuildException("Failed parsing possible spring bean xml file: " + xmlName, ioe);
+            } finally {
+                Closer.close(bis);
             }
         }
     }
