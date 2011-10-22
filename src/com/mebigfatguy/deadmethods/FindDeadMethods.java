@@ -98,6 +98,7 @@ public class FindDeadMethods extends Task {
 	        removeInterfaceImplementationMethods(repo, allMethods);
 	        removeSyntheticMethods(repo, allMethods);
 	        removeStandardEnumMethods(repo, allMethods);
+	        removeSpecialSerializableMethods(repo, allMethods);
 
 	        for (String className : repo) {
 	        	InputStream is = null;
@@ -204,7 +205,18 @@ public class FindDeadMethods extends Task {
 	    	MethodInfo methodInfo = new MethodInfo("values", "()[?", Opcodes.ACC_PUBLIC);
 	    	clearDerivedMethods(methods, info, methodInfo.toString());
     	}
-
+    }
+    
+    private void removeSpecialSerializableMethods(ClassRepository repo, Set<String> methods) {
+        for (ClassInfo classInfo : repo.getAllClassInfos()) {
+            for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
+                if ("writeObject".equals(methodInfo.getMethodName()) && "(Ljava/io/ObjectOutputStream;)V".equals(methodInfo.getMethodSignature())) {
+                    methods.remove(classInfo.getClassName() + ":" + methodInfo);
+                } else if ("readObject".equals(methodInfo.getMethodName()) && "(Ljava/io/ObjectInputStream;)V".equals(methodInfo.getMethodSignature())) {
+                    methods.remove(classInfo.getClassName() + ":" + methodInfo);
+                }
+            }
+        }
     }
 
     private void clearDerivedMethods(Set<String> methods, ClassInfo info, String methodInfo) throws IOException {
