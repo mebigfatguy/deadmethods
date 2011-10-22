@@ -161,5 +161,12 @@ public class CalledMethodRemovingMethodVisitor implements MethodVisitor {
     		clearInheritedMethods(superInfo, methodInfo);
 			superInfo = repo.getClassInfo(superInfo.getSuperClassName());
     	}
+        
+        for (String interfaceName : info.getInterfaceNames()) {
+            ClassInfo infInfo = repo.getClassInfo(interfaceName);
+            methods.remove(infInfo.getClassName() + ":" + methodInfo);
+            clearInheritedMethods(infInfo, methodInfo);
+            infInfo = repo.getClassInfo(infInfo.getSuperClassName());
+        }
     }
 }
