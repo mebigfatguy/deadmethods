@@ -74,6 +74,10 @@ public class ClassInfo {
 	public boolean isSynthetic() {
 		return (classAccess & Opcodes.ACC_SYNTHETIC) != 0;
 	}
+	
+	public boolean isAnnotation() {
+	    return (classAccess & Opcodes.ACC_ANNOTATION) != 0;
+	}
 
 	public int getAccess() {
 		return classAccess;

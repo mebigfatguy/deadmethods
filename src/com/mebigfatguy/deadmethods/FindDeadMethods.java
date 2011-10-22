@@ -99,6 +99,7 @@ public class FindDeadMethods extends Task {
 	        removeSyntheticMethods(repo, allMethods);
 	        removeStandardEnumMethods(repo, allMethods);
 	        removeSpecialSerializableMethods(repo, allMethods);
+	        removeAnnotations(repo, allMethods);
 
 	        for (String className : repo) {
 	        	InputStream is = null;
@@ -217,6 +218,16 @@ public class FindDeadMethods extends Task {
                 } else if ("writeExternal".equals(methodInfo.getMethodName()) && "(Ljava/io/ObjectOutput;)V".equals(methodInfo.getMethodSignature())) {
                     methods.remove(classInfo.getClassName() + ":" + methodInfo);
                 } else if ("readExternal".equals(methodInfo.getMethodName()) && "(Ljava/io/ObjectInput;)V".equals(methodInfo.getMethodSignature())) {
+                    methods.remove(classInfo.getClassName() + ":" + methodInfo);
+                }
+            }
+        }
+    }
+    
+    private void removeAnnotations(ClassRepository repo, Set<String> methods) {
+        for (ClassInfo classInfo : repo.getAllClassInfos()) {
+            if (classInfo.isAnnotation()) {
+                for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
                     methods.remove(classInfo.getClassName() + ":" + methodInfo);
                 }
             }
