@@ -330,7 +330,7 @@ public class FindDeadMethods extends Task {
     	}
     }
 
-	public class ReflectiveAnnotation {
+	public static class ReflectiveAnnotation {
 		private String annotationName;
 
 		public void setName(String name) {
