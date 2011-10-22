@@ -214,6 +214,10 @@ public class FindDeadMethods extends Task {
                     methods.remove(classInfo.getClassName() + ":" + methodInfo);
                 } else if ("readObject".equals(methodInfo.getMethodName()) && "(Ljava/io/ObjectInputStream;)V".equals(methodInfo.getMethodSignature())) {
                     methods.remove(classInfo.getClassName() + ":" + methodInfo);
+                } else if ("writeExternal".equals(methodInfo.getMethodName()) && "(Ljava/io/ObjectOutput;)V".equals(methodInfo.getMethodSignature())) {
+                    methods.remove(classInfo.getClassName() + ":" + methodInfo);
+                } else if ("readExternal".equals(methodInfo.getMethodName()) && "(Ljava/io/ObjectInput;)V".equals(methodInfo.getMethodSignature())) {
+                    methods.remove(classInfo.getClassName() + ":" + methodInfo);
                 }
             }
         }
