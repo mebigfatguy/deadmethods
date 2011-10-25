@@ -71,7 +71,7 @@ public class FindDeadMethods extends Task {
 		reflectiveAnnotations.add(ra);
 		return ra;
 	}
-	
+
     @Override
     public void execute() throws BuildException {
         if (path == null) {
@@ -114,7 +114,7 @@ public class FindDeadMethods extends Task {
 	        removeSyntheticMethods(repo, allMethods);
 	        removeStandardEnumMethods(repo, allMethods);
 	        removeSpecialSerializableMethods(repo, allMethods);
-	        removeAnnotations(repo, allMethods);     
+	        removeAnnotations(repo, allMethods);
 	        removeSpringMethods(repo, allMethods);
 
 	        for (String className : repo) {
@@ -176,7 +176,7 @@ public class FindDeadMethods extends Task {
     		}
     	}
     }
-    
+
     private void removeReflectiveAnnotatedMethods(ClassRepository repo, Set<String> methods) {
         for (ClassInfo classInfo : repo.getAllClassInfos()) {
             for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
@@ -222,7 +222,7 @@ public class FindDeadMethods extends Task {
 	    	clearDerivedMethods(methods, info, methodInfo.toString());
     	}
     }
-    
+
     private void removeSpecialSerializableMethods(ClassRepository repo, Set<String> methods) {
         for (ClassInfo classInfo : repo.getAllClassInfos()) {
             for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
@@ -238,7 +238,7 @@ public class FindDeadMethods extends Task {
             }
         }
     }
-    
+
     private void removeAnnotations(ClassRepository repo, Set<String> methods) {
         for (ClassInfo classInfo : repo.getAllClassInfos()) {
             if (classInfo.isAnnotation()) {
@@ -248,7 +248,7 @@ public class FindDeadMethods extends Task {
             }
         }
     }
-    
+
     private void removeSpringMethods(ClassRepository repo, Set<String> methods) throws ParserConfigurationException, XPathExpressionException {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
@@ -261,7 +261,8 @@ public class FindDeadMethods extends Task {
         XPathExpression propertyExpression = xp.compile("property");
         XPathExpression propertyNameExpression = xp.compile("@name");
         XPathExpression propertyRefExpression = xp.compile("@ref");
-        
+        XPathExpression refBeanExpression = xp.compile("ref/@bean");
+
         Iterator<String> xmlIterator = repo.xmlIterator();
         while (xmlIterator.hasNext()) {
             String xmlName = xmlIterator.next();
@@ -269,40 +270,51 @@ public class FindDeadMethods extends Task {
             try {
                 bis = new BufferedInputStream(repo.getXMLStream(xmlName));
                 Document doc = db.parse(bis);
-                
+
                 NodeList beans = (NodeList) beanExpression.evaluate(doc, XPathConstants.NODESET);
                 for (int i = 0; i < beans.getLength(); i++) {
                     Element bean = (Element) beans.item(i);
                     Attr beanClass = (Attr) beanClassExpression.evaluate(bean, XPathConstants.NODE);
-                    Attr initMethod = (Attr) initMethodExpression.evaluate(bean, XPathConstants.NODE);
-                    Attr destroyMethod = (Attr) destroyMethodExpression.evaluate(bean, XPathConstants.NODE);
-                    NodeList properties = (NodeList) propertyExpression.evaluate(bean, XPathConstants.NODESET);
-                    
-                    ClassInfo classInfo = repo.getClassInfo(beanClass.getValue().replaceAll("\\.", "/"));
-                    if (classInfo != null) {
-                        if (initMethod != null) {
-                            String initMethodName = initMethod.getValue();
-                            methods.remove(classInfo.getClassName() + ":" + initMethodName + "()V");
-                        }
-                        if (destroyMethod != null) {
-                            String destroyMethodName = destroyMethod.getValue();
-                            methods.remove(classInfo.getClassName() + ":" + destroyMethodName + "()V");
-                        }
-                        for (int j = 0; j < properties.getLength(); j++) {
-                            Element property = (Element) properties.item(j);
-                            Attr propertyAttr = (Attr)propertyNameExpression.evaluate(property, XPathConstants.NODE);
-                            String propNameValue = propertyAttr.getValue();
-                            Attr refAttr = (Attr)propertyRefExpression.evaluate(property, XPathConstants.NODE);
-                            XPathExpression refClassExpression = xp.compile("/beans/bean[@id='" + refAttr.getValue() + "']/@class");
-                            Attr refClassAttr = (Attr)refClassExpression.evaluate(doc, XPathConstants.NODE);
+                    if (beanClass != null) {
+                        Attr initMethod = (Attr) initMethodExpression.evaluate(bean, XPathConstants.NODE);
+                        Attr destroyMethod = (Attr) destroyMethodExpression.evaluate(bean, XPathConstants.NODE);
+                        NodeList properties = (NodeList) propertyExpression.evaluate(bean, XPathConstants.NODESET);
 
-                            String methodName = "set" + Character.toUpperCase(propNameValue.charAt(0)) + propNameValue.substring(1);
-                            String methodSig = "(L" + refClassAttr.getValue().replaceAll("\\.", "/") + ";)V";
-                            methods.remove(classInfo.getClassName() + ":" +  methodName + methodSig);
+                        ClassInfo classInfo = repo.getClassInfo(beanClass.getValue().replaceAll("\\.", "/"));
+                        if (classInfo != null) {
+                            if (initMethod != null) {
+                                String initMethodName = initMethod.getValue();
+                                methods.remove(classInfo.getClassName() + ":" + initMethodName + "()V");
+                            }
+                            if (destroyMethod != null) {
+                                String destroyMethodName = destroyMethod.getValue();
+                                methods.remove(classInfo.getClassName() + ":" + destroyMethodName + "()V");
+                            }
+                            for (int j = 0; j < properties.getLength(); j++) {
+                                Element property = (Element) properties.item(j);
+                                Attr propertyAttr = (Attr)propertyNameExpression.evaluate(property, XPathConstants.NODE);
+                                String propNameValue = propertyAttr.getValue();
+                                Attr refAttr = (Attr)propertyRefExpression.evaluate(property, XPathConstants.NODE);
+                                if (refAttr == null) {
+                                    refAttr = (Attr)refBeanExpression.evaluate(property, XPathConstants.NODE);
+                                }
+
+                                //Don't handle sub xml files thru value attributes yet
+                                if (refAttr != null) {
+                                    XPathExpression refClassExpression = xp.compile("/beans/bean[@id='" + refAttr.getValue() + "']/@class");
+                                    Attr refClassAttr = (Attr)refClassExpression.evaluate(doc, XPathConstants.NODE);
+
+                                    if (refClassAttr != null) {
+                                        String methodName = "set" + Character.toUpperCase(propNameValue.charAt(0)) + propNameValue.substring(1);
+                                        String methodSig = "(L" + refClassAttr.getValue().replaceAll("\\.", "/") + ";)V";
+                                        methods.remove(classInfo.getClassName() + ":" +  methodName + methodSig);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-                
+
             } catch (Exception ioe) {
                 throw new BuildException("Failed parsing possible spring bean xml file: " + xmlName, ioe);
             } finally {
@@ -338,7 +350,7 @@ public class FindDeadMethods extends Task {
 		}
 
 		@Override
-		public String toString() {	
+		public String toString() {
 			return annotationName;
 		}
 	}
