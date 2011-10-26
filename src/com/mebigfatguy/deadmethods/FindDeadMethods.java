@@ -316,7 +316,7 @@ public class FindDeadMethods extends Task {
                 }
 
             } catch (Exception ioe) {
-                throw new BuildException("Failed parsing possible spring bean xml file: " + xmlName, ioe);
+                log("Failed parsing possible spring bean xml file: " + xmlName);
             } finally {
                 Closer.close(bis);
             }
