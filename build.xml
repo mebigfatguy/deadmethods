@@ -32,18 +32,26 @@
 	<property name="javac.target" value="1.5"/>
 	<property name="javac.deprecation" value="on"/>
 	<property name="javac.debug" value="on"/>
+	
+    <property name="ant_.version" value="1.8.2"/>
+    <property name="asm.version" value="3.3"/>
+    <property name="junit.version" value="4.10"/>
+
+    <property name="ant-url" value="http://repo1.maven.org/maven2/org/apache/ant/ant/${ant_.version}/ant-${ant_.version}.jar"/> 
+    <property name="asm-url" value="http://repo1.maven.org/maven2/asm/asm/${asm.version}/asm-${asm.version}.jar"/> 
+    <property name="junit-url" value="http://repo1.maven.org/maven2/junit/junit/${junit.version}/junit-${junit.version}.jar"/> 
 
 	<path id="deadmethods.classpath">
-		<pathelement location="${lib.dir}/ant-1.8.1.jar"/>
-		<pathelement location="${lib.dir}/asm-3.3.jar"/>
-		<pathelement location="${lib.dir}/junit-4.8.2.jar"/>
+		<pathelement location="${lib.dir}/ant-${ant_version}.jar"/>
+		<pathelement location="${lib.dir}/asm-${asm.version}.jar"/>
+		<pathelement location="${lib.dir}/junit-${junit.version}.jar"/>
 	</path>
 	
 	<path id="deadmethods.test.classpath">
 		<pathelement location="${classes.dir}"/>
-		<pathelement location="${lib.dir}/ant-1.8.1.jar"/>
-		<pathelement location="${lib.dir}/asm-3.3.jar"/>
-		<pathelement location="${lib.dir}/junit-4.8.2.jar"/>
+		<pathelement location="${lib.dir}/ant-${ant_version}.jar"/>
+		<pathelement location="${lib.dir}/asm-${asm.version}.jar"/>
+		<pathelement location="${lib.dir}/junit-${junit.version}.jar"/>
 	</path>
 	
 	<path id="deadmethods.classes.classpath">
@@ -66,14 +74,40 @@
 		<mkdir dir="${classes.dir}/com/mebigfatguy/fbcontrib/detect"/>
 	</target>
 
-	<target name="compile" depends="-init" description="compiles java files">
+	<target name="ant-check">
+        <available file="${basedir}/lib/ant-${ant_.version}.jar" property="ant-exists"/>
+    </target>
+
+	<target name="asm-check">
+        <available file="${basedir}/lib/asm-${asm.version}.jar" property="asm-exists"/>
+    </target>
+
+	<target name="junit-check">
+        <available file="${basedir}/lib/junit-${junit.version}.jar" property="junit-exists"/>
+    </target>
+
+    <target name="install-ant" depends="ant-check" unless="ant-exists" description="installs ant.jar into lib">
+        <get src="${ant-url}" dest="${basedir}/lib/ant-${ant_.version}.jar" verbose="true" ignoreerrors="true"/>
+    </target>
+	
+    <target name="install-asm" depends="asm-check" unless="asm-exists" description="installs asm.jar into lib">
+        <get src="${asm-url}" dest="${basedir}/lib/asm-${asm.version}.jar" verbose="true" ignoreerrors="true"/>
+    </target>
+
+    <target name="install-junit" depends="junit-check" unless="junit-exists" description="installs junit.jar into lib">
+        <get src="${junit-url}" dest="${basedir}/lib/junit-${junit.version}.jar" verbose="true" ignoreerrors="true"/>
+    </target>
+
+    <target name="pull" depends="install-ant, install-asm, install-junit" description="pull 3rdparty jars to the lib directory"/>
+   	
+    <target name="compile" depends="-init, pull" description="compiles java files">
 		<javac srcdir="${src.dir}"
 				destdir="${classes.dir}"
 				source="${javac.source}"
 				target="${javac.target}"
 				deprecation="${javac.deprecation}"
 				debug="${javac.debug}"
-				includeantruntime="false">
+				includeantruntime="true">
 			<classpath refid="deadmethods.classpath"/>
 		</javac>
 	</target>
