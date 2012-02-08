@@ -42,14 +42,14 @@
     <property name="junit-url" value="http://repo1.maven.org/maven2/junit/junit/${junit.version}/junit-${junit.version}.jar"/> 
 
 	<path id="deadmethods.classpath">
-		<pathelement location="${lib.dir}/ant-${ant_version}.jar"/>
+		<pathelement location="${lib.dir}/ant-${ant_.version}.jar"/>
 		<pathelement location="${lib.dir}/asm-${asm.version}.jar"/>
 		<pathelement location="${lib.dir}/junit-${junit.version}.jar"/>
 	</path>
 	
 	<path id="deadmethods.test.classpath">
 		<pathelement location="${classes.dir}"/>
-		<pathelement location="${lib.dir}/ant-${ant_version}.jar"/>
+		<pathelement location="${lib.dir}/ant-${ant_.version}.jar"/>
 		<pathelement location="${lib.dir}/asm-${asm.version}.jar"/>
 		<pathelement location="${lib.dir}/junit-${junit.version}.jar"/>
 	</path>
