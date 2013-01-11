@@ -33,7 +33,10 @@
 	<property name="javac.deprecation" value="on"/>
 	<property name="javac.debug" value="on"/>
 	
-    <property name="ant_.version" value="1.8.2"/>
+	<property name="sonatype.dir" value="${user.home}/.deadmethods-${deadmethods.version}-sonatype" />
+
+	
+    <property name="ant_.version" value="1.8.4"/>
     <property name="asm.version" value="4.1"/>
     <property name="junit.version" value="4.10"/>
 
@@ -62,7 +65,7 @@
 		<delete dir="${classes.dir}"/>
 		<delete dir="${javadoc.dir}"/>
 		<delete file="${basedir}/deadmethods-${deadmethods.version}.jar"/>
-		<delete file="${basedir}/deadmethods-src-${deadmethods.version}.zip"/>
+		<delete file="${basedir}/deadmethods-${deadmethods.version}-sources.jar"/>
 	</target>
 
 	<target name="-init" description="prepares repository for a build">
@@ -146,7 +149,7 @@
 	</target>
 
 	<target name="srczip" description="builds the source distribution zip file">
-		<zip destfile="${basedir}/deadmethods-src-${deadmethods.version}.zip" basedir="${basedir}">
+		<zip destfile="${basedir}/deadmethods-${deadmethods.version}-sources.jar" basedir="${basedir}">
 			<fileset dir="${src.dir}">
 				<include name="**/*.java"/>
 				<include name="**/*.license"/>
@@ -181,4 +184,39 @@
 			<auxClasspath refid="deadmethods.test.classpath"/>
 		</deadmethods>
 	</target>
+	
+    <target name="sonatype" depends="release" description="prepare an artifact bundle for sonatype">
+        <mkdir dir="${sonatype.dir}"/>
+        <copy todir="${sonatype.dir}" file="${basedir}/deadmethods-${deadmethods.version}.jar"/>
+        <copy tofile="${sonatype.dir}/deadmethods-${deadmethods.version}-sources.jar" file="${basedir}/deadmethods-${deadmethods.version}-sources.jar"/>
+        <jar destfile="${sonatype.dir}/deadmethods-${deadmethods.version}-javadoc.jar" basedir="${basedir}" includes="javadoc/**"/>
+        <copy tofile="${sonatype.dir}/deadmethods-${deadmethods.version}.pom" file="${basedir}/pom.xml"/>
+        
+        <exec executable="gpg">
+            <arg value="-abi" />
+            <arg value="${sonatype.dir}/deadmethods-${deadmethods.version}.jar" />
+        </exec>
+        <exec executable="gpg">
+            <arg value="-abi" />
+            <arg value="${sonatype.dir}/deadmethods-${deadmethods.version}.pom" />
+        </exec>
+        <exec executable="gpg">
+            <arg value="-abi" />
+            <arg value="${sonatype.dir}/deadmethods-${deadmethods.version}-sources.jar" />
+        </exec>        
+        <exec executable="gpg">
+            <arg value="-abi" />
+            <arg value="${sonatype.dir}/deadmethods-${deadmethods.version}-javadoc.jar" />
+        </exec>
+        <jar destfile="${sonatype.dir}/bundle.jar" basedir="${sonatype.dir}" includes="deadmethods*">
+        </jar>
+        <echo message="" />
+        <echo message="" />
+        <echo message="====================================================================================================================================" />
+        <echo message="sonatype update bundle produced at ${sonatype.dir}/bundle.jar" />
+        <echo message="upload this jar at https://oss.sonatype.org" />
+        <echo message="" />
+        <echo message="see link for details-> https://docs.sonatype.org/display/Repository/Uploading+3rd-party+Artifacts+to+The+Central+Repository" />
+        <echo message="====================================================================================================================================" />
+    </target>
 </project>
