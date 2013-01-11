@@ -22,11 +22,16 @@ import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 /** collects high level details about this class */
-public class ClassRepositoryVisitor implements ClassVisitor {
+public class ClassRepositoryVisitor extends ClassVisitor {
 
 	private ClassInfo classInfo = null;
+
+	public ClassRepositoryVisitor() {
+	    super(Opcodes.ASM4);
+	}
 
 	public ClassInfo getClassInfo() {
 		return classInfo;

@@ -24,13 +24,15 @@ import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 
-class CalledMethodRemovingClassVisitor implements ClassVisitor {
+class CalledMethodRemovingClassVisitor extends ClassVisitor {
 
     private final CalledMethodRemovingMethodVisitor m_calledMethodRemovingMethodVisitor;
 
     public CalledMethodRemovingClassVisitor(ClassRepository repository, Set<String> methods) {
+        super(Opcodes.ASM4);
         m_calledMethodRemovingMethodVisitor = new CalledMethodRemovingMethodVisitor(repository, methods);
     }
 

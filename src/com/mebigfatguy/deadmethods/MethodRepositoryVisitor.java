@@ -21,12 +21,14 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
-public class MethodRepositoryVisitor implements MethodVisitor {
+public class MethodRepositoryVisitor extends MethodVisitor {
 
 	private final MethodInfo methodInfo;
 
 	public MethodRepositoryVisitor(MethodInfo minfo) {
+	    super(Opcodes.ASM4);
 		methodInfo = minfo;
 	}
 
@@ -37,7 +39,7 @@ public class MethodRepositoryVisitor implements MethodVisitor {
         ||  "Lorg/junit/After;".equals(desc)) {
         	methodInfo.setTest(true);
         }
-        
+
         String annotationName = desc.substring(1, desc.length() - 1).replaceAll("/", ".");
         methodInfo.addAnnotation(annotationName);
         return null;
@@ -122,7 +124,7 @@ public class MethodRepositoryVisitor implements MethodVisitor {
     }
 
     @Override
-    public void visitTableSwitchInsn(final int min, final int max, final Label dflt, final Label[] labels) {
+    public void visitTableSwitchInsn(final int min, final int max, final Label dflt, final Label... labels) {
     }
 
     @Override

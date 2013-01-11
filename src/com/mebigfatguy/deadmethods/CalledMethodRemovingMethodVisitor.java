@@ -24,13 +24,15 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
-public class CalledMethodRemovingMethodVisitor implements MethodVisitor {
+public class CalledMethodRemovingMethodVisitor extends MethodVisitor {
 
 	private final ClassRepository repo;
 	private final Set<String> methods;
 
 	public CalledMethodRemovingMethodVisitor(ClassRepository repository, Set<String> allMethods) {
+	    super(Opcodes.ASM4);
 		repo = repository;
 		methods = allMethods;
 	}
@@ -130,7 +132,7 @@ public class CalledMethodRemovingMethodVisitor implements MethodVisitor {
     }
 
     @Override
-    public void visitTableSwitchInsn(final int min, final int max, final Label dflt, final Label[] labels) {
+    public void visitTableSwitchInsn(final int min, final int max, final Label dflt, final Label... labels) {
     }
 
     @Override
@@ -161,7 +163,7 @@ public class CalledMethodRemovingMethodVisitor implements MethodVisitor {
     		clearInheritedMethods(superInfo, methodInfo);
 			superInfo = repo.getClassInfo(superInfo.getSuperClassName());
     	}
-        
+
         for (String interfaceName : info.getInterfaceNames()) {
             ClassInfo infInfo = repo.getClassInfo(interfaceName);
             methods.remove(infInfo.getClassName() + ":" + methodInfo);
