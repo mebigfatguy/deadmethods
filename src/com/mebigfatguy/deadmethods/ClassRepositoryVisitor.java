@@ -17,10 +17,7 @@
  */
 package com.mebigfatguy.deadmethods;
 
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -43,38 +40,8 @@ public class ClassRepositoryVisitor extends ClassVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
-        return null;
-    }
-
-    @Override
-    public void visitAttribute(final Attribute attr) {
-    }
-
-    @Override
-    public void visitEnd() {
-    }
-
-    @Override
-    public FieldVisitor visitField(final int access, final String name, final String desc, final String signature, final Object value) {
-        return null;
-    }
-
-    @Override
-    public void visitInnerClass(final String name, final String outerName, final String innerName, final int access) {
-    }
-
-    @Override
     public MethodVisitor visitMethod(final int access, final String name, final String desc, final String signature, final String[] exceptions) {
         MethodInfo minfo = classInfo.addMethod(name, desc, access);
         return new MethodRepositoryVisitor(minfo);
-    }
-
-    @Override
-    public void visitOuterClass(final String owner, final String name, final String desc) {
-    }
-
-    @Override
-    public void visitSource(final String source, final String debug) {
     }
 }
