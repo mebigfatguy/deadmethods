@@ -71,10 +71,6 @@
 	<target name="-init" description="prepares repository for a build">
 		<mkdir dir="${classes.dir}"/>
 		<mkdir dir="${javadoc.dir}"/>
-		<mkdir dir="${classes.dir}/com"/>
-		<mkdir dir="${classes.dir}/com/mebigfatguy"/>
-		<mkdir dir="${classes.dir}/com/mebigfatguy/fbcontrib"/>
-		<mkdir dir="${classes.dir}/com/mebigfatguy/fbcontrib/detect"/>
 	</target>
 
 	<target name="ant-check">
@@ -140,9 +136,6 @@
 				<attribute name="Bundle-Version" value="${deadmethods.version}"/>				
 				<attribute name="Bundle-ClassPath" value="."/>
 				<attribute name="Bundle-Vendor" value="DeadMethods Project"/>
-<!--
-				<attribute name="Require-Bundle" value="edu.umd.cs.findbugs.plugin.eclipse"/>
--->
 				<attribute name="Bundle-ActivationPolicy" value="lazy"/>
 			</manifest>
 		</jar>
@@ -164,8 +157,8 @@
 				 classpathref="deadmethods.classpath"
 				 destdir="${javadoc.dir}"
 				 windowtitle="deadmethods api">
-		    <doctitle><![CDATA[<h1>fb-contrib javadoc</h1>]]></doctitle>
-		    <bottom><![CDATA[<i>Copyright &#169; 2010 MeBigFatGuy.com. All Rights Reserved.</i>]]></bottom>
+		    <doctitle><![CDATA[<h1>deadmethods javadoc</h1>]]></doctitle>
+		    <bottom><![CDATA[<i>Copyright &#169; 2011-2013 MeBigFatGuy.com. All Rights Reserved.</i>]]></bottom>
 		</javadoc>
 	</target>
 
