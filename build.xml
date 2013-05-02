@@ -99,7 +99,7 @@
 
     <target name="pull" depends="install-ant, install-asm, install-junit" description="pull 3rdparty jars to the lib directory"/>
    	
-    <target name="compile" depends="-init, pull" description="compiles java files">
+    <target name="compile" depends="-init, pull, resources" description="compiles java files">
 		<javac srcdir="${src.dir}"
 				destdir="${classes.dir}"
 				source="${javac.source}"
@@ -110,6 +110,14 @@
 			<classpath refid="deadmethods.classpath"/>
 		</javac>
 	</target>
+	
+    <target name="resources" description="copies files to classes">
+        <copy todir="${classes.dir}">
+            <fileset dir="${src.dir}">
+                <include name="**/*.xml"/>
+            </fileset>
+        </copy>
+    </target>
 	
 	<target name="compile_samples" depends="-init" description="compiles java files">
 		<javac srcdir="${samples.dir}"
@@ -126,7 +134,8 @@
 	<target name="jar" depends="compile" description="produces the deadmethods jar file">
 		<jar destfile="${basedir}/deadmethods-${deadmethods.version}.jar">
 			<fileset dir="${classes.dir}">
-				<include name="**/*.class"/>
+                <include name="**/*.class"/>
+                <include name="**/*.xml"/>
 			</fileset>
 			<manifest>
 				<attribute name="deadmethods-version" value="${deadmethods.version}"/>
@@ -145,6 +154,7 @@
 		<zip destfile="${basedir}/deadmethods-${deadmethods.version}-sources.jar" basedir="${basedir}">
 			<fileset dir="${src.dir}">
 				<include name="**/*.java"/>
+                <include name="**/*.xml"/>
 				<include name="**/*.license"/>
 				<include name="lib/*.jar"/>
 			</fileset>

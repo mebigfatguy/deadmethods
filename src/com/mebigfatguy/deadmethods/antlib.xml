@@ -1,0 +1,3 @@
+<antlib xmlns:current="ant:current">
+   <taskdef name="deadmethods" classname="com.mebigfatguy.deadmethods.FindDeadMethods"/>
+</antlib>
