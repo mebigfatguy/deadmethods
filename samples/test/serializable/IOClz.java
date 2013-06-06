@@ -8,6 +8,8 @@ import java.io.Serializable;
 
 public class IOClz implements Serializable {
 
+    private static final long serialVersionUID = -8308067789551071759L;
+
     protected void writeObject(ObjectOutputStream oos) {
     }
     
