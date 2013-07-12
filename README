@@ -9,3 +9,6 @@ You can run deadmethods on itself, by running
 
 ant test
 
+To run it on your project just create a deadmethods target in your project, similar to what is in the example
+and run it from there.
+
