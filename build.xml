@@ -139,6 +139,9 @@
 			</fileset>
 			<manifest>
 				<attribute name="deadmethods-version" value="${deadmethods.version}"/>
+                <attribute name="Application-Name" value="DeadMethods" />
+                <attribute name="Permissions" value="all-permissions" />
+                <attribute name="Codebase" value="*" />
 				<attribute name="Bundle-ManifestVersion" value="2"/>
 				<attribute name="Bundle-Name" value="deadmethods ant task"/>
 				<attribute name="Bundle-SymbolicName" value="deadmethods; singleton:=true"/>
