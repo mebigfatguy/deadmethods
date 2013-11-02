@@ -6,3 +6,6 @@ deadmethods-*.jar
 deadmethods-*.zip
 
 *.class
+
+version.properties
+.~lock.yank.*

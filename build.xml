@@ -18,9 +18,10 @@
  */
 -->
 
-<project name="deadmethods" default="build">
+<project name="deadmethods" default="build" xmlns:yank="antlib:com.mebigfatguy.yank">
 
 	<property file="build.properties"/>
+	<property file="version.properties" />
 
 	<property name="src.dir" value="${basedir}/src"/>
 	<property name="samples.dir" value="${basedir}/samples"/>
@@ -34,15 +35,6 @@
 	<property name="javac.debug" value="on"/>
 	
 	<property name="sonatype.dir" value="${user.home}/.deadmethods-${deadmethods.version}-sonatype" />
-
-	
-    <property name="ant_.version" value="1.8.4"/>
-    <property name="asm.version" value="4.1"/>
-    <property name="junit.version" value="4.11"/>
-
-    <property name="ant-url" value="http://repo1.maven.org/maven2/org/apache/ant/ant/${ant_.version}/ant-${ant_.version}.jar"/> 
-    <property name="asm-url" value="http://repo1.maven.org/maven2/org/ow2/asm/asm/${asm.version}/asm-${asm.version}.jar"/> 
-    <property name="junit-url" value="http://repo1.maven.org/maven2/junit/junit/${junit.version}/junit-${junit.version}.jar"/> 
 
 	<path id="deadmethods.classpath">
 		<pathelement location="${lib.dir}/ant-${ant_.version}.jar"/>
@@ -68,38 +60,20 @@
 		<delete file="${basedir}/deadmethods-${deadmethods.version}-sources.jar"/>
 	</target>
 
-	<target name="-init" description="prepares repository for a build">
+   <target name="yank">
+        <mkdir dir="${lib.dir}" />
+        <yank:yank yankFile="${basedir}/yank.xls" destination="${lib.dir}" source="true">
+            <server url="http://repo1.maven.org/maven2" />
+            <generateVersions propertyFileName="${basedir}/version.properties" />
+        </yank:yank>
+    </target>
+	
+	<target name="-init" depends="yank" description="prepares repository for a build">
 		<mkdir dir="${classes.dir}"/>
 		<mkdir dir="${javadoc.dir}"/>
 	</target>
 
-	<target name="ant-check">
-        <available file="${basedir}/lib/ant-${ant_.version}.jar" property="ant-exists"/>
-    </target>
-
-	<target name="asm-check">
-        <available file="${basedir}/lib/asm-${asm.version}.jar" property="asm-exists"/>
-    </target>
-
-	<target name="junit-check">
-        <available file="${basedir}/lib/junit-${junit.version}.jar" property="junit-exists"/>
-    </target>
-
-    <target name="install-ant" depends="ant-check" unless="ant-exists" description="installs ant.jar into lib">
-        <get src="${ant-url}" dest="${basedir}/lib/ant-${ant_.version}.jar" verbose="true" ignoreerrors="true"/>
-    </target>
-	
-    <target name="install-asm" depends="asm-check" unless="asm-exists" description="installs asm.jar into lib">
-        <get src="${asm-url}" dest="${basedir}/lib/asm-${asm.version}.jar" verbose="true" ignoreerrors="true"/>
-    </target>
-
-    <target name="install-junit" depends="junit-check" unless="junit-exists" description="installs junit.jar into lib">
-        <get src="${junit-url}" dest="${basedir}/lib/junit-${junit.version}.jar" verbose="true" ignoreerrors="true"/>
-    </target>
-
-    <target name="pull" depends="install-ant, install-asm, install-junit" description="pull 3rdparty jars to the lib directory"/>
-   	
-    <target name="compile" depends="-init, pull, resources" description="compiles java files">
+    <target name="compile" depends="-init, resources" description="compiles java files">
 		<javac srcdir="${src.dir}"
 				destdir="${classes.dir}"
 				source="${javac.source}"
