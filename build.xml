@@ -18,7 +18,7 @@
  */
 -->
 
-<project name="deadmethods" default="build" xmlns:yank="antlib:com.mebigfatguy.yank">
+<project name="deadmethods" default="info" xmlns:yank="antlib:com.mebigfatguy.yank">
 
 	<property file="build.properties"/>
 	<property file="version.properties" />
@@ -67,6 +67,16 @@
             <generateVersions propertyFileName="${basedir}/version.properties" />
         </yank:yank>
     </target>
+	
+    <target name="info">
+        <echo message="deadmethods - an ant task for finding unused methods; private, protected or public"/>
+        <echo message=""/>
+        <echo message="    this project uses yank (https://github.com/mebigfatguy/yank) for dependency management"/>
+        <echo message="    download yank.jar and place in ant/lib directory"/>
+        <echo message="    http://search.maven.org/#artifactdetails%7Ccom.mebigfatguy.yank%7Cyank%7C0.4.2%7Cjar"/>
+        <antcall target="build"/>
+    </target>
+
 	
 	<target name="-init" depends="yank" description="prepares repository for a build">
 		<mkdir dir="${classes.dir}"/>
