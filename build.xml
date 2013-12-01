@@ -18,7 +18,7 @@
  */
 -->
 
-<project name="deadmethods" default="info" xmlns:yank="antlib:com.mebigfatguy.yank">
+<project name="deadmethods" default="info">
 
 	<property file="build.properties"/>
 	<property file="version.properties" />
@@ -60,7 +60,7 @@
 		<delete file="${basedir}/deadmethods-${deadmethods.version}-sources.jar"/>
 	</target>
 
-   <target name="yank">
+   <target name="yank" xmlns:yank="antlib:com.mebigfatguy.yank">
         <mkdir dir="${lib.dir}" />
         <yank:yank yankFile="${basedir}/yank.xls" destination="${lib.dir}" source="true">
             <server url="http://repo1.maven.org/maven2" />
