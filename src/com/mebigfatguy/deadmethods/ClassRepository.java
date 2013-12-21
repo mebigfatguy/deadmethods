@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.tools.ant.types.Path;
+import org.apache.tools.ant.types.Resource;
 import org.apache.tools.ant.types.resources.FileResource;
 import org.objectweb.asm.ClassReader;
 
@@ -105,11 +106,11 @@ public class ClassRepository implements Iterable<String> {
 		List<URL> urls = new ArrayList<URL>();
 
 		@SuppressWarnings("unchecked")
-		Iterator<FileResource> it = path.iterator();
+		Iterator<Resource> it = path.iterator();
 		while (it.hasNext()) {
 			try {
-				FileResource resource = it.next();
-				File file = resource.getFile();
+				Resource resource = it.next();
+				File file = new File(resource.getName());
 				if (file.exists()) {
 					if (file.getAbsolutePath().endsWith(".jar")) {
 						urls.add(new URL("jar", "", "file://" + file.getAbsolutePath() + "!/"));

@@ -31,10 +31,11 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
 import org.apache.tools.ant.types.Path;
+import org.apache.tools.ant.types.Resource;
 import org.apache.tools.ant.types.resources.FileResource;
 
 public class PathIterator implements Iterator<String> {
-	Iterator<FileResource> frIt;
+	Iterator<Resource> frIt;
 	Iterator<String> subIt = null;
 	String extension;
 
@@ -85,8 +86,8 @@ public class PathIterator implements Iterator<String> {
 	private void initializeSubIterator() {
 		while (frIt.hasNext() && (subIt == null)) {
 			try {
-				FileResource fr = frIt.next();
-				File dir = fr.getFile();
+				Resource fr = frIt.next();
+				File dir = new File(fr.getName());
 	            if (dir.isFile()) {
 	            	File jar = dir;
 	            	if (jar.getName().endsWith(".jar")) {
