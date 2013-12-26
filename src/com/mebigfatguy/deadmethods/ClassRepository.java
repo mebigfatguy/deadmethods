@@ -37,7 +37,6 @@ import java.util.Set;
 
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Resource;
-import org.apache.tools.ant.types.resources.FileResource;
 import org.objectweb.asm.ClassReader;
 
 public class ClassRepository implements Iterable<String> {
