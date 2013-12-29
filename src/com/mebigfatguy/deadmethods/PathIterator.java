@@ -32,7 +32,6 @@ import java.util.jar.JarInputStream;
 
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Resource;
-import org.apache.tools.ant.types.resources.FileResource;
 
 public class PathIterator implements Iterator<String> {
 	Iterator<Resource> frIt;
