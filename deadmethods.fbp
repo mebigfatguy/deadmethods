@@ -1,8 +1,9 @@
 <Project projectName="deadmethods">
-  <Jar>./classes</Jar>
-  <AuxClasspathEntry>./lib/ant-1.9.3.jar</AuxClasspathEntry>
-  <AuxClasspathEntry>./lib/asm-3.3.jar</AuxClasspathEntry>
-  <SrcDir>./src</SrcDir>
+  <Jar>././classes</Jar>
+  <AuxClasspathEntry>././lib/ant-1.9.3.jar</AuxClasspathEntry>
+  <AuxClasspathEntry>./lib/asm-4.2.jar</AuxClasspathEntry>
+  <AuxClasspathEntry>./lib/junit-4.11.jar</AuxClasspathEntry>
+  <SrcDir>././src</SrcDir>
   <SuppressionFilter>
     <LastVersion value="-1" relOp="NEQ"/>
   </SuppressionFilter>
