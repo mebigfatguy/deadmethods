@@ -19,7 +19,7 @@ package com.mebigfatguy.deadmethods;
 
 import org.apache.tools.ant.types.Path;
 
-public class PathPrefixIterator extends ClassPathIterator {
+public class PathPrefixIterator extends AbstractClassPathIterator {
     String pathPrefix;
 
     @SuppressWarnings("unchecked")
