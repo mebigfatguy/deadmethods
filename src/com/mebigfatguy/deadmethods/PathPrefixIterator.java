@@ -37,7 +37,7 @@ public class PathPrefixIterator extends AbstractClassPathIterator {
         }
         return path.startsWith(pathPrefix);
     }
-
+    
     @Override
     public String adjustPath(String path) {
         return path;
