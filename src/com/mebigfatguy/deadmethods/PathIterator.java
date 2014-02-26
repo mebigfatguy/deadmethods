@@ -38,7 +38,6 @@ public class PathIterator implements Iterator<String> {
 	Iterator<String> subIt = null;
 	String extension;
 
-	@SuppressWarnings("unchecked")
 	public PathIterator(Path classPath, String fileExtension) {
 		frIt = classPath.iterator();
 		extension = fileExtension;

@@ -86,6 +86,10 @@ public class ClassRepository implements Iterable<String> {
 	public Iterator<String> xmlIterator() {
 	    return new PathIterator(path, ".xml");
 	}
+	
+	public Iterator<String> serviceIterator() {
+	    return new PathPrefixIterator(path, "/META-INF/services");
+	}
 
 	private final ClassLoader createClassLoader(final Path classpath, final Path auxClassPath) {
 		return AccessController.<URLClassLoader>doPrivileged(new PrivilegedAction<URLClassLoader>() {
