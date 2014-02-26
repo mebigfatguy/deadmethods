@@ -29,7 +29,12 @@ public class PathPrefixIterator extends AbstractClassPathIterator {
     }
 
     @Override
-    public boolean validPath(String path) {
+    public boolean validPath(String path, boolean isDirectory) {
+        if (isDirectory) {
+            if (pathPrefix.startsWith(path)) {
+                return true;
+            }
+        }
         return path.startsWith(pathPrefix);
     }
 
@@ -37,7 +42,4 @@ public class PathPrefixIterator extends AbstractClassPathIterator {
     public String adjustPath(String path) {
         return path;
     }
-    
-    
-
 }
