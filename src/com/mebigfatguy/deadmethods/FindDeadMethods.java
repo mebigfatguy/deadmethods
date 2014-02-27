@@ -18,23 +18,17 @@
 package com.mebigfatguy.deadmethods;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
@@ -46,6 +40,15 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 public class FindDeadMethods extends Task {
     Path path;
@@ -116,6 +119,7 @@ public class FindDeadMethods extends Task {
 	        removeSpecialSerializableMethods(repo, allMethods);
 	        removeAnnotations(repo, allMethods);
 	        removeSpringMethods(repo, allMethods);
+	        removeSPIClasses(repo, allMethods);
 
 	        for (String className : repo) {
 	        	InputStream is = null;
@@ -265,10 +269,10 @@ public class FindDeadMethods extends Task {
 
         Iterator<String> xmlIterator = repo.xmlIterator();
         while (xmlIterator.hasNext()) {
-            String xmlName = xmlIterator.next();
+            String xmlName = xmlIterator.next() + ".xml";
             BufferedInputStream bis = null;
             try {
-                bis = new BufferedInputStream(repo.getXMLStream(xmlName));
+                bis = new BufferedInputStream(repo.getStream(xmlName));
                 Document doc = db.parse(bis);
 
                 NodeList beans = (NodeList) beanExpression.evaluate(doc, XPathConstants.NODESET);
@@ -319,6 +323,21 @@ public class FindDeadMethods extends Task {
                 log("Failed parsing possible spring bean xml file: " + xmlName);
             } finally {
                 Closer.close(bis);
+            }
+        }
+    }
+    
+    private void removeSPIClasses(ClassRepository repo, Set<String> methods) throws IOException {
+        Iterator<String> spiIterator = repo.serviceIterator();
+        while (spiIterator.hasNext()) {
+            String fileName = spiIterator.next();
+            BufferedReader br = null;
+            try {
+                br = new BufferedReader(new InputStreamReader(repo.getStream(fileName), "UTF-8"));
+                String clsName = br.readLine();
+            } catch (UnsupportedEncodingException e) {
+            } finally {
+                Closer.close(br);
             }
         }
     }

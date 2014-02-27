@@ -135,7 +135,7 @@ public class ClassRepository implements Iterable<String> {
 		return loader.getResourceAsStream(clsName + ".class");
 	}
 	
-	public InputStream getXMLStream(String xmlName) {
+	public InputStream getStream(String xmlName) {
 	    return loader.getResourceAsStream(xmlName);
 	}
 
