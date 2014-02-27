@@ -113,7 +113,7 @@ public class ClassRepository implements Iterable<String> {
 		while (it.hasNext()) {
 			try {
 				Resource resource = it.next();
-				File file = new File(resource.getName());
+				File file = new File(resource.toString());
 				if (file.exists()) {
 					if (file.getAbsolutePath().endsWith(".jar")) {
 						urls.add(new URL("jar", "", "file://" + file.getAbsolutePath() + "!/"));

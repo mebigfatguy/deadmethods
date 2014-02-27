@@ -178,8 +178,8 @@ public abstract class AbstractClassPathIterator implements Iterator<String> {
                 JarEntry entry = jis.getNextJarEntry();
                 
                 while (entry != null) {
-                    if (validPath(entry.getName(), entry.isDirectory())) {
-                        return entry.getName();
+                    if (validPath(entry.getName(), false)) {
+                        return adjustPath(entry.getName());
                     }
 
                     entry = jis.getNextJarEntry();
