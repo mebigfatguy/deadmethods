@@ -40,6 +40,6 @@ public class PathPrefixIterator extends AbstractClassPathIterator {
     
     @Override
     public String adjustPath(String path) {
-        return path;
+        return path.substring(1);
     }
 }

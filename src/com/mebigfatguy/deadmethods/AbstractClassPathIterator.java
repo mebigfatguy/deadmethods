@@ -254,7 +254,7 @@ public abstract class AbstractClassPathIterator implements Iterator<String> {
                             public boolean accept(File f) {
                                 String name = f.getPath();
                                 name = name.substring(root.length());
-                                return validPath(f.getPath(), f.isDirectory());
+                                return validPath(name, f.isDirectory());
                             }
                         });
                         paths.addAll(Arrays.asList(files));
