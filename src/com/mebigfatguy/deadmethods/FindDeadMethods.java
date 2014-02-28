@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -334,9 +335,15 @@ public class FindDeadMethods extends Task {
             BufferedReader br = null;
             try {
                 br = new BufferedReader(new InputStreamReader(repo.getStream(fileName), "UTF-8"));
-                String clsName = br.readLine();
+                String clsName = br.readLine().replaceAll("\\.", "/");
+                for (MethodInfo m : repo.getMethodInfo(clsName)) {
+                    if ((m.getMethodAccess() & Opcodes.ACC_PUBLIC) != 0) {
+                        String methodInfo = clsName.replaceAll("\\.", "/") + ":" + m.getMethodName() + m.getMethodSignature();
+                        methods.remove(methodInfo);
+                    }
+                }
             } catch (UnsupportedEncodingException e) {
-            } finally {
+            }finally {
                 Closer.close(br);
             }
         }
