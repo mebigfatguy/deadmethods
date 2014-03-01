@@ -99,6 +99,7 @@
         <copy todir="${classes.dir}">
             <fileset dir="${src.dir}">
                 <include name="**/*.xml"/>
+                <include name="**/*.properties"/>
             </fileset>
         </copy>
     </target>
@@ -120,6 +121,7 @@
 			<fileset dir="${classes.dir}">
                 <include name="**/*.class"/>
                 <include name="**/*.xml"/>
+                <include name="**/*.properties"/>
 			</fileset>
 			<manifest>
 				<attribute name="deadmethods-version" value="${deadmethods.version}"/>
