@@ -105,11 +105,11 @@ public class ClassRepository implements Iterable<String> {
 		});
 	}
 
-	private List<URL> convertPathToURLs(Path path) {
+	private List<URL> convertPathToURLs(Path clsPath) {
 		List<URL> urls = new ArrayList<URL>();
 
 		@SuppressWarnings("unchecked")
-		Iterator<Resource> it = path.iterator();
+		Iterator<Resource> it = clsPath.iterator();
 		while (it.hasNext()) {
 			try {
 				Resource resource = it.next();
