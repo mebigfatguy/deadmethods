@@ -27,6 +27,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -51,6 +52,9 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 public class FindDeadMethods extends Task {
+    
+    private static final String DEFAULT_REFLECTIVE_ANNOTATION_PATH = "/com/mebigfatguy/deadmethods/defaultReflectiveAnnotations.properties";
+ 
     Path path;
     Path auxPath;
     Set<String> ignorePackages;
@@ -88,6 +92,8 @@ public class FindDeadMethods extends Task {
         if (ignorePackages == null) {
 			ignorePackages = new HashSet<String>();
 		}
+        
+        loadDefaultReflectiveAnnotations();
 
         TaskFactory.setTask(this);
 
@@ -141,6 +147,24 @@ public class FindDeadMethods extends Task {
         }
     }
 
+    private void loadDefaultReflectiveAnnotations() {
+        BufferedInputStream bis = new BufferedInputStream(FindDeadMethods.class.getResourceAsStream(DEFAULT_REFLECTIVE_ANNOTATION_PATH));
+        try {
+            Properties p = new Properties();
+            p.load(bis);
+            for (Object k : p.keySet()) {
+                ReflectiveAnnotation ra = new ReflectiveAnnotation();
+                ra.setName(k.toString().trim());
+                reflectiveAnnotations.add(ra);
+            }
+        } catch (IOException e) {
+        } finally {
+            Closer.close(bis);
+        }
+        
+        
+    }
+    
     private void removeObjectMethods(ClassRepository repo, Set<String> methods) throws IOException {
     	ClassInfo info = repo.getClassInfo("java/lang/Object");
     	for (MethodInfo methodInfo : info.getMethodInfo()) {
