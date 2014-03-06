@@ -207,11 +207,25 @@ public class FindDeadMethods extends Task {
 
     private void removeReflectiveAnnotatedMethods(ClassRepository repo, Set<String> methods) {
         for (ClassInfo classInfo : repo.getAllClassInfos()) {
+            if (classInfo.hasAnnotations()) {
+                for (ReflectiveAnnotation ra : reflectiveAnnotations) {
+                    if (classInfo.hasAnnotation(ra.toString())) {
+                        for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
+                            if ((methodInfo.getMethodAccess() & Opcodes.ACC_PUBLIC) != 0) {
+                                methods.remove(classInfo.getClass() + ":" + methodInfo);
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+            
             for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
                 if (methodInfo.hasAnnotations()) {
                     for (ReflectiveAnnotation ra : reflectiveAnnotations) {
                         if (methodInfo.hasAnnotation(ra.toString())) {
                             methods.remove(classInfo.getClassName() + ":" + methodInfo);
+                            break;
                         }
                     }
                 }

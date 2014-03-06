@@ -76,8 +76,6 @@ public class ClassRepository implements Iterable<String> {
 		return Collections.<MethodInfo>unmodifiableSet(info.getMethodInfo());
 	}
 
-
-
 	@Override
 	public Iterator<String> iterator() {
 		return new PathIterator(path, ".class");

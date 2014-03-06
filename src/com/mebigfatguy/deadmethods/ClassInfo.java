@@ -28,6 +28,7 @@ public class ClassInfo {
 	private final String superClassName;
 	private final String[] interfaces;
 	private final int classAccess;
+	private Set<String> annotations;
 	private final Set<MethodInfo> methodInfo;
 	private final Set<ClassInfo> derivedClasses;
 
@@ -83,6 +84,21 @@ public class ClassInfo {
 		return classAccess;
 	}
 
+    public void addAnnotation(String annotation) {
+         if (annotations == null) {
+             annotations = new HashSet<String>();
+         }
+         annotations.add(annotation);
+     }
+    
+     public boolean hasAnnotations() {
+         return annotations != null;
+     }
+    
+     public boolean hasAnnotation(String annotation) {
+        return (annotations != null) && annotations.contains(annotation);
+     }
+	    
 	public Set<MethodInfo> getMethodInfo() {
 		return methodInfo;
 	}

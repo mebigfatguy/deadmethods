@@ -17,6 +17,7 @@
  */
 package com.mebigfatguy.deadmethods;
 
+import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -37,6 +38,12 @@ public class ClassRepositoryVisitor extends ClassVisitor {
     @Override
     public void visit(final int version, final int access, final String name, final String signature, final String superName, final String[] interfaces) {
     	classInfo = new ClassInfo(name, superName, interfaces, access);
+    }
+
+    @Override
+    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+        classInfo.addAnnotation(desc);
+        return null;
     }
 
     @Override
