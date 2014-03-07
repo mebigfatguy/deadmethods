@@ -42,7 +42,8 @@ public class ClassRepositoryVisitor extends ClassVisitor {
 
     @Override
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        classInfo.addAnnotation(desc);
+        String annotationName = desc.substring(1, desc.length() - 1).replaceAll("/", ".");
+        classInfo.addAnnotation(annotationName);
         return null;
     }
 
