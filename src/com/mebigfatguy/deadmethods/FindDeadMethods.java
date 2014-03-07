@@ -372,11 +372,14 @@ public class FindDeadMethods extends Task {
             BufferedReader br = null;
             try {
                 br = new BufferedReader(new InputStreamReader(repo.getStream(fileName), "UTF-8"));
-                String clsName = br.readLine().replaceAll("\\.", "/");
-                for (MethodInfo m : repo.getMethodInfo(clsName)) {
-                    if ((m.getMethodAccess() & Opcodes.ACC_PUBLIC) != 0) {
-                        String methodInfo = clsName.replaceAll("\\.", "/") + ":" + m.getMethodName() + m.getMethodSignature();
-                        methods.remove(methodInfo);
+                String clsName = br.readLine();
+                if (clsName != null) {
+                    clsName = clsName.replaceAll("\\.", "/");
+                    for (MethodInfo m : repo.getMethodInfo(clsName)) {
+                        if ((m.getMethodAccess() & Opcodes.ACC_PUBLIC) != 0) {
+                            String methodInfo = clsName.replaceAll("\\.", "/") + ":" + m.getMethodName() + m.getMethodSignature();
+                            methods.remove(methodInfo);
+                        }
                     }
                 }
             } catch (UnsupportedEncodingException e) {
