@@ -37,6 +37,7 @@ import java.util.Set;
 
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Resource;
+import org.apache.tools.ant.types.ResourceCollection;
 import org.objectweb.asm.ClassReader;
 
 public class ClassRepository implements Iterable<String> {
@@ -103,7 +104,7 @@ public class ClassRepository implements Iterable<String> {
 		});
 	}
 
-	private List<URL> convertPathToURLs(Path clsPath) {
+	private List<URL> convertPathToURLs(ResourceCollection clsPath) {
 		List<URL> urls = new ArrayList<URL>();
 
 		@SuppressWarnings("unchecked")

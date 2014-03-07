@@ -30,15 +30,15 @@ import java.util.NoSuchElementException;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
-import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Resource;
+import org.apache.tools.ant.types.ResourceCollection;
 
 public abstract class AbstractClassPathIterator implements Iterator<String> {
 
     Iterator<Resource> frIt;
     Iterator<String> subIt = null;
 
-    public AbstractClassPathIterator(Path classPath) {
+    public AbstractClassPathIterator(ResourceCollection classPath) {
         frIt = classPath.iterator();
     }
     
