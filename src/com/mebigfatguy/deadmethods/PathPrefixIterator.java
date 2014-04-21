@@ -22,7 +22,6 @@ import org.apache.tools.ant.types.Path;
 public class PathPrefixIterator extends AbstractClassPathIterator {
     String pathPrefix;
 
-    @SuppressWarnings("unchecked")
     public PathPrefixIterator(Path classPath, String prefix) {
         super(classPath);
         pathPrefix = prefix;

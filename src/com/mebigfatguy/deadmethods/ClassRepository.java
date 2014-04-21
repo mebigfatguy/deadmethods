@@ -107,7 +107,6 @@ public class ClassRepository implements Iterable<String> {
 	private List<URL> convertPathToURLs(ResourceCollection clsPath) {
 		List<URL> urls = new ArrayList<URL>();
 
-		@SuppressWarnings("unchecked")
 		Iterator<Resource> it = clsPath.iterator();
 		while (it.hasNext()) {
 			try {
