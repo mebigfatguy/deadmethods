@@ -25,9 +25,10 @@
 
 	<property name="src.dir" value="${basedir}/src"/>
 	<property name="samples.dir" value="${basedir}/samples"/>
-	<property name="classes.dir" value="${basedir}/classes"/>
+	<property name="target.dir" value="${basedir}/target"/>
+	<property name="classes.dir" value="${target.dir}/classes"/>
 	<property name="lib.dir" value="${basedir}/lib"/>
-	<property name="javadoc.dir" value="${basedir}/javadoc"/>
+	<property name="javadoc.dir" value="${target.dir}/javadoc"/>
 	<property name="htdocs.dir" value="${basedir}/htdocs"/>
 	<property name="javac.source" value="1.5"/>
 	<property name="javac.target" value="1.5"/>
@@ -54,10 +55,7 @@
 	</path>
 	
 	<target name="clean" description="removes all generated collateral">
-		<delete dir="${classes.dir}"/>
-		<delete dir="${javadoc.dir}"/>
-		<delete file="${basedir}/deadmethods-${deadmethods.version}.jar"/>
-		<delete file="${basedir}/deadmethods-${deadmethods.version}-sources.jar"/>
+		<delete dir="${target.dir}"/>
 	</target>
 
    <target name="yank" xmlns:yank="antlib:com.mebigfatguy.yank">
@@ -117,7 +115,7 @@
 	</target>
 
 	<target name="jar" depends="compile" description="produces the deadmethods jar file">
-		<jar destfile="${basedir}/deadmethods-${deadmethods.version}.jar">
+		<jar destfile="${target.dir}/deadmethods-${deadmethods.version}.jar">
 			<fileset dir="${classes.dir}">
                 <include name="**/*.class"/>
                 <include name="**/*.xml"/>
@@ -140,7 +138,7 @@
 	</target>
 
 	<target name="srczip" description="builds the source distribution zip file">
-		<zip destfile="${basedir}/deadmethods-${deadmethods.version}-sources.jar" basedir="${basedir}">
+		<zip destfile="${target.dir}/deadmethods-${deadmethods.version}-sources.jar" basedir="${basedir}">
 			<fileset dir="${src.dir}">
 				<include name="**/*.java"/>
                 <include name="**/*.xml"/>
@@ -179,9 +177,9 @@
 	
     <target name="sonatype" depends="release" description="prepare an artifact bundle for sonatype">
         <mkdir dir="${sonatype.dir}"/>
-        <copy todir="${sonatype.dir}" file="${basedir}/deadmethods-${deadmethods.version}.jar"/>
-        <copy tofile="${sonatype.dir}/deadmethods-${deadmethods.version}-sources.jar" file="${basedir}/deadmethods-${deadmethods.version}-sources.jar"/>
-        <jar destfile="${sonatype.dir}/deadmethods-${deadmethods.version}-javadoc.jar" basedir="${basedir}" includes="javadoc/**"/>
+        <copy todir="${sonatype.dir}" file="${target.dir}/deadmethods-${deadmethods.version}.jar"/>
+        <copy tofile="${sonatype.dir}/deadmethods-${deadmethods.version}-sources.jar" file="${target.dir}/deadmethods-${deadmethods.version}-sources.jar"/>
+        <jar destfile="${sonatype.dir}/deadmethods-${deadmethods.version}-javadoc.jar" basedir="${target.dir}" includes="javadoc/**"/>
         <copy tofile="${sonatype.dir}/deadmethods-${deadmethods.version}.pom" file="${basedir}/pom.xml"/>
         
         <exec executable="gpg">
