@@ -90,7 +90,7 @@ public class ClassRepository implements Iterable<String> {
 	    return new PathPrefixIterator(path, "/META-INF/services");
 	}
 
-	private final ClassLoader createClassLoader(final Path classpath, final Path auxClassPath) {
+	private static final ClassLoader createClassLoader(final Path classpath, final Path auxClassPath) {
 		return AccessController.<URLClassLoader>doPrivileged(new PrivilegedAction<URLClassLoader>() {
 			@Override
 			public URLClassLoader run() {
@@ -104,7 +104,7 @@ public class ClassRepository implements Iterable<String> {
 		});
 	}
 
-	private List<URL> convertPathToURLs(ResourceCollection clsPath) {
+	private static List<URL> convertPathToURLs(ResourceCollection clsPath) {
 		List<URL> urls = new ArrayList<URL>();
 
 		Iterator<Resource> it = clsPath.iterator();

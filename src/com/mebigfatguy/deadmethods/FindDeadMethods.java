@@ -31,6 +31,15 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
@@ -41,15 +50,6 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 public class FindDeadMethods extends Task {
     
@@ -172,7 +172,7 @@ public class FindDeadMethods extends Task {
 		}
     }
 
-    private void removeMainMethods(ClassRepository repo, Set<String> methods) {
+    private static void removeMainMethods(ClassRepository repo, Set<String> methods) {
     	MethodInfo mainInfo = new MethodInfo("main", "([Ljava/lang/String;)V", Opcodes.ACC_STATIC);
     	for (ClassInfo classInfo : repo.getAllClassInfos()) {
     		Set<MethodInfo> methodInfo = classInfo.getMethodInfo();
@@ -182,7 +182,7 @@ public class FindDeadMethods extends Task {
     	}
     }
 
-    private void removeNoArgCtors(ClassRepository repo, Set<String> methods) {
+    private static void removeNoArgCtors(ClassRepository repo, Set<String> methods) {
     	MethodInfo ctorInfo = new MethodInfo("<init>", "()V", Opcodes.ACC_STATIC);
     	for (ClassInfo classInfo : repo.getAllClassInfos()) {
     		Set<String> infs = new HashSet<String>(Arrays.asList(classInfo.getInterfaceNames()));
@@ -195,7 +195,7 @@ public class FindDeadMethods extends Task {
     	}
     }
 
-    private void removeJUnitMethods(ClassRepository repo, Set<String> methods) {
+    private static void removeJUnitMethods(ClassRepository repo, Set<String> methods) {
     	for (ClassInfo classInfo : repo.getAllClassInfos()) {
     		for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
     			if (methodInfo.isTest()) {
@@ -243,7 +243,7 @@ public class FindDeadMethods extends Task {
         }
     }
 
-    private void removeSyntheticMethods(ClassRepository repo, Set<String> methods)  {
+    private static void removeSyntheticMethods(ClassRepository repo, Set<String> methods)  {
     	for (ClassInfo classInfo : repo.getAllClassInfos()) {
     		for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
     			if (methodInfo.isSynthetic()) {
@@ -265,7 +265,7 @@ public class FindDeadMethods extends Task {
     	}
     }
 
-    private void removeSpecialSerializableMethods(ClassRepository repo, Set<String> methods) {
+    private static void removeSpecialSerializableMethods(ClassRepository repo, Set<String> methods) {
         for (ClassInfo classInfo : repo.getAllClassInfos()) {
             for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
                 if ("writeObject".equals(methodInfo.getMethodName()) && "(Ljava/io/ObjectOutputStream;)V".equals(methodInfo.getMethodSignature())) {
@@ -281,7 +281,7 @@ public class FindDeadMethods extends Task {
         }
     }
 
-    private void removeAnnotations(ClassRepository repo, Set<String> methods) {
+    private static void removeAnnotations(ClassRepository repo, Set<String> methods) {
         for (ClassInfo classInfo : repo.getAllClassInfos()) {
             if (classInfo.isAnnotation()) {
                 for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
@@ -365,7 +365,7 @@ public class FindDeadMethods extends Task {
         }
     }
     
-    private void removeSPIClasses(ClassRepository repo, Set<String> methods) throws IOException {
+    private static void removeSPIClasses(ClassRepository repo, Set<String> methods) throws IOException {
         Iterator<String> spiIterator = repo.serviceIterator();
         while (spiIterator.hasNext()) {
             String fileName = spiIterator.next();
