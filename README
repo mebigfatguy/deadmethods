@@ -20,7 +20,13 @@ To run it on your project create a task such as the following:
 			<auxClasspath refid="your.aux.classpath"/>
 			<reflectiveAnnotation name="YourAnnotation"/>
 			<reflectiveAnnotation name="YourOtherAnnotation"/>
-		</deadmethods>
-	</target>
+        </deadmethods>
+    </target>
+    
+    Deadmethods is available on maven with the following coordinates:
+    
+    groupId: com.mebigfatguy.deadmethods
+    artifactId: deadmethods
+    version: 0.4.0
     
 
