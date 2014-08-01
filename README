@@ -9,6 +9,18 @@ You can run deadmethods on itself, by running
 
 ant test
 
-To run it on your project just create a deadmethods target in your project, similar to what is in the example
-and run it from there.
+To run it on your project create a task such as the following:
+
+    <target name="dm"> 
+        <taskdef name="deadmethods" 
+             classname="com.mebigfatguy.deadmethods.FindDeadMethods"
+             classpath="${lib.dir}/asm.jar;${lib.dir}/deadmethods.jar"/>
+        <deadmethods ignorePackage="com.you.ignore.me;com.you.ignore.me2">
+            <classpath refid="your.classes.classpath"/>
+			<auxClasspath refid="your.aux.classpath"/>
+			<reflectiveAnnotation name="YourAnnotation"/>
+			<reflectiveAnnotation name="YourOtherAnnotation"/>
+		</deadmethods>
+	</target>
+    
 
