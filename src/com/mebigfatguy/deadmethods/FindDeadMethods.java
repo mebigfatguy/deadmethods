@@ -30,6 +30,8 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -57,7 +59,7 @@ public class FindDeadMethods extends Task {
  
     Path path;
     Path auxPath;
-    Set<String> ignorePackages;
+    Set<IgnoredPackage> ignoredPackages = new HashSet<IgnoredPackage>();
 	Set<ReflectiveAnnotation> reflectiveAnnotations = new HashSet<ReflectiveAnnotation>();
 
     public void addConfiguredClasspath(final Path classpath) {
@@ -67,10 +69,11 @@ public class FindDeadMethods extends Task {
     public void addConfiguredAuxClasspath(final Path auxClassPath) {
     	auxPath = auxClassPath;
     }
-
-    public void setIgnorePackages(String packages) {
-    	String[] packs = packages.split("\\s*,\\s*");
-    	ignorePackages = new HashSet<String>(Arrays.asList(packs));
+    
+    public IgnoredPackage createIgnoredPackage() {
+    	IgnoredPackage ip = new IgnoredPackage();
+    	ignoredPackages.add(ip);
+    	return ip;
     }
 
 	public ReflectiveAnnotation createReflectiveAnnotation() {
@@ -88,10 +91,6 @@ public class FindDeadMethods extends Task {
         if (auxPath == null) {
         	auxPath = new Path(getProject());
         }
-
-        if (ignorePackages == null) {
-			ignorePackages = new HashSet<String>();
-		}
         
         loadDefaultReflectiveAnnotations();
 
@@ -100,18 +99,23 @@ public class FindDeadMethods extends Task {
         ClassRepository repo = new ClassRepository(path, auxPath);
         Set<String> allMethods = new TreeSet<String>();
         try {
-	        for (String className : repo) {
+	        classloop: for (String className : repo) {
 	        	if (!className.startsWith("[")) {
 		        	ClassInfo classInfo = repo.getClassInfo(className);
 		        	String packageName = classInfo.getPackageName();
-		        	if (!ignorePackages.contains(packageName)) {
-		        		Set<MethodInfo> methods = classInfo.getMethodInfo();
-
-			        	for (MethodInfo methodInfo : methods) {
-			        		allMethods.add(className + ":" + methodInfo.getMethodName() + methodInfo.getMethodSignature());
-			        	}
+		        	for (IgnoredPackage ip : ignoredPackages) {
+		        		Matcher m = ip.getPattern().matcher(packageName);
+		        		if (m.matches()) {
+		        			continue classloop;
+		        		}
 		        	}
-	        	}
+
+	        		Set<MethodInfo> methods = classInfo.getMethodInfo();
+
+		        	for (MethodInfo methodInfo : methods) {
+		        		allMethods.add(className + ":" + methodInfo.getMethodName() + methodInfo.getMethodSignature());
+		        	}
+		        }
 	        }
 
 	        removeObjectMethods(repo, allMethods);
@@ -160,6 +164,7 @@ public class FindDeadMethods extends Task {
         } catch (IOException e) {
         } finally {
             Closer.close(bis);
+            
         }
         
         
@@ -408,20 +413,7 @@ public class FindDeadMethods extends Task {
     	}
     }
 
-	public static class ReflectiveAnnotation {
-		private String annotationName;
-
-		public void setName(String name) {
-			annotationName = name;
-		}
-
-		@Override
-		public String toString() {
-			return annotationName;
-		}
-	}
-
-    /** for testing only */
+	/** for testing only */
     public static void main(String[] args) {
 
     	if (args.length < 1) {
@@ -438,7 +430,8 @@ public class FindDeadMethods extends Task {
     	fdm.addConfiguredClasspath(path);
     	ReflectiveAnnotation ra = fdm.createReflectiveAnnotation();
     	ra.setName("test.reflective.ReflectiveUse");
-    	fdm.setIgnorePackages("test.ignored");
+    	IgnoredPackage ip = fdm.createIgnoredPackage();
+    	ip.setPattern("test.ignored");
 
     	fdm.execute();
     }

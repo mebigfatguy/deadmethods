@@ -172,6 +172,7 @@
 		<deadmethods>
 			<classpath refid="deadmethods.classes.classpath"/>
 			<auxClasspath refid="deadmethods.test.classpath"/>
+			<ignoredPackage pattern="test.ignored.*"/>
 		</deadmethods>
 	</target>
 	

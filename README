@@ -15,11 +15,13 @@ To run it on your project create a task such as the following:
         <taskdef name="deadmethods" 
              classname="com.mebigfatguy.deadmethods.FindDeadMethods"
              classpath="${lib.dir}/asm.jar;${lib.dir}/deadmethods.jar"/>
-        <deadmethods ignorePackage="com.you.ignore.me;com.you.ignore.me2">
+        <deadmethods>
             <classpath refid="your.classes.classpath"/>
             <auxClasspath refid="your.aux.classpath"/>
             <reflectiveAnnotation name="YourAnnotation"/>
             <reflectiveAnnotation name="YourOtherAnnotation"/>
+            <ignoredPackage pattern="com.you.ignore.me.*"/>
+            <ignoredPackage pattern="you.ignore.me2.*"/>
         </deadmethods>
     </target>
     
