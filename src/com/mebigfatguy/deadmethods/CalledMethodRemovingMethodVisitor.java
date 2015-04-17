@@ -48,7 +48,7 @@ public class CalledMethodRemovingMethodVisitor extends MethodVisitor {
     	}
     }
 
-    private void clearDerivedMethods(ClassInfo info, String methodInfo) throws IOException {
+    private void clearDerivedMethods(ClassInfo info, String methodInfo)  {
     	Set<ClassInfo> derivedInfos = info.getDerivedClasses();
 
     	for (ClassInfo derivedInfo : derivedInfos) {
