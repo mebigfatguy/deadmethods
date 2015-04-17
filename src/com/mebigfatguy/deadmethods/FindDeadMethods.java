@@ -59,6 +59,7 @@ public class FindDeadMethods extends Task {
     Path path;
     Path auxPath;
     Set<IgnoredPackage> ignoredPackages = new HashSet<IgnoredPackage>();
+    Set<IgnoredClass> ignoredClasses = new HashSet<IgnoredClass>();
 	Set<ReflectiveAnnotation> reflectiveAnnotations = new HashSet<ReflectiveAnnotation>();
 
     public void addConfiguredClasspath(final Path classpath) {
@@ -73,6 +74,12 @@ public class FindDeadMethods extends Task {
     	IgnoredPackage ip = new IgnoredPackage();
     	ignoredPackages.add(ip);
     	return ip;
+    }
+    
+    public IgnoredClass createIgnoredClass() {
+    	IgnoredClass ic = new IgnoredClass();
+    	ignoredClasses.add(ic);
+    	return ic;
     }
 
 	public ReflectiveAnnotation createReflectiveAnnotation() {
@@ -104,6 +111,13 @@ public class FindDeadMethods extends Task {
 		        	String packageName = classInfo.getPackageName();
 		        	for (IgnoredPackage ip : ignoredPackages) {
 		        		Matcher m = ip.getPattern().matcher(packageName);
+		        		if (m.matches()) {
+		        			continue classloop;
+		        		}
+		        	}
+		        	String clsName = classInfo.getClassName();
+		        	for (IgnoredClass ic : ignoredClasses) {
+		        		Matcher m = ic.getPattern().matcher(clsName);
 		        		if (m.matches()) {
 		        			continue classloop;
 		        		}
@@ -430,7 +444,7 @@ public class FindDeadMethods extends Task {
     	ReflectiveAnnotation ra = fdm.createReflectiveAnnotation();
     	ra.setName("test.reflective.ReflectiveUse");
     	IgnoredPackage ip = fdm.createIgnoredPackage();
-    	ip.setPattern("test.ignored");
+    	ip.setPattern("test\\.ignored");
 
     	fdm.execute();
     }
