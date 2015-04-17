@@ -9,20 +9,21 @@ You can run deadmethods on itself, by running
 
 ant test
 
-To run it on your project create a task such as the following:
+To run it on your project do the following:
 
-    <target name="dm"> 
-        <taskdef name="deadmethods" 
-             classname="com.mebigfatguy.deadmethods.FindDeadMethods"
-             classpath="${lib.dir}/asm.jar;${lib.dir}/deadmethods.jar"/>
-        <deadmethods>
+Copy the deadmethods.jar and the asm.jar to you ~/.ant/lib directory
+
+Then create a task such as:
+
+    <target name="dm" xmlns:dm="antlib:com.mebigfatguy.deadmethods"> 
+        <dm:deadmethods>
             <classpath refid="your.classes.classpath"/>
             <auxClasspath refid="your.aux.classpath"/>
             <reflectiveAnnotation name="YourAnnotation"/>
             <reflectiveAnnotation name="YourOtherAnnotation"/>
             <ignoredPackage pattern="com.you.ignore.me.*"/>
             <ignoredPackage pattern="you.ignore.me2.*"/>
-        </deadmethods>
+        </dm:deadmethods>
     </target>
     
     Deadmethods is available on maven with the following coordinates:
