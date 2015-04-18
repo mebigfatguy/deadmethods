@@ -39,7 +39,7 @@ Care should be taken to not indescriminately remove methods reported by this too
 a starting point. Use due diligence to validate what the results are.
     
     
-### Deadmethods is available on maven with the following coordinates:
+#### Deadmethods is available on maven with the following coordinates:
 
     groupId: com.mebigfatguy.deadmethods
     artifactId: deadmethods
