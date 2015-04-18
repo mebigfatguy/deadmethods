@@ -35,13 +35,14 @@ happen because
 * Methods are used via reflection
 * Methods are part of an api, that clients are expected to use
 * Methods are called from unit tests, or other code not included in your deadmethods ant task
+Care should be taken to not indescriminately remove methods reported by this tool. This tool offers you
+a starting point. Use due diligence to validate what the results are.
     
     
 Deadmethods is available on maven with the following coordinates:
 
-|--------_|-----------------------------| 
-| groupId | com.mebigfatguy.deadmethods |
-| artifactId | deadmethods |
-| version | 0.6.0 |
+    groupId: com.mebigfatguy.deadmethods
+    artifactId: deadmethods
+    version: 0.6.0
 
 
