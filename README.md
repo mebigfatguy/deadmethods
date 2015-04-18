@@ -5,20 +5,18 @@ Licensed by Apache 2.0 license
 
 This project uses ant, to build do
 
-ant
+    ant
 
 You can run deadmethods on itself, by running
 
-```
-	ant test
-```
+    ant test
 
 To run it on your project do the following:
 
 Copy the deadmethods.jar and the asm.jar to you ~/.ant/lib directory
 
 Then create a task such as:
-```
+
     <target name="dm" xmlns:dm="antlib:com.mebigfatguy.deadmethods"> 
         <dm:deadmethods>
             <classpath refid="your.classes.classpath"/>
@@ -30,7 +28,7 @@ Then create a task such as:
             <ignoredClass pattern="*MBean"/>
         </dm:deadmethods>
     </target>
-```
+
   
 Obviously, methods will be reported as 'dead' even though they are important to you. This will
 happen because
@@ -39,7 +37,7 @@ happen because
 3. Methods are called from unit tests, or other code not included in your deadmethods ant task
     
     
-### Deadmethods is available on maven with the following coordinates:
+Deadmethods is available on maven with the following coordinates:
  
 | groupId | com.mebigfatguy.deadmethods |
 | artifactId | deadmethods |
