@@ -13,7 +13,7 @@ You can run deadmethods on itself, by running
 
 To run it on your project do the following:
 
-Copy the deadmethods.jar and the asm.jar to you ~/.ant/lib directory
+Copy the deadmethods.jar and the asm.jar to your ~/.ant/lib directory
 
 Then create a task such as:
 
@@ -32,13 +32,14 @@ Then create a task such as:
   
 Obviously, methods will be reported as 'dead' even though they are important to you. This will
 happen because
-1. Methods are used via reflection
-2. Methods are part of an api, that clients are expected to use
-3. Methods are called from unit tests, or other code not included in your deadmethods ant task
+* Methods are used via reflection
+* Methods are part of an api, that clients are expected to use
+* Methods are called from unit tests, or other code not included in your deadmethods ant task
     
     
 Deadmethods is available on maven with the following coordinates:
- 
+
+|--------_|-----------------------------| 
 | groupId | com.mebigfatguy.deadmethods |
 | artifactId | deadmethods |
 | version | 0.6.0 |
