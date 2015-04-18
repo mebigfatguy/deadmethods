@@ -25,7 +25,7 @@ Then create a task such as:
             <reflectiveAnnotation name="YourOtherAnnotation"/>
             <ignoredPackage pattern="com.you.ignore.me.*"/>
             <ignoredPackage pattern="you.ignore.me2.*"/>
-            <ignoredClass pattern="*MBean"/>
+            <ignoredClass pattern=".*MBean"/>
         </dm:deadmethods>
     </target>
 
