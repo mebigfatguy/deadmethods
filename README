@@ -23,6 +23,7 @@ Then create a task such as:
             <reflectiveAnnotation name="YourOtherAnnotation"/>
             <ignoredPackage pattern="com.you.ignore.me.*"/>
             <ignoredPackage pattern="you.ignore.me2.*"/>
+            <ignoredClass pattern="*MBean"/>
         </dm:deadmethods>
     </target>
     
@@ -30,6 +31,6 @@ Then create a task such as:
     
     groupId: com.mebigfatguy.deadmethods
     artifactId: deadmethods
-    version: 0.4.0
+    version: 0.6.0
     
 
