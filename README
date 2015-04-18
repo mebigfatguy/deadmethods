@@ -27,6 +27,13 @@ Then create a task such as:
         </dm:deadmethods>
     </target>
     
+    Obviously, methods will be reported as 'dead' even though they are important to you. This will
+    happen because
+    1. Methods are used via reflection
+    2. Methods are part of an api, that clients are expected to use
+    3. Methods are called from unit tests, or other code not included in your deadmethods ant task
+    
+    
     Deadmethods is available on maven with the following coordinates:
     
     groupId: com.mebigfatguy.deadmethods
