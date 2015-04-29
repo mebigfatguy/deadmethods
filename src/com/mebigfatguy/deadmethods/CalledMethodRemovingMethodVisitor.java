@@ -19,8 +19,6 @@ package com.mebigfatguy.deadmethods;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 import org.objectweb.asm.Handle;
