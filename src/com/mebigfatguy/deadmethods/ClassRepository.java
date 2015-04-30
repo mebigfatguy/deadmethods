@@ -162,9 +162,9 @@ public class ClassRepository implements Iterable<String> {
 			}
 
 			return info;
-		} catch (Exception ioe) {
+		} catch (Exception e) {
 			TaskFactory.getTask().log("Failed opening class into repository: " + clsName);
-			throw new IOException("Failed opening class into repository: " + clsName, ioe);
+			throw new IOException("Failed opening class into repository: " + clsName, e);
 		} finally {
 			Closer.close(is);
 		}
