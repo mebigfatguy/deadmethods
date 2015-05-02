@@ -41,6 +41,7 @@ public class CalledMethodRemovingMethodVisitor extends MethodVisitor {
 		state = State.NONE;
 	}
 
+	@Override
     public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
     	String methodInfo = owner + ":" + name + desc;
     	methods.remove(methodInfo);
