@@ -26,6 +26,7 @@ public class Closer {
 				c.close();
 			}
 		} catch (Exception e) {
+			//don't care
 		}
 	}
 }
