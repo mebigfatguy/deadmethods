@@ -98,7 +98,7 @@ public abstract class AbstractClassPathIterator implements Iterator<String> {
                     subIt = new DirectoryIterator(dir);
                 }
             } catch (IOException ioe) {
-
+            	// hasNext() will return false/next() will throw
             }
         }
 
