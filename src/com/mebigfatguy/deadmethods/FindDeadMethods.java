@@ -175,6 +175,7 @@ public class FindDeadMethods extends Task {
                 reflectiveAnnotations.add(ra);
             }
         } catch (IOException e) {
+        	// just go on assuming no annotations
         } finally {
             Closer.close(bis);
             
