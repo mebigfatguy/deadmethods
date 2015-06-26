@@ -3,8 +3,8 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="samples"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/ant-1.9.4.jar" sourcepath="lib/sources/ant-1.9.4-sources.jar"/>
 	<classpathentry kind="lib" path="lib/asm-5.0.3.jar" sourcepath="lib/sources/asm-5.0.3-sources.jar"/>
 	<classpathentry kind="lib" path="lib/junit-4.12.jar" sourcepath="lib/sources/junit-4.12-sources.jar"/>
+	<classpathentry kind="lib" path="lib/ant-1.9.5.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
