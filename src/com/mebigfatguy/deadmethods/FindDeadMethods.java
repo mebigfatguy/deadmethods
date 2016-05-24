@@ -53,40 +53,47 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 public class FindDeadMethods extends Task {
-    
+
     private static final String DEFAULT_REFLECTIVE_ANNOTATION_PATH = "/com/mebigfatguy/deadmethods/defaultReflectiveAnnotations.properties";
- 
+
     Path path;
     Path auxPath;
     Set<IgnoredPackage> ignoredPackages = new HashSet<IgnoredPackage>();
     Set<IgnoredClass> ignoredClasses = new HashSet<IgnoredClass>();
-	Set<ReflectiveAnnotation> reflectiveAnnotations = new HashSet<ReflectiveAnnotation>();
+    Set<IgnoredMethod> ignoredMethods = new HashSet<IgnoredMethod>();
+    Set<ReflectiveAnnotation> reflectiveAnnotations = new HashSet<ReflectiveAnnotation>();
 
     public void addConfiguredClasspath(final Path classpath) {
         path = classpath;
     }
 
     public void addConfiguredAuxClasspath(final Path auxClassPath) {
-    	auxPath = auxClassPath;
-    }
-    
-    public IgnoredPackage createIgnoredPackage() {
-    	IgnoredPackage ip = new IgnoredPackage();
-    	ignoredPackages.add(ip);
-    	return ip;
-    }
-    
-    public IgnoredClass createIgnoredClass() {
-    	IgnoredClass ic = new IgnoredClass();
-    	ignoredClasses.add(ic);
-    	return ic;
+        auxPath = auxClassPath;
     }
 
-	public ReflectiveAnnotation createReflectiveAnnotation() {
-		ReflectiveAnnotation ra = new ReflectiveAnnotation();
-		reflectiveAnnotations.add(ra);
-		return ra;
-	}
+    public IgnoredPackage createIgnoredPackage() {
+        IgnoredPackage ip = new IgnoredPackage();
+        ignoredPackages.add(ip);
+        return ip;
+    }
+
+    public IgnoredClass createIgnoredClass() {
+        IgnoredClass ic = new IgnoredClass();
+        ignoredClasses.add(ic);
+        return ic;
+    }
+
+    public IgnoredMethod createIgnoredMethod() {
+        IgnoredMethod im = new IgnoredMethod();
+        ignoredMethods.add(im);
+        return im;
+    }
+
+    public ReflectiveAnnotation createReflectiveAnnotation() {
+        ReflectiveAnnotation ra = new ReflectiveAnnotation();
+        reflectiveAnnotations.add(ra);
+        return ra;
+    }
 
     @Override
     public void execute() throws BuildException {
@@ -95,9 +102,9 @@ public class FindDeadMethods extends Task {
         }
 
         if (auxPath == null) {
-        	auxPath = new Path(getProject());
+            auxPath = new Path(getProject());
         }
-        
+
         loadDefaultReflectiveAnnotations();
 
         TaskFactory.setTask(this);
@@ -105,62 +112,69 @@ public class FindDeadMethods extends Task {
         ClassRepository repo = new ClassRepository(path, auxPath);
         Set<String> allMethods = new TreeSet<String>();
         try {
-	        classloop: for (String className : repo) {
-	        	if (!className.startsWith("[")) {
-		        	ClassInfo classInfo = repo.getClassInfo(className);
-		        	String packageName = classInfo.getPackageName();
-		        	for (IgnoredPackage ip : ignoredPackages) {
-		        		Matcher m = ip.getPattern().matcher(packageName);
-		        		if (m.matches()) {
-		        			continue classloop;
-		        		}
-		        	}
-		        	String clsName = classInfo.getClassName();
-		        	for (IgnoredClass ic : ignoredClasses) {
-		        		Matcher m = ic.getPattern().matcher(clsName);
-		        		if (m.matches()) {
-		        			continue classloop;
-		        		}
-		        	}
+            classloop: for (String className : repo) {
+                if (!className.startsWith("[")) {
+                    ClassInfo classInfo = repo.getClassInfo(className);
+                    String packageName = classInfo.getPackageName();
+                    for (IgnoredPackage ip : ignoredPackages) {
+                        Matcher m = ip.getPattern().matcher(packageName);
+                        if (m.matches()) {
+                            continue classloop;
+                        }
+                    }
+                    String clsName = classInfo.getClassName();
+                    for (IgnoredClass ic : ignoredClasses) {
+                        Matcher m = ic.getPattern().matcher(clsName);
+                        if (m.matches()) {
+                            continue classloop;
+                        }
+                    }
 
-	        		Set<MethodInfo> methods = classInfo.getMethodInfo();
+                    Set<MethodInfo> methods = classInfo.getMethodInfo();
 
-		        	for (MethodInfo methodInfo : methods) {
-		        		allMethods.add(className + ":" + methodInfo.getMethodName() + methodInfo.getMethodSignature());
-		        	}
-		        }
-	        }
+                    for (MethodInfo methodInfo : methods) {
+                        for (IgnoredMethod im : ignoredMethods) {
+                            Matcher m = im.getPattern().matcher(methodInfo.getMethodName());
+                            if (m.matches()) {
+                                continue;
+                            }
+                        }
 
-	        removeObjectMethods(repo, allMethods);
-	        removeMainMethods(repo, allMethods);
-	        removeNoArgCtors(repo, allMethods);
-	        removeJUnitMethods(repo, allMethods);
-	        removeReflectiveAnnotatedMethods(repo, allMethods);
-	        removeInterfaceImplementationMethods(repo, allMethods);
-	        removeSyntheticMethods(repo, allMethods);
-	        removeStandardEnumMethods(repo, allMethods);
-	        removeSpecialSerializableMethods(repo, allMethods);
-	        removeAnnotations(repo, allMethods);
-	        removeSpringMethods(repo, allMethods);
-	        removeSPIClasses(repo, allMethods);
+                        allMethods.add(className + ":" + methodInfo.getMethodName() + methodInfo.getMethodSignature());
+                    }
+                }
+            }
 
-	        for (String className : repo) {
-	        	InputStream is = null;
-	        	try {
-	        		is = repo.getClassStream(className);
+            removeObjectMethods(repo, allMethods);
+            removeMainMethods(repo, allMethods);
+            removeNoArgCtors(repo, allMethods);
+            removeJUnitMethods(repo, allMethods);
+            removeReflectiveAnnotatedMethods(repo, allMethods);
+            removeInterfaceImplementationMethods(repo, allMethods);
+            removeSyntheticMethods(repo, allMethods);
+            removeStandardEnumMethods(repo, allMethods);
+            removeSpecialSerializableMethods(repo, allMethods);
+            removeAnnotations(repo, allMethods);
+            removeSpringMethods(repo, allMethods);
+            removeSPIClasses(repo, allMethods);
 
-	        		ClassReader r = new ClassReader(is);
-	        		r.accept(new CalledMethodRemovingClassVisitor(repo, allMethods), ClassReader.SKIP_DEBUG);
-	        	} finally {
-	        		Closer.close(is);
-	        	}
-	        }
+            for (String className : repo) {
+                InputStream is = null;
+                try {
+                    is = repo.getClassStream(className);
 
-	        for (String m : allMethods) {
-	        	System.out.println(m);
-	        }
+                    ClassReader r = new ClassReader(is);
+                    r.accept(new CalledMethodRemovingClassVisitor(repo, allMethods), ClassReader.SKIP_DEBUG);
+                } finally {
+                    Closer.close(is);
+                }
+            }
+
+            for (String m : allMethods) {
+                System.out.println(m);
+            }
         } catch (Exception ioe) {
-        	throw new BuildException("Failed collecting methods: " + ioe.getMessage(), ioe);
+            throw new BuildException("Failed collecting methods: " + ioe.getMessage(), ioe);
         }
     }
 
@@ -175,53 +189,52 @@ public class FindDeadMethods extends Task {
                 reflectiveAnnotations.add(ra);
             }
         } catch (IOException e) {
-        	// just go on assuming no annotations
+            // just go on assuming no annotations
         } finally {
             Closer.close(bis);
-            
+
         }
-        
-        
+
     }
-    
+
     private void removeObjectMethods(ClassRepository repo, Set<String> methods) throws IOException {
-    	ClassInfo info = repo.getClassInfo("java/lang/Object");
-    	for (MethodInfo methodInfo : info.getMethodInfo()) {
-			clearDerivedMethods(methods, info, methodInfo.toString());
-		}
+        ClassInfo info = repo.getClassInfo("java/lang/Object");
+        for (MethodInfo methodInfo : info.getMethodInfo()) {
+            clearDerivedMethods(methods, info, methodInfo.toString());
+        }
     }
 
     private static void removeMainMethods(ClassRepository repo, Set<String> methods) {
-    	MethodInfo mainInfo = new MethodInfo("main", "([Ljava/lang/String;)V", Opcodes.ACC_STATIC);
-    	for (ClassInfo classInfo : repo.getAllClassInfos()) {
-    		Set<MethodInfo> methodInfo = classInfo.getMethodInfo();
-    		if (methodInfo.contains(mainInfo)) {
-    		    methods.remove(classInfo.getClassName() + ":main([Ljava/lang/String;)V");
-    		}
-    	}
+        MethodInfo mainInfo = new MethodInfo("main", "([Ljava/lang/String;)V", Opcodes.ACC_STATIC);
+        for (ClassInfo classInfo : repo.getAllClassInfos()) {
+            Set<MethodInfo> methodInfo = classInfo.getMethodInfo();
+            if (methodInfo.contains(mainInfo)) {
+                methods.remove(classInfo.getClassName() + ":main([Ljava/lang/String;)V");
+            }
+        }
     }
 
     private static void removeNoArgCtors(ClassRepository repo, Set<String> methods) {
-    	MethodInfo ctorInfo = new MethodInfo("<init>", "()V", Opcodes.ACC_STATIC);
-    	for (ClassInfo classInfo : repo.getAllClassInfos()) {
-    		Set<String> infs = new HashSet<String>(Arrays.asList(classInfo.getInterfaceNames()));
-    		if (infs.contains("java/lang/Serializable")) {
-	    		Set<MethodInfo> methodInfo = classInfo.getMethodInfo();
-	    		if (methodInfo.contains(ctorInfo)) {
-	    			methods.remove(classInfo.getClassName() + ":" + methodInfo);
-	    		}
-    		}
-    	}
+        MethodInfo ctorInfo = new MethodInfo("<init>", "()V", Opcodes.ACC_STATIC);
+        for (ClassInfo classInfo : repo.getAllClassInfos()) {
+            Set<String> infs = new HashSet<String>(Arrays.asList(classInfo.getInterfaceNames()));
+            if (infs.contains("java/lang/Serializable")) {
+                Set<MethodInfo> methodInfo = classInfo.getMethodInfo();
+                if (methodInfo.contains(ctorInfo)) {
+                    methods.remove(classInfo.getClassName() + ":" + methodInfo);
+                }
+            }
+        }
     }
 
     private static void removeJUnitMethods(ClassRepository repo, Set<String> methods) {
-    	for (ClassInfo classInfo : repo.getAllClassInfos()) {
-    		for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
-    			if (methodInfo.isTest()) {
-    				methods.remove(classInfo.getClassName() + ":" + methodInfo);
-    			}
-    		}
-    	}
+        for (ClassInfo classInfo : repo.getAllClassInfos()) {
+            for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
+                if (methodInfo.isTest()) {
+                    methods.remove(classInfo.getClassName() + ":" + methodInfo);
+                }
+            }
+        }
     }
 
     private void removeReflectiveAnnotatedMethods(ClassRepository repo, Set<String> methods) {
@@ -238,7 +251,7 @@ public class FindDeadMethods extends Task {
                     }
                 }
             }
-            
+
             for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
                 if (methodInfo.hasAnnotations()) {
                     for (ReflectiveAnnotation ra : reflectiveAnnotations) {
@@ -253,35 +266,35 @@ public class FindDeadMethods extends Task {
     }
 
     private void removeInterfaceImplementationMethods(ClassRepository repo, Set<String> methods) throws IOException {
-    	for (ClassInfo classInfo : repo.getAllClassInfos()) {
-        	if (classInfo.isInterface()) {
-        		for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
-        			clearDerivedMethods(methods, classInfo, methodInfo.toString());
-        		}
-        	}
+        for (ClassInfo classInfo : repo.getAllClassInfos()) {
+            if (classInfo.isInterface()) {
+                for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
+                    clearDerivedMethods(methods, classInfo, methodInfo.toString());
+                }
+            }
         }
     }
 
-    private static void removeSyntheticMethods(ClassRepository repo, Set<String> methods)  {
-    	for (ClassInfo classInfo : repo.getAllClassInfos()) {
-    		for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
-    			if (methodInfo.isSynthetic()) {
-    				methods.remove(classInfo.getClassName() + ":" + methodInfo);
-    			}
-    		}
-    	}
+    private static void removeSyntheticMethods(ClassRepository repo, Set<String> methods) {
+        for (ClassInfo classInfo : repo.getAllClassInfos()) {
+            for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
+                if (methodInfo.isSynthetic()) {
+                    methods.remove(classInfo.getClassName() + ":" + methodInfo);
+                }
+            }
+        }
     }
 
     private void removeStandardEnumMethods(ClassRepository repo, Set<String> methods) throws IOException {
-    	ClassInfo info = repo.getClassInfo("java/lang/Enum");
-    	{
-	    	MethodInfo methodInfo = new MethodInfo("valueOf", "(Ljava/lang/String;)?", Opcodes.ACC_PUBLIC);
-	    	clearDerivedMethods(methods, info, methodInfo.toString());
-    	}
-    	{
-	    	MethodInfo methodInfo = new MethodInfo("values", "()[?", Opcodes.ACC_PUBLIC);
-	    	clearDerivedMethods(methods, info, methodInfo.toString());
-    	}
+        ClassInfo info = repo.getClassInfo("java/lang/Enum");
+        {
+            MethodInfo methodInfo = new MethodInfo("valueOf", "(Ljava/lang/String;)?", Opcodes.ACC_PUBLIC);
+            clearDerivedMethods(methods, info, methodInfo.toString());
+        }
+        {
+            MethodInfo methodInfo = new MethodInfo("values", "()[?", Opcodes.ACC_PUBLIC);
+            clearDerivedMethods(methods, info, methodInfo.toString());
+        }
     }
 
     private static void removeSpecialSerializableMethods(ClassRepository repo, Set<String> methods) {
@@ -353,22 +366,22 @@ public class FindDeadMethods extends Task {
                             }
                             for (int j = 0; j < properties.getLength(); j++) {
                                 Element property = (Element) properties.item(j);
-                                Attr propertyAttr = (Attr)propertyNameExpression.evaluate(property, XPathConstants.NODE);
+                                Attr propertyAttr = (Attr) propertyNameExpression.evaluate(property, XPathConstants.NODE);
                                 String propNameValue = propertyAttr.getValue();
-                                Attr refAttr = (Attr)propertyRefExpression.evaluate(property, XPathConstants.NODE);
+                                Attr refAttr = (Attr) propertyRefExpression.evaluate(property, XPathConstants.NODE);
                                 if (refAttr == null) {
-                                    refAttr = (Attr)refBeanExpression.evaluate(property, XPathConstants.NODE);
+                                    refAttr = (Attr) refBeanExpression.evaluate(property, XPathConstants.NODE);
                                 }
 
-                                //Don't handle sub xml files thru value attributes yet
+                                // Don't handle sub xml files thru value attributes yet
                                 if (refAttr != null) {
                                     XPathExpression refClassExpression = xp.compile("/beans/bean[@id='" + refAttr.getValue() + "']/@class");
-                                    Attr refClassAttr = (Attr)refClassExpression.evaluate(doc, XPathConstants.NODE);
+                                    Attr refClassAttr = (Attr) refClassExpression.evaluate(doc, XPathConstants.NODE);
 
                                     if (refClassAttr != null) {
                                         String methodName = "set" + Character.toUpperCase(propNameValue.charAt(0)) + propNameValue.substring(1);
                                         String methodSig = "(L" + refClassAttr.getValue().replaceAll("\\.", "/") + ";)V";
-                                        methods.remove(classInfo.getClassName() + ":" +  methodName + methodSig);
+                                        methods.remove(classInfo.getClassName() + ":" + methodName + methodSig);
                                     }
                                 }
                             }
@@ -383,7 +396,7 @@ public class FindDeadMethods extends Task {
             }
         }
     }
-    
+
     private static void removeSPIClasses(ClassRepository repo, Set<String> methods) throws IOException {
         Iterator<String> spiIterator = repo.serviceIterator();
         while (spiIterator.hasNext()) {
@@ -402,52 +415,50 @@ public class FindDeadMethods extends Task {
                     }
                 }
             } catch (UnsupportedEncodingException e) {
-            }finally {
+            } finally {
                 Closer.close(br);
             }
         }
     }
 
     private void clearDerivedMethods(Set<String> methods, ClassInfo info, String methodInfo) throws IOException {
-    	Set<ClassInfo> derivedInfos = info.getDerivedClasses();
+        Set<ClassInfo> derivedInfos = info.getDerivedClasses();
 
-    	for (ClassInfo derivedInfo : derivedInfos) {
-    		//regex chokes because of the $ in output classname, so do it the old way
-    		int qMarkPos = methodInfo.indexOf('?');
-    		String appliedMethodInfo;
-    		if (qMarkPos >= 0) {
-    			appliedMethodInfo = methodInfo.substring(0, qMarkPos);
-    			appliedMethodInfo += "L" + derivedInfo.getClassName() + ";";
-    			appliedMethodInfo += methodInfo.substring(qMarkPos+1);
-    		} else {
-    			appliedMethodInfo = methodInfo;
-    		}
-    		methods.remove(derivedInfo.getClassName() + ":" + appliedMethodInfo);
-    		clearDerivedMethods(methods, derivedInfo, methodInfo);
-    	}
+        for (ClassInfo derivedInfo : derivedInfos) {
+            // regex chokes because of the $ in output classname, so do it the old way
+            int qMarkPos = methodInfo.indexOf('?');
+            String appliedMethodInfo;
+            if (qMarkPos >= 0) {
+                appliedMethodInfo = methodInfo.substring(0, qMarkPos);
+                appliedMethodInfo += "L" + derivedInfo.getClassName() + ";";
+                appliedMethodInfo += methodInfo.substring(qMarkPos + 1);
+            } else {
+                appliedMethodInfo = methodInfo;
+            }
+            methods.remove(derivedInfo.getClassName() + ":" + appliedMethodInfo);
+            clearDerivedMethods(methods, derivedInfo, methodInfo);
+        }
     }
 
-	/** for testing only */
+    /** for testing only */
     public static void main(String[] args) {
 
-    	if (args.length < 1) {
-    		throw new IllegalArgumentException("args must contain classpath root");
-    	}
+        if (args.length < 1) {
+            throw new IllegalArgumentException("args must contain classpath root");
+        }
 
+        FindDeadMethods fdm = new FindDeadMethods();
+        Project project = new Project();
+        fdm.setProject(project);
 
-    	FindDeadMethods fdm = new FindDeadMethods();
-    	Project project = new Project();
-    	fdm.setProject(project);
+        Path path = new Path(project);
+        path.setLocation(new File(args[0]));
+        fdm.addConfiguredClasspath(path);
+        ReflectiveAnnotation ra = fdm.createReflectiveAnnotation();
+        ra.setName("test.reflective.ReflectiveUse");
+        IgnoredPackage ip = fdm.createIgnoredPackage();
+        ip.setPattern("test\\.ignored");
 
-    	Path path = new Path(project);
-    	path.setLocation(new File(args[0]));
-    	fdm.addConfiguredClasspath(path);
-    	ReflectiveAnnotation ra = fdm.createReflectiveAnnotation();
-    	ra.setName("test.reflective.ReflectiveUse");
-    	IgnoredPackage ip = fdm.createIgnoredPackage();
-    	ip.setPattern("test\\.ignored");
-
-    	fdm.execute();
+        fdm.execute();
     }
 }
-

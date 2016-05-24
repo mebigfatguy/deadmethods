@@ -26,6 +26,7 @@ Then create a task such as:
             <ignoredPackage pattern="com.you.ignore.me.*"/>
             <ignoredPackage pattern="you.ignore.me2.*"/>
             <ignoredClass pattern=".*MBean"/>
+            <ignoredMethod pattern="_get_.*"/>
         </dm:deadmethods>
     </target>
 
