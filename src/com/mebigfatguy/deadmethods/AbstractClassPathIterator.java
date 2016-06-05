@@ -85,7 +85,7 @@ public abstract class AbstractClassPathIterator implements Iterator<String> {
     }
 
     private void initializeSubIterator() {
-        while (frIt.hasNext() && (subIt == null)) {
+        while ((subIt == null) && frIt.hasNext()) {
             try {
                 Resource fr = frIt.next();
                 File dir = new File(fr.toString());
