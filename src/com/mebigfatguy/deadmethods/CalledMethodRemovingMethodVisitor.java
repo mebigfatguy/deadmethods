@@ -28,156 +28,160 @@ import org.objectweb.asm.Opcodes;
 
 public class CalledMethodRemovingMethodVisitor extends MethodVisitor {
 
-	enum State {NONE, NEW_TOS};
-	
-	private final ClassRepository repo;
-	private final Set<String> methods;
-	private State state;
+    enum State {
+        NONE, NEW_TOS
+    };
 
-	public CalledMethodRemovingMethodVisitor(ClassRepository repository, Set<String> allMethods) {
-	    super(Opcodes.ASM4);
-		repo = repository;
-		methods = allMethods;
-		state = State.NONE;
-	}
+    private final ClassRepository repo;
+    private final Set<String> methods;
+    private State state;
 
-	@Override
+    public CalledMethodRemovingMethodVisitor(ClassRepository repository, Set<String> allMethods) {
+        super(Opcodes.ASM4);
+        repo = repository;
+        methods = allMethods;
+        state = State.NONE;
+    }
+
+    @Override
     public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-    	String methodInfo = owner + ":" + name + desc;
-    	methods.remove(methodInfo);
+        String methodInfo = owner + ":" + name + desc;
+        methods.remove(methodInfo);
 
-    	try {
-    		if (!owner.startsWith("[")) {
-	    		ClassInfo info = repo.getClassInfo(owner);
-	    		clearDerivedMethods(info, name + desc);
-				clearInheritedMethods(info, name + desc);
-    		}
-    		
-    		processReflection(opcode, owner, name);
-    	} catch (IOException ioe) {
-    	}
+        try {
+            if (!owner.startsWith("[")) {
+                ClassInfo info = repo.getClassInfo(owner);
+                clearDerivedMethods(info, name + desc);
+                clearInheritedMethods(info, name + desc);
+            }
+
+            processReflection(opcode, owner, name);
+        } catch (IOException ioe) {
+        }
     }
-    
+
     @Override
-	public void visitInsn(int opcode) {
-    	state = State.NONE;
-	}
-
-	@Override
-	public void visitIntInsn(int opcode, int operand) {
-		state = State.NONE;
-	}
-
-	@Override
-	public void visitVarInsn(int opcode, int var) {
-		state = State.NONE;
-	}
-
-	@Override
-	public void visitTypeInsn(int opcode, String type) {
-		if ((opcode == Opcodes.CHECKCAST) && (state == State.NEW_TOS)) {
-			try {
-				ClassInfo rootInfo = repo.getClassInfo(type);
-				if (rootInfo != null) {
-					clearConstructors(rootInfo);
-				}
-			} catch (IOException ioe) {
-			}
-		}
-		state = State.NONE;
-	}
-
-	@Override
-	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-		state = State.NONE;
-	}
-
-	@Override
-	public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
-		state = State.NONE;
-	}
-
-	@Override
-	public void visitJumpInsn(int opcode, Label label) {
-		state = State.NONE;
-	}
-
-	@Override
-	public void visitLdcInsn(Object cst) {
-		state = State.NONE;
-	}
-
-	@Override
-	public void visitIincInsn(int var, int increment) {
-		state = State.NONE;
-	}
-
-	@Override
-	public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels) {
-		state = State.NONE;
-	}
-
-	@Override
-	public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
-		state = State.NONE;
-	}
-
-	@Override
-	public void visitMultiANewArrayInsn(String desc, int dims) {
-		state = State.NONE;
-	}
-
-	private void processReflection(int opcode, String owner, String name) {
-    	if (opcode != Opcodes.INVOKEVIRTUAL) {
-    		state = State.NONE;
-    		return;
-    	}
-    	
-    	if (owner.equals(Constructor.class.getName().replaceAll("\\.",  "/")) && name.equals("newInstance")) {
-    		state = State.NEW_TOS;
-    	}
+    public void visitInsn(int opcode) {
+        state = State.NONE;
     }
-	
+
     @Override
-	public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
+    public void visitIntInsn(int opcode, int operand) {
+        state = State.NONE;
     }
 
-	private void clearDerivedMethods(ClassInfo info, String methodInfo)  {
-    	Set<ClassInfo> derivedInfos = info.getDerivedClasses();
+    @Override
+    public void visitVarInsn(int opcode, int var) {
+        state = State.NONE;
+    }
 
-    	for (ClassInfo derivedInfo : derivedInfos) {
-    		methods.remove(derivedInfo.getClassName() + ":" + methodInfo);
-    		clearDerivedMethods(derivedInfo, methodInfo);
-    	}
+    @Override
+    public void visitTypeInsn(int opcode, String type) {
+        if ((opcode == Opcodes.CHECKCAST) && (state == State.NEW_TOS)) {
+            try {
+                ClassInfo rootInfo = repo.getClassInfo(type);
+                if (rootInfo != null) {
+                    clearConstructors(rootInfo);
+                }
+            } catch (IOException ioe) {
+            }
+        }
+        state = State.NONE;
+    }
+
+    @Override
+    public void visitFieldInsn(int opcode, String owner, String name, String desc) {
+        state = State.NONE;
+    }
+
+    @Override
+    public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
+        state = State.NONE;
+    }
+
+    @Override
+    public void visitJumpInsn(int opcode, Label label) {
+        state = State.NONE;
+    }
+
+    @Override
+    public void visitLdcInsn(Object cst) {
+        state = State.NONE;
+    }
+
+    @Override
+    public void visitIincInsn(int var, int increment) {
+        state = State.NONE;
+    }
+
+    @Override
+    public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels) {
+        state = State.NONE;
+    }
+
+    @Override
+    public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
+        state = State.NONE;
+    }
+
+    @Override
+    public void visitMultiANewArrayInsn(String desc, int dims) {
+        state = State.NONE;
+    }
+
+    private void processReflection(int opcode, String owner, String name) {
+        if (opcode != Opcodes.INVOKEVIRTUAL) {
+            state = State.NONE;
+            return;
+        }
+
+        if (owner.equals(Constructor.class.getName().replaceAll("\\.", "/")) && name.equals("newInstance")) {
+            state = State.NEW_TOS;
+        }
+    }
+
+    @Override
+    public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
+    }
+
+    private void clearDerivedMethods(ClassInfo info, String methodInfo) {
+        Set<ClassInfo> derivedInfos = info.getDerivedClasses();
+
+        for (ClassInfo derivedInfo : derivedInfos) {
+            methods.remove(derivedInfo.getClassName() + ":" + methodInfo);
+            clearDerivedMethods(derivedInfo, methodInfo);
+        }
     }
 
     private void clearInheritedMethods(ClassInfo info, String methodInfo) throws IOException {
-    	ClassInfo superInfo = repo.getClassInfo(info.getSuperClassName());
+        ClassInfo superInfo = repo.getClassInfo(info.getSuperClassName());
         while (superInfo != null) {
-    		methods.remove(superInfo.getClassName() + ":" + methodInfo);
-    		clearInheritedMethods(superInfo, methodInfo);
-			superInfo = repo.getClassInfo(superInfo.getSuperClassName());
-    	}
+            methods.remove(superInfo.getClassName() + ":" + methodInfo);
+            clearInheritedMethods(superInfo, methodInfo);
+            superInfo = repo.getClassInfo(superInfo.getSuperClassName());
+        }
 
         for (String interfaceName : info.getInterfaceNames()) {
             ClassInfo infInfo = repo.getClassInfo(interfaceName);
-            methods.remove(infInfo.getClassName() + ":" + methodInfo);
-            clearInheritedMethods(infInfo, methodInfo);
-            infInfo = repo.getClassInfo(infInfo.getSuperClassName());
+            while (infInfo != null) {
+                methods.remove(infInfo.getClassName() + ":" + methodInfo);
+                clearInheritedMethods(infInfo, methodInfo);
+                infInfo = repo.getClassInfo(infInfo.getSuperClassName());
+            }
         }
     }
-    
+
     private void clearConstructors(ClassInfo info) {
-    	
-    	for (MethodInfo methodInfo : info.getMethodInfo()) {
-    		if (methodInfo.getMethodName().equals("<init>")) {
-    			methods.remove(info.getClassName() + ":" + methodInfo);
-    		}
-    	}
-    	
-    	Set<ClassInfo> derivedInfos = info.getDerivedClasses();
-    	for (ClassInfo derivedInfo : derivedInfos) {
-    		clearConstructors(derivedInfo);
-    	}
+
+        for (MethodInfo methodInfo : info.getMethodInfo()) {
+            if (methodInfo.getMethodName().equals("<init>")) {
+                methods.remove(info.getClassName() + ":" + methodInfo);
+            }
+        }
+
+        Set<ClassInfo> derivedInfos = info.getDerivedClasses();
+        for (ClassInfo derivedInfo : derivedInfos) {
+            clearConstructors(derivedInfo);
+        }
     }
 }
