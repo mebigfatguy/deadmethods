@@ -41,11 +41,11 @@ public abstract class AbstractClassPathIterator implements Iterator<String> {
     public AbstractClassPathIterator(ResourceCollection classPath) {
         frIt = classPath.iterator();
     }
-    
+
     public abstract boolean validPath(String path, boolean isDirectory);
-    
+
     public abstract String adjustPath(String path);
-    
+
     @Override
     public boolean hasNext() {
         do {
@@ -62,7 +62,7 @@ public abstract class AbstractClassPathIterator implements Iterator<String> {
 
         return false;
     }
-    
+
     @Override
     public String next() {
         do {
@@ -78,7 +78,7 @@ public abstract class AbstractClassPathIterator implements Iterator<String> {
         } while ((subIt == null) && frIt.hasNext());
         throw new NoSuchElementException();
     }
-    
+
     @Override
     public void remove() {
         throw new UnsupportedOperationException("remove not supported");
@@ -98,12 +98,11 @@ public abstract class AbstractClassPathIterator implements Iterator<String> {
                     subIt = new DirectoryIterator(dir);
                 }
             } catch (IOException ioe) {
-            	// hasNext() will return false/next() will throw
+                // hasNext() will return false/next() will throw
             }
         }
 
-        if (subIt == null)
-        {
+        if (subIt == null) {
             subIt = new Iterator<String>() {
 
                 @Override
@@ -123,7 +122,7 @@ public abstract class AbstractClassPathIterator implements Iterator<String> {
             };
         }
     }
-    
+
     class JarIterator implements Iterator<String> {
 
         private JarInputStream jis;
@@ -176,7 +175,7 @@ public abstract class AbstractClassPathIterator implements Iterator<String> {
 
             try {
                 JarEntry entry = jis.getNextJarEntry();
-                
+
                 while (entry != null) {
                     if (validPath(entry.getName(), false)) {
                         return adjustPath(entry.getName());
@@ -257,7 +256,9 @@ public abstract class AbstractClassPathIterator implements Iterator<String> {
                                 return validPath(name, f.isDirectory());
                             }
                         });
-                        paths.addAll(Arrays.asList(files));
+                        if (files != null) {
+                            paths.addAll(Arrays.asList(files));
+                        }
                     }
                 } else {
                     TaskFactory.getTask().log("Classpath element doesn't exist - ignored: " + file.getPath());
@@ -267,6 +268,5 @@ public abstract class AbstractClassPathIterator implements Iterator<String> {
             return null;
         }
     }
-
 
 }
