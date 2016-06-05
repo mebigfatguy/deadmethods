@@ -444,7 +444,7 @@ public class FindDeadMethods extends Task {
     public static void main(String[] args) {
 
         if (args.length < 1) {
-            throw new IllegalArgumentException("args must contain classpath root");
+            throw new IllegalArgumentException("args (" + Arrays.toString(args) + ") must contain classpath root");
         }
 
         FindDeadMethods fdm = new FindDeadMethods();
