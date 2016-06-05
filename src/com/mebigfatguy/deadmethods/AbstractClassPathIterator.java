@@ -58,7 +58,7 @@ public abstract class AbstractClassPathIterator implements Iterator<String> {
             }
 
             subIt = null;
-        } while ((subIt == null) && frIt.hasNext());
+        } while (frIt.hasNext());
 
         return false;
     }
@@ -75,7 +75,7 @@ public abstract class AbstractClassPathIterator implements Iterator<String> {
             }
 
             subIt = null;
-        } while ((subIt == null) && frIt.hasNext());
+        } while (frIt.hasNext());
         throw new NoSuchElementException();
     }
 
