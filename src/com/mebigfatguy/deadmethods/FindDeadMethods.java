@@ -58,10 +58,10 @@ public class FindDeadMethods extends Task {
 
     Path path;
     Path auxPath;
-    Set<IgnoredPackage> ignoredPackages = new HashSet<>();
-    Set<IgnoredClass> ignoredClasses = new HashSet<>();
-    Set<IgnoredMethod> ignoredMethods = new HashSet<>();
-    Set<ReflectiveAnnotation> reflectiveAnnotations = new HashSet<>();
+    Set<IgnoredPackage> ignoredPackages = new HashSet();
+    Set<IgnoredClass> ignoredClasses = new HashSet();
+    Set<IgnoredMethod> ignoredMethods = new HashSet();
+    Set<ReflectiveAnnotation> reflectiveAnnotations = new HashSet();
 
     public void addConfiguredClasspath(final Path classpath) {
         path = classpath;
@@ -110,7 +110,7 @@ public class FindDeadMethods extends Task {
         TaskFactory.setTask(this);
 
         ClassRepository repo = new ClassRepository(path, auxPath);
-        Set<String> allMethods = new TreeSet<>();
+        Set<String> allMethods = new TreeSet();
         try {
             classloop: for (String className : repo) {
                 if (!className.startsWith("[")) {
@@ -217,7 +217,7 @@ public class FindDeadMethods extends Task {
     private static void removeNoArgCtors(ClassRepository repo, Set<String> methods) {
         MethodInfo ctorInfo = new MethodInfo("<init>", "()V", Opcodes.ACC_STATIC);
         for (ClassInfo classInfo : repo.getAllClassInfos()) {
-            Set<String> infs = new HashSet<>(Arrays.asList(classInfo.getInterfaceNames()));
+            Set<String> infs = new HashSet(Arrays.asList(classInfo.getInterfaceNames()));
             if (infs.contains("java/lang/Serializable")) {
                 Set<MethodInfo> methodInfo = classInfo.getMethodInfo();
                 if (methodInfo.contains(ctorInfo)) {
