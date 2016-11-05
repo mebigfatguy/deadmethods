@@ -135,7 +135,7 @@ public class CalledMethodRemovingMethodVisitor extends MethodVisitor {
             return;
         }
 
-        if (owner.equals(Constructor.class.getName().replaceAll("\\.", "/")) && name.equals("newInstance")) {
+        if ("newInstance".equals(name) && owner.equals(Constructor.class.getName().replaceAll("\\.", "/"))) {
             state = State.NEW_TOS;
         }
     }
@@ -174,7 +174,7 @@ public class CalledMethodRemovingMethodVisitor extends MethodVisitor {
     private void clearConstructors(ClassInfo info) {
 
         for (MethodInfo methodInfo : info.getMethodInfo()) {
-            if (methodInfo.getMethodName().equals("<init>")) {
+            if ("<init>".equals(methodInfo.getMethodName())) {
                 methods.remove(info.getClassName() + ":" + methodInfo);
             }
         }
