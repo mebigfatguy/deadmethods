@@ -48,6 +48,7 @@
 		<pathelement location="${lib.dir}/ant-${ant_.version}.jar"/>
 		<pathelement location="${lib.dir}/asm-${asm.version}.jar"/>
 		<pathelement location="${lib.dir}/junit-${junit.version}.jar"/>
+		<pathelement location="${lib.dir}/javax.servlet-api-${javax.servlet-api.version}.jar"/>
 	</path>
 	
 	<path id="deadmethods.classes.classpath">
@@ -110,7 +111,7 @@
 				deprecation="${javac.deprecation}"
 				debug="${javac.debug}"
 				includeantruntime="false">
-			<classpath refid="deadmethods.classpath"/>
+			<classpath refid="deadmethods.test.classpath"/>
 		</javac>
 	</target>
 
