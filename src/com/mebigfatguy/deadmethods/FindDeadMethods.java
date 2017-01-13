@@ -157,6 +157,7 @@ public class FindDeadMethods extends Task {
             removeAnnotations(repo, allMethods);
             removeSpringMethods(repo, allMethods);
             removeSPIClasses(repo, allMethods);
+            removeWebMethods(repo, allMethods);
 
             for (String className : repo) {
                 InputStream is = null;
@@ -418,6 +419,14 @@ public class FindDeadMethods extends Task {
             } finally {
                 Closer.close(br);
             }
+        }
+    }
+
+    private void removeWebMethods(ClassRepository repo, Set<String> methods) throws IOException {
+        ClassInfo info = repo.getClassInfo("javax/servlet/http/HttpServlet");
+
+        for (MethodInfo methodInfo : info.getMethodInfo()) {
+            clearDerivedMethods(methods, info, methodInfo.toString());
         }
     }
 
