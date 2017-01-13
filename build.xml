@@ -177,6 +177,18 @@
 		</deadmethods>
 	</target>
 	
+	<target name="samples" depends="jar,compile_samples" description="run deadmethods on the samples">
+		<taskdef name="deadmethods" classname="com.mebigfatguy.deadmethods.FindDeadMethods">
+			<classpath refid="deadmethods.test.classpath"/>
+		</taskdef>
+	
+		<deadmethods>
+			<classpath location="${samples.dir}" />
+			<auxClasspath refid="deadmethods.test.classpath"/>
+			<ignoredPackage pattern="test.ignored.*"/>
+		</deadmethods>
+	</target>
+	
     <target name="sonatype" depends="release" description="prepare an artifact bundle for sonatype">
         <mkdir dir="${sonatype.dir}"/>
         <copy todir="${sonatype.dir}" file="${target.dir}/deadmethods-${deadmethods.version}.jar"/>
