@@ -151,6 +151,7 @@ public class FindDeadMethods extends Task {
             removeJUnitMethods(repo, allMethods);
             removeReflectiveAnnotatedMethods(repo, allMethods);
             removeInterfaceImplementationMethods(repo, allMethods);
+            removeAnonymousInnerImplementationMethods(repo, allMethods);
             removeSyntheticMethods(repo, allMethods);
             removeStandardEnumMethods(repo, allMethods);
             removeSpecialSerializableMethods(repo, allMethods);
@@ -269,6 +270,16 @@ public class FindDeadMethods extends Task {
     private void removeInterfaceImplementationMethods(ClassRepository repo, Set<String> methods) throws IOException {
         for (ClassInfo classInfo : repo.getAllClassInfos()) {
             if (classInfo.isInterface()) {
+                for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
+                    clearDerivedMethods(methods, classInfo, methodInfo.toString());
+                }
+            }
+        }
+    }
+
+    private void removeAnonymousInnerImplementationMethods(ClassRepository repo, Set<String> methods) throws IOException {
+        for (ClassInfo classInfo : repo.getAllClassInfos()) {
+            if (classInfo.isAnonymous()) {
                 for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
                     clearDerivedMethods(methods, classInfo, methodInfo.toString());
                 }

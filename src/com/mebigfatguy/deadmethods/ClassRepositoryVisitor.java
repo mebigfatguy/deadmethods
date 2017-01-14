@@ -25,19 +25,19 @@ import org.objectweb.asm.Opcodes;
 /** collects high level details about this class */
 public class ClassRepositoryVisitor extends ClassVisitor {
 
-	private ClassInfo classInfo = null;
+    private ClassInfo classInfo = null;
 
-	public ClassRepositoryVisitor() {
-	    super(Opcodes.ASM4);
-	}
+    public ClassRepositoryVisitor() {
+        super(Opcodes.ASM4);
+    }
 
-	public ClassInfo getClassInfo() {
-		return classInfo;
-	}
+    public ClassInfo getClassInfo() {
+        return classInfo;
+    }
 
     @Override
     public void visit(final int version, final int access, final String name, final String signature, final String superName, final String[] interfaces) {
-    	classInfo = new ClassInfo(name, superName, interfaces, access);
+        classInfo = new ClassInfo(name, superName, interfaces, access, name.matches(".*[^\\.]\\$[0-9]+"));
     }
 
     @Override

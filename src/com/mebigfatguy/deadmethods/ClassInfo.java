@@ -24,95 +24,101 @@ import java.util.Set;
 import org.objectweb.asm.Opcodes;
 
 public class ClassInfo {
-	private final String className;
-	private final String superClassName;
-	private final String[] interfaces;
-	private final int classAccess;
-	private Set<String> annotations;
-	private final Set<MethodInfo> methodInfo;
-	private final Set<ClassInfo> derivedClasses;
+    private final String className;
+    private final String superClassName;
+    private final String[] interfaces;
+    private final int classAccess;
+    private final boolean isAnonymous;
+    private Set<String> annotations;
+    private final Set<MethodInfo> methodInfo;
+    private final Set<ClassInfo> derivedClasses;
 
-	public ClassInfo(String name, String superName, String[] infs, int access) {
-		className = name;
-		superClassName = superName;
-		interfaces = infs;
-		classAccess = access;
-		methodInfo = new HashSet<MethodInfo>();
-		derivedClasses = new HashSet<ClassInfo>();
-	}
+    public ClassInfo(String name, String superName, String[] infs, int access, boolean isAnonymousClass) {
+        className = name;
+        superClassName = superName;
+        interfaces = infs;
+        classAccess = access;
+        isAnonymous = isAnonymousClass;
+        methodInfo = new HashSet<MethodInfo>();
+        derivedClasses = new HashSet<ClassInfo>();
+    }
 
-	public MethodInfo addMethod(String name, String signature, int access) {
-		MethodInfo minfo = new MethodInfo(name, signature, access);
-		methodInfo.add(minfo);
-		return minfo;
-	}
+    public MethodInfo addMethod(String name, String signature, int access) {
+        MethodInfo minfo = new MethodInfo(name, signature, access);
+        methodInfo.add(minfo);
+        return minfo;
+    }
 
-	public String getClassName() {
-		return className;
-	}
+    public String getClassName() {
+        return className;
+    }
 
-	public String getPackageName() {
-		int slashPos = className.lastIndexOf('/');
-		if (slashPos < 0) {
-			return "";
-		}
+    public String getPackageName() {
+        int slashPos = className.lastIndexOf('/');
+        if (slashPos < 0) {
+            return "";
+        }
 
-		return className.substring(0, slashPos).replaceAll("/", ".");
-	}
+        return className.substring(0, slashPos).replaceAll("/", ".");
+    }
 
-	public String getSuperClassName() {
-		return superClassName;
-	}
+    public String getSuperClassName() {
+        return superClassName;
+    }
 
-	public String[] getInterfaceNames() {
-		return interfaces;
-	}
+    public String[] getInterfaceNames() {
+        return interfaces;
+    }
 
-	public boolean isInterface() {
-		return (classAccess & Opcodes.ACC_INTERFACE) != 0;
-	}
+    public boolean isInterface() {
+        return (classAccess & Opcodes.ACC_INTERFACE) != 0;
+    }
 
-	public boolean isSynthetic() {
-		return (classAccess & Opcodes.ACC_SYNTHETIC) != 0;
-	}
-	
-	public boolean isAnnotation() {
-	    return (classAccess & Opcodes.ACC_ANNOTATION) != 0;
-	}
+    public boolean isSynthetic() {
+        return (classAccess & Opcodes.ACC_SYNTHETIC) != 0;
+    }
 
-	public int getAccess() {
-		return classAccess;
-	}
+    public boolean isAnnotation() {
+        return (classAccess & Opcodes.ACC_ANNOTATION) != 0;
+    }
+
+    public boolean isAnonymous() {
+        return isAnonymous;
+    }
+
+    public int getAccess() {
+        return classAccess;
+    }
 
     public void addAnnotation(String annotation) {
-         if (annotations == null) {
-             annotations = new HashSet<String>();
-         }
-         annotations.add(annotation);
-     }
-    
-     public boolean hasAnnotations() {
-         return annotations != null;
-     }
-    
-     public boolean hasAnnotation(String annotation) {
+        if (annotations == null) {
+            annotations = new HashSet<String>();
+        }
+        annotations.add(annotation);
+    }
+
+    public boolean hasAnnotations() {
+        return annotations != null;
+    }
+
+    public boolean hasAnnotation(String annotation) {
         return (annotations != null) && annotations.contains(annotation);
-     }
-	    
-	public Set<MethodInfo> getMethodInfo() {
-		return methodInfo;
-	}
+    }
 
-	public void addDerivedClass(ClassInfo derived) {
-		derivedClasses.add(derived);
-	}
+    public Set<MethodInfo> getMethodInfo() {
+        return methodInfo;
+    }
 
-	public Set<ClassInfo> getDerivedClasses() {
-		return Collections.<ClassInfo>unmodifiableSet(derivedClasses);
-	}
+    public void addDerivedClass(ClassInfo derived) {
+        derivedClasses.add(derived);
+    }
 
-	@Override
-	public String toString() {
-		return className;
-	}
+    public Set<ClassInfo> getDerivedClasses() {
+        return Collections.<ClassInfo> unmodifiableSet(derivedClasses);
+    }
+
+    @Override
+    public String toString() {
+        return className;
+    }
 }
