@@ -96,6 +96,14 @@ public class CalledMethodRemovingMethodVisitor extends MethodVisitor {
 
     @Override
     public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
+        for (Object o : bsmArgs) {
+            if (o instanceof Handle) {
+                Handle handle = (Handle) o;
+                
+                String methodInfo = handle.getOwner() + ":" + handle.getName() + handle.getDesc();
+                methods.remove(methodInfo);
+            }
+        }
         state = State.NONE;
     }
 
