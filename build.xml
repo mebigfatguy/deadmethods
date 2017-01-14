@@ -107,8 +107,8 @@
 	<target name="compile_samples" depends="-init" description="compiles java files">
 		<javac srcdir="${samples.dir}"
 				destdir="${samples.dir}"
-				source="${javac.source}"
-				target="${javac.target}"
+				source="1.8"
+				target="1.8"
 				deprecation="${javac.deprecation}"
 				debug="${javac.debug}"
 				includeantruntime="false">
