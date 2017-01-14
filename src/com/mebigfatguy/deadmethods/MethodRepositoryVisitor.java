@@ -26,7 +26,7 @@ public class MethodRepositoryVisitor extends MethodVisitor {
 	private final MethodInfo methodInfo;
 
 	public MethodRepositoryVisitor(MethodInfo minfo) {
-	    super(Opcodes.ASM4);
+	    super(Opcodes.ASM5);
 		methodInfo = minfo;
 	}
 

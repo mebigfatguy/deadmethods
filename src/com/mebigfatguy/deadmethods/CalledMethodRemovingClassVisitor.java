@@ -29,7 +29,7 @@ class CalledMethodRemovingClassVisitor extends ClassVisitor {
     private final CalledMethodRemovingMethodVisitor m_calledMethodRemovingMethodVisitor;
 
     public CalledMethodRemovingClassVisitor(ClassRepository repository, Set<String> methods) {
-        super(Opcodes.ASM4);
+        super(Opcodes.ASM5);
         m_calledMethodRemovingMethodVisitor = new CalledMethodRemovingMethodVisitor(repository, methods);
     }
 

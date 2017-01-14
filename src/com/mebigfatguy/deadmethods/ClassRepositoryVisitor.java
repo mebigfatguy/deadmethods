@@ -28,7 +28,7 @@ public class ClassRepositoryVisitor extends ClassVisitor {
     private ClassInfo classInfo = null;
 
     public ClassRepositoryVisitor() {
-        super(Opcodes.ASM4);
+        super(Opcodes.ASM5);
     }
 
     public ClassInfo getClassInfo() {
