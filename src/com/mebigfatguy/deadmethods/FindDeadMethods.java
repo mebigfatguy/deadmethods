@@ -335,7 +335,16 @@ public class FindDeadMethods extends Task {
         }
     }
 
-    private void removeSpringMethods(ClassRepository repo, Set<String> methods) throws ParserConfigurationException, XPathExpressionException {
+    private void removeSpringMethods(ClassRepository repo, Set<String> methods) {
+        try {
+            removeSpringMethodsFromXML(repo, methods);
+            removeSpringMethodsFromAnnotations(repo, methods);
+        } catch (Exception e) {
+            throw new BuildException("Failed removing spring methods", e);
+        }
+    }
+
+    private void removeSpringMethodsFromXML(ClassRepository repo, Set<String> methods) throws ParserConfigurationException, XPathExpressionException {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
         XPathFactory xpf = XPathFactory.newInstance();
@@ -407,6 +416,17 @@ public class FindDeadMethods extends Task {
                 Closer.close(bis);
             }
         }
+    }
+    
+    private void removeSpringMethodsFromAnnotations(ClassRepository repo, Set<String> methods) {
+        for (ClassInfo classInfo : repo.getAllClassInfos()) {
+            for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
+                if ("<init>".equals(methodInfo.getMethodName()) && methodInfo.hasAnnotation("org.springframework.beans.factory.annotation.Autowired")) {
+                    methods.remove(classInfo.getClassName() + ":" + methodInfo);
+                }
+            }
+        }
+        
     }
 
     private static void removeSPIClasses(ClassRepository repo, Set<String> methods) throws IOException {
