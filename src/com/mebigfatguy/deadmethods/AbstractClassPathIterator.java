@@ -18,17 +18,17 @@
 package com.mebigfatguy.deadmethods;
 
 import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
+import java.util.stream.Collectors;
 
 import org.apache.tools.ant.types.Resource;
 import org.apache.tools.ant.types.ResourceCollection;
@@ -88,10 +88,10 @@ public abstract class AbstractClassPathIterator implements Iterator<String> {
         while ((subIt == null) && frIt.hasNext()) {
             try {
                 Resource fr = frIt.next();
-                File dir = new File(fr.toString());
-                if (dir.isFile()) {
-                    File jar = dir;
-                    if (jar.getName().endsWith(".jar")) {
+                Path dir = Paths.get(fr.toString());
+                if (!Files.isDirectory(dir)) {
+                    Path jar = dir;
+                    if (jar.toString().endsWith(".jar")) {
                         subIt = new JarIterator(jar);
                     }
                 } else {
@@ -128,8 +128,8 @@ public abstract class AbstractClassPathIterator implements Iterator<String> {
         private JarInputStream jis;
         private String nextEntry;
 
-        public JarIterator(File jar) throws IOException {
-            jis = new JarInputStream(new BufferedInputStream(new FileInputStream(jar)));
+        public JarIterator(Path jar) throws IOException {
+            jis = new JarInputStream(new BufferedInputStream(Files.newInputStream(jar)));
             nextEntry = null;
         }
 
@@ -192,12 +192,12 @@ public abstract class AbstractClassPathIterator implements Iterator<String> {
 
     class DirectoryIterator implements Iterator<String> {
         private final String root;
-        private final List<File> paths;
+        private final List<Path> paths;
         private String nextFile;
 
-        public DirectoryIterator(File dir) {
-            root = dir.getAbsolutePath();
-            paths = new ArrayList<File>();
+        public DirectoryIterator(Path dir) {
+            root = dir.toAbsolutePath().toString();
+            paths = new ArrayList<>();
             paths.add(dir);
             nextFile = null;
         }
@@ -205,7 +205,11 @@ public abstract class AbstractClassPathIterator implements Iterator<String> {
         @Override
         public boolean hasNext() {
             if (nextFile == null) {
-                nextFile = getNextFile();
+                try {
+                    nextFile = getNextFile();
+                } catch (IOException e) {
+                    return false;
+                }
             }
 
             if (nextFile == null) {
@@ -218,7 +222,13 @@ public abstract class AbstractClassPathIterator implements Iterator<String> {
         @Override
         public String next() {
             if (nextFile == null) {
-                nextFile = getNextFile();
+                try {
+                    nextFile = getNextFile();
+                } catch (IOException e) {
+                    NoSuchElementException nsee = new NoSuchElementException("failed to fetch file");
+                    nsee.initCause(e);
+                    throw nsee;
+                }
             }
 
             if (nextFile == null) {
@@ -235,33 +245,31 @@ public abstract class AbstractClassPathIterator implements Iterator<String> {
             throw new UnsupportedOperationException();
         }
 
-        private String getNextFile() {
+        private String getNextFile() throws IOException {
 
             while (!paths.isEmpty()) {
 
-                File file = paths.remove(paths.size() - 1);
-                if (file.exists()) {
-                    if (file.isFile()) {
-                        String fileName = file.getAbsolutePath();
-                        fileName = "/" + fileName.substring(root.length() + 1).replaceAll("\\\\", "/");
-                        if (validPath(fileName, file.isDirectory())) {
-                            return adjustPath(fileName);
+                Path file = paths.remove(paths.size() - 1);
+                if (Files.exists(file)) {
+                    if (Files.isDirectory(file)) {
+                        List<Path> children = Files.list(file).filter(f -> {
+                            String name = f.toString();
+                            name = name.substring(root.length());
+                            return validPath(name, Files.isDirectory(f));
+                        }).collect(Collectors.toList());
+
+                        if (children != null) {
+                            paths.addAll(children);
                         }
                     } else {
-                        File[] files = file.listFiles(new FileFilter() {
-                            @Override
-                            public boolean accept(File f) {
-                                String name = f.getPath();
-                                name = name.substring(root.length());
-                                return validPath(name, f.isDirectory());
-                            }
-                        });
-                        if (files != null) {
-                            paths.addAll(Arrays.asList(files));
+                        String fileName = file.toAbsolutePath().toString();
+                        fileName = "/" + fileName.substring(root.length() + 1).replaceAll("\\\\", "/");
+                        if (validPath(fileName, Files.isDirectory(file))) {
+                            return adjustPath(fileName);
                         }
                     }
                 } else {
-                    TaskFactory.getTask().log("Classpath element doesn't exist - ignored: " + file.getPath());
+                    TaskFactory.getTask().log("Classpath element doesn't exist - ignored: " + file.toString());
                 }
             }
 
