@@ -24,7 +24,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 
-class CalledMethodRemovingClassVisitor extends ClassVisitor {
+public class CalledMethodRemovingClassVisitor extends ClassVisitor {
 
     private final CalledMethodRemovingMethodVisitor m_calledMethodRemovingMethodVisitor;
 
