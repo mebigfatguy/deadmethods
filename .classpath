@@ -9,5 +9,8 @@
 	<classpathentry kind="lib" path="lib/asm-5.2.jar" sourcepath="/home/dave/.m2/repository/org/ow2/asm/asm/5.2/asm-5.2-sources.jar"/>
 	<classpathentry kind="lib" path="lib/spring-beans-4.3.5.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring-context-4.3.5.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/maven-plugin-api-3.5.0.jar"/>
+	<classpathentry kind="lib" path="lib/maven-plugin-annotations-3.5.jar"/>
+	<classpathentry kind="lib" path="lib/maven-project-2.0.11.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
