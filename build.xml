@@ -24,6 +24,7 @@
 	<property file="version.properties" />
 
 	<property name="src.dir" value="${basedir}/src/main/java"/>
+	<property name="resources.dir" value="${basedir}/src/main/resources"/>
 	<property name="samples.dir" value="${basedir}/src/samples/java"/>
 	<property name="target.dir" value="${basedir}/target"/>
 	<property name="samples.target.dir" value="${basedir}/target/samples/classes"/>
@@ -103,7 +104,7 @@
 	
     <target name="resources" description="copies files to classes">
         <copy todir="${classes.dir}">
-            <fileset dir="${src.dir}">
+            <fileset dir="${resources.dir}">
                 <include name="**/*.xml"/>
                 <include name="**/*.properties"/>
             </fileset>
