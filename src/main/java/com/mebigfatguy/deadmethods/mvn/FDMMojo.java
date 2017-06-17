@@ -19,6 +19,7 @@ package com.mebigfatguy.deadmethods.mvn;
 
 import java.io.File;
 
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -36,6 +37,9 @@ public class FDMMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     MavenProject project;
+
+    @Parameter(property = "session", readonly = true, required = true)
+    private MavenSession session;
 
     @Parameter(property = "outputFile")
     private File outputFile;
