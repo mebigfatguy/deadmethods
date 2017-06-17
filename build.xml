@@ -26,6 +26,7 @@
 	<property name="src.dir" value="${basedir}/src/main/java"/>
 	<property name="samples.dir" value="${basedir}/src/samples/java"/>
 	<property name="target.dir" value="${basedir}/target"/>
+	<property name="samples.target.dir" value="${basedir}/target/samples/classes"/>
 	<property name="classes.dir" value="${target.dir}/classes"/>
 	<property name="lib.dir" value="${basedir}/lib"/>
 	<property name="javadoc.dir" value="${target.dir}/javadoc"/>
@@ -111,7 +112,7 @@
 	
 	<target name="compile_samples" depends="-init" description="compiles java files">
 		<javac srcdir="${samples.dir}"
-				destdir="${samples.dir}"
+				destdir="${samples.target.dir}"
 				source="1.8"
 				target="1.8"
 				deprecation="${javac.deprecation}"
@@ -189,7 +190,7 @@
 		</taskdef>
 	
 		<deadmethods>
-			<classpath location="${samples.dir}" />
+			<classpath location="${samples.target.dir}" />
 			<auxClasspath refid="deadmethods.test.classpath"/>
 			<ignoredPackage pattern="test.ignored.*"/>
 		</deadmethods>
