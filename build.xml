@@ -23,7 +23,7 @@
 	<property file="build.properties"/>
 	<property file="version.properties" />
 
-	<property name="src.dir" value="${basedir}/src"/>
+	<property name="src.dir" value="${basedir}/src/main/java"/>
 	<property name="samples.dir" value="${basedir}/samples"/>
 	<property name="target.dir" value="${basedir}/target"/>
 	<property name="classes.dir" value="${target.dir}/classes"/>
