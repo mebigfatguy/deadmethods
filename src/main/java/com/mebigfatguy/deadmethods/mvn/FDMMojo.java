@@ -18,6 +18,7 @@
 package com.mebigfatguy.deadmethods.mvn;
 
 import java.io.File;
+import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
@@ -46,5 +47,7 @@ public class FDMMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException {
+
+        List<MavenProject> projects = session.getProjectDependencyGraph().getSortedProjects();
     }
 }
