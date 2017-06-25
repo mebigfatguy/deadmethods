@@ -357,6 +357,11 @@ public class FindDeadMethods extends Task {
 
     private void removeSpringMethodsFromXML(ClassRepository repo, Set<String> methods) throws ParserConfigurationException, XPathExpressionException {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setExpandEntityReferences(false);
+        dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+
         DocumentBuilder db = dbf.newDocumentBuilder();
         XPathFactory xpf = XPathFactory.newInstance();
         XPath xp = xpf.newXPath();
