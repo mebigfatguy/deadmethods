@@ -172,6 +172,6 @@ public class ClassRepository implements Iterable<String> {
 
     @Override
     public String toString() {
-        return "ClassRepository[path = " + path + "classInfo = " + classInfo + "]";
+        return "ClassRepository[path = " + path + ", classInfo = " + classInfo + "]";
     }
 }
