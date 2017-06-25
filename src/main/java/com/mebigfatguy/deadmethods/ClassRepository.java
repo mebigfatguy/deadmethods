@@ -42,131 +42,136 @@ import org.objectweb.asm.ClassReader;
 
 public class ClassRepository implements Iterable<String> {
 
-	private final Path path;
-	private final ClassLoader loader;
-	private final Map<String, ClassInfo> classInfo;
+    private final Path path;
+    private final ClassLoader loader;
+    private final Map<String, ClassInfo> classInfo;
 
-	public ClassRepository(Path classpath, Path auxClassPath) {
-		path = classpath;
-		loader = createClassLoader(classpath, auxClassPath);
-		classInfo = new HashMap<String, ClassInfo>();
-	}
+    public ClassRepository(Path classpath, Path auxClassPath) {
+        path = classpath;
+        loader = createClassLoader(classpath, auxClassPath);
+        classInfo = new HashMap<>();
+    }
 
-	public ClassInfo getClassInfo(String clsName) throws IOException {
-		if (clsName == null) {
-			return null;
-		}
+    public ClassInfo getClassInfo(String clsName) throws IOException {
+        if (clsName == null) {
+            return null;
+        }
 
-		ClassInfo info = classInfo.get(clsName);
-		if ((info == null) && !clsName.startsWith("[")) {
-			info = loadClassIntoRepository(clsName);
-		}
-		return info;
-	}
+        ClassInfo info = classInfo.get(clsName);
+        if ((info == null) && !clsName.startsWith("[")) {
+            info = loadClassIntoRepository(clsName);
+        }
+        return info;
+    }
 
-	public Collection<ClassInfo> getAllClassInfos() {
-		return Collections.<ClassInfo>unmodifiableCollection(classInfo.values());
-	}
+    public Collection<ClassInfo> getAllClassInfos() {
+        return Collections.<ClassInfo> unmodifiableCollection(classInfo.values());
+    }
 
-	public Set<MethodInfo> getMethodInfo(String clsName) throws IOException {
-		ClassInfo info = classInfo.get(clsName);
-		if (info == null) {
-			info = loadClassIntoRepository(clsName);
-		}
+    public Set<MethodInfo> getMethodInfo(String clsName) throws IOException {
+        ClassInfo info = classInfo.get(clsName);
+        if (info == null) {
+            info = loadClassIntoRepository(clsName);
+        }
 
-		return Collections.<MethodInfo>unmodifiableSet(info.getMethodInfo());
-	}
+        return Collections.<MethodInfo> unmodifiableSet(info.getMethodInfo());
+    }
 
-	@Override
-	public Iterator<String> iterator() {
-		return new PathIterator(path, ".class");
-	}
-	
-	public Iterator<String> xmlIterator() {
-	    return new PathIterator(path, ".xml");
-	}
-	
-	public Iterator<String> serviceIterator() {
-	    return new PathPrefixIterator(path, "/META-INF/services");
-	}
+    @Override
+    public Iterator<String> iterator() {
+        return new PathIterator(path, ".class");
+    }
 
-	private static final ClassLoader createClassLoader(final Path classpath, final Path auxClassPath) {
-		return AccessController.<URLClassLoader>doPrivileged(new PrivilegedAction<URLClassLoader>() {
-			@Override
-			public URLClassLoader run() {
-				Set<URL> urls = new HashSet<URL>();
+    public Iterator<String> xmlIterator() {
+        return new PathIterator(path, ".xml");
+    }
 
-				urls.addAll(convertPathToURLs(classpath));
-				urls.addAll(convertPathToURLs(auxClassPath));
+    public Iterator<String> serviceIterator() {
+        return new PathPrefixIterator(path, "/META-INF/services");
+    }
 
-				return new URLClassLoader(urls.toArray(new URL[urls.size()]));
-			}
-		});
-	}
+    private static final ClassLoader createClassLoader(final Path classpath, final Path auxClassPath) {
+        return AccessController.<URLClassLoader> doPrivileged(new PrivilegedAction<URLClassLoader>() {
+            @Override
+            public URLClassLoader run() {
+                Set<URL> urls = new HashSet<>();
 
-	private static List<URL> convertPathToURLs(ResourceCollection clsPath) {
-		List<URL> urls = new ArrayList<URL>();
+                urls.addAll(convertPathToURLs(classpath));
+                urls.addAll(convertPathToURLs(auxClassPath));
 
-		Iterator<Resource> it = clsPath.iterator();
-		while (it.hasNext()) {
-			try {
-				Resource resource = it.next();
-				File file = new File(resource.toString());
-				if (file.exists()) {
-					if (file.getAbsolutePath().endsWith(".jar")) {
-						urls.add(new URL("jar", "", "file://" + file.getAbsolutePath() + "!/"));
-					} else {
-						urls.add(file.toURI().toURL());
-					}
-				} else {
-					TaskFactory.getTask().log("ClassPath root does not exist: " + file.getAbsolutePath());
-				}
-			} catch (MalformedURLException murle) {
-				//do something
-			}
-		}
+                return new URLClassLoader(urls.toArray(new URL[urls.size()]));
+            }
+        });
+    }
 
-		return urls;
-	}
+    private static List<URL> convertPathToURLs(ResourceCollection clsPath) {
+        List<URL> urls = new ArrayList<>();
 
-	public InputStream getClassStream(String clsName) {
-		return loader.getResourceAsStream(clsName + ".class");
-	}
-	
-	public InputStream getStream(String xmlName) {
-	    return loader.getResourceAsStream(xmlName);
-	}
+        Iterator<Resource> it = clsPath.iterator();
+        while (it.hasNext()) {
+            try {
+                Resource resource = it.next();
+                File file = new File(resource.toString());
+                if (file.exists()) {
+                    if (file.getAbsolutePath().endsWith(".jar")) {
+                        urls.add(new URL("jar", "", "file://" + file.getAbsolutePath() + "!/"));
+                    } else {
+                        urls.add(file.toURI().toURL());
+                    }
+                } else {
+                    TaskFactory.getTask().log("ClassPath root does not exist: " + file.getAbsolutePath());
+                }
+            } catch (MalformedURLException murle) {
+                // do something
+            }
+        }
 
-	private ClassInfo loadClassIntoRepository(String clsName) throws IOException {
-		InputStream is = null;
-		try {
-			is = getClassStream(clsName);
-			ClassReader cr = new ClassReader(is);
-			ClassRepositoryVisitor crv = new ClassRepositoryVisitor();
-			cr.accept(crv, ClassReader.SKIP_DEBUG|ClassReader.SKIP_CODE);
-			ClassInfo info = crv.getClassInfo();
-			classInfo.put(clsName, info);
+        return urls;
+    }
 
-			if (!"java/lang/Object".equals(clsName)) {
-				String superClassName = info.getSuperClassName();
-				ClassInfo superInfo = getClassInfo(superClassName);
-				if (superInfo != null) {
-					superInfo.addDerivedClass(info);
-				}
+    public InputStream getClassStream(String clsName) {
+        return loader.getResourceAsStream(clsName + ".class");
+    }
 
-				String[] interfaceNames = info.getInterfaceNames();
-				for (String interfaceName : interfaceNames) {
-					ClassInfo infInfo = getClassInfo(interfaceName);
-					infInfo.addDerivedClass(info);
-				}
-			}
+    public InputStream getStream(String xmlName) {
+        return loader.getResourceAsStream(xmlName);
+    }
 
-			return info;
-		} catch (Exception e) {
-			TaskFactory.getTask().log("Failed opening class into repository: " + clsName);
-			throw new IOException("Failed opening class into repository: " + clsName, e);
-		} finally {
-			Closer.close(is);
-		}
-	}
+    private ClassInfo loadClassIntoRepository(String clsName) throws IOException {
+        InputStream is = null;
+        try {
+            is = getClassStream(clsName);
+            ClassReader cr = new ClassReader(is);
+            ClassRepositoryVisitor crv = new ClassRepositoryVisitor();
+            cr.accept(crv, ClassReader.SKIP_DEBUG | ClassReader.SKIP_CODE);
+            ClassInfo info = crv.getClassInfo();
+            classInfo.put(clsName, info);
+
+            if (!"java/lang/Object".equals(clsName)) {
+                String superClassName = info.getSuperClassName();
+                ClassInfo superInfo = getClassInfo(superClassName);
+                if (superInfo != null) {
+                    superInfo.addDerivedClass(info);
+                }
+
+                String[] interfaceNames = info.getInterfaceNames();
+                for (String interfaceName : interfaceNames) {
+                    ClassInfo infInfo = getClassInfo(interfaceName);
+                    infInfo.addDerivedClass(info);
+                }
+            }
+
+            return info;
+        } catch (Exception e) {
+            TaskFactory.getTask().log("Failed opening class into repository: " + clsName);
+            throw new IOException("Failed opening class into repository: " + clsName, e);
+        } finally {
+            Closer.close(is);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "ClassRepository[path = " + path + "classInfo = " + classInfo + "]";
+    }
 }
