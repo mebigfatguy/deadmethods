@@ -55,7 +55,6 @@ import org.w3c.dom.NodeList;
 import com.mebigfatguy.deadmethods.CalledMethodRemovingClassVisitor;
 import com.mebigfatguy.deadmethods.ClassInfo;
 import com.mebigfatguy.deadmethods.ClassRepository;
-import com.mebigfatguy.deadmethods.Closer;
 import com.mebigfatguy.deadmethods.IgnoredClass;
 import com.mebigfatguy.deadmethods.IgnoredMethod;
 import com.mebigfatguy.deadmethods.IgnoredPackage;
@@ -172,14 +171,9 @@ public class FindDeadMethods extends Task {
             removeWebMethods(repo, allMethods);
 
             for (String className : repo) {
-                InputStream is = null;
-                try {
-                    is = repo.getClassStream(className);
-
+                try (InputStream is = repo.getClassStream(className)) {
                     ClassReader r = new ClassReader(is);
                     r.accept(new CalledMethodRemovingClassVisitor(repo, allMethods), ClassReader.SKIP_DEBUG);
-                } finally {
-                    Closer.close(is);
                 }
             }
 
@@ -192,8 +186,7 @@ public class FindDeadMethods extends Task {
     }
 
     private void loadDefaultReflectiveAnnotations() {
-        BufferedInputStream bis = new BufferedInputStream(FindDeadMethods.class.getResourceAsStream(DEFAULT_REFLECTIVE_ANNOTATION_PATH));
-        try {
+        try (BufferedInputStream bis = new BufferedInputStream(FindDeadMethods.class.getResourceAsStream(DEFAULT_REFLECTIVE_ANNOTATION_PATH))) {
             Properties p = new Properties();
             p.load(bis);
             for (Object k : p.keySet()) {
@@ -203,11 +196,7 @@ public class FindDeadMethods extends Task {
             }
         } catch (IOException e) {
             // just go on assuming no annotations
-        } finally {
-            Closer.close(bis);
-
         }
-
     }
 
     private void removeObjectMethods(ClassRepository repo, Set<String> methods) throws IOException {
@@ -377,9 +366,7 @@ public class FindDeadMethods extends Task {
         Iterator<String> xmlIterator = repo.xmlIterator();
         while (xmlIterator.hasNext()) {
             String xmlName = xmlIterator.next() + ".xml";
-            BufferedInputStream bis = null;
-            try {
-                bis = new BufferedInputStream(repo.getStream(xmlName));
+            try (BufferedInputStream bis = new BufferedInputStream(repo.getStream(xmlName))) {
                 Document doc = db.parse(bis);
 
                 NodeList beans = (NodeList) beanExpression.evaluate(doc, XPathConstants.NODESET);
@@ -428,8 +415,6 @@ public class FindDeadMethods extends Task {
 
             } catch (Exception ioe) {
                 log("Failed parsing possible spring bean xml file: " + xmlName);
-            } finally {
-                Closer.close(bis);
             }
         }
     }
@@ -449,9 +434,7 @@ public class FindDeadMethods extends Task {
         Iterator<String> spiIterator = repo.serviceIterator();
         while (spiIterator.hasNext()) {
             String fileName = spiIterator.next();
-            BufferedReader br = null;
-            try {
-                br = new BufferedReader(new InputStreamReader(repo.getStream(fileName), "UTF-8"));
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(repo.getStream(fileName), "UTF-8"))) {
                 String clsName = br.readLine();
                 if (clsName != null) {
                     clsName = clsName.replaceAll("\\.", "/");
@@ -463,8 +446,6 @@ public class FindDeadMethods extends Task {
                     }
                 }
             } catch (UnsupportedEncodingException e) {
-            } finally {
-                Closer.close(br);
             }
         }
     }

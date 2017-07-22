@@ -138,9 +138,7 @@ public class ClassRepository implements Iterable<String> {
     }
 
     private ClassInfo loadClassIntoRepository(String clsName) throws IOException {
-        InputStream is = null;
-        try {
-            is = getClassStream(clsName);
+        try (InputStream is = getClassStream(clsName)) {
             ClassReader cr = new ClassReader(is);
             ClassRepositoryVisitor crv = new ClassRepositoryVisitor();
             cr.accept(crv, ClassReader.SKIP_DEBUG | ClassReader.SKIP_CODE);
@@ -165,8 +163,6 @@ public class ClassRepository implements Iterable<String> {
         } catch (Exception e) {
             TaskFactory.getTask().log("Failed opening class into repository: " + clsName);
             throw new IOException("Failed opening class into repository: " + clsName, e);
-        } finally {
-            Closer.close(is);
         }
     }
 
