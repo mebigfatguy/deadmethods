@@ -1,9 +1,12 @@
 <Project projectName="deadmethods">
-  <Jar>././target/classes</Jar>
-  <AuxClasspathEntry>./lib/ant-1.9.7.jar</AuxClasspathEntry>
-  <AuxClasspathEntry>./lib/asm-5.1.jar</AuxClasspathEntry>
-  <AuxClasspathEntry>./lib/junit-4.12.jar</AuxClasspathEntry>
-  <SrcDir>./././src</SrcDir>
+  <Jar>./././target/classes</Jar>
+  <AuxClasspathEntry>././lib/junit-4.12.jar</AuxClasspathEntry>
+  <AuxClasspathEntry>./lib/ant-1.10.1.jar</AuxClasspathEntry>
+  <AuxClasspathEntry>./lib/asm-5.2.jar</AuxClasspathEntry>
+  <AuxClasspathEntry>./lib/maven-core-3.5.0.jar</AuxClasspathEntry>
+  <AuxClasspathEntry>./lib/maven-plugin-annotations-3.5.jar</AuxClasspathEntry>
+  <AuxClasspathEntry>./lib/maven-plugin-api-3.5.0.jar</AuxClasspathEntry>
+  <SrcDir>././././src</SrcDir>
   <SuppressionFilter>
     <LastVersion value="-1" relOp="NEQ"/>
   </SuppressionFilter>
