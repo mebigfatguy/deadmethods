@@ -23,7 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -434,7 +434,7 @@ public class FindDeadMethods extends Task {
         Iterator<String> spiIterator = repo.serviceIterator();
         while (spiIterator.hasNext()) {
             String fileName = spiIterator.next();
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(repo.getStream(fileName), "UTF-8"))) {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(repo.getStream(fileName), StandardCharsets.UTF_8))) {
                 String clsName = br.readLine();
                 if (clsName != null) {
                     clsName = clsName.replaceAll("\\.", "/");
@@ -445,7 +445,6 @@ public class FindDeadMethods extends Task {
                         }
                     }
                 }
-            } catch (UnsupportedEncodingException e) {
             }
         }
     }
