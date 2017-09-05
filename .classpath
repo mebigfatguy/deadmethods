@@ -10,8 +10,8 @@
 	<classpathentry kind="lib" path="lib/maven-plugin-api-3.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/maven-plugin-annotations-3.5.jar"/>
 	<classpathentry kind="lib" path="lib/ant-1.10.1.jar"/>
-	<classpathentry kind="lib" path="lib/spring-beans-4.3.9.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/spring-context-4.3.9.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/maven-core-3.5.0.jar"/>
+	<classpathentry kind="lib" path="lib/spring-beans-4.3.10.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-context-4.3.10.RELEASE.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
