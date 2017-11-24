@@ -440,7 +440,7 @@ public class FindDeadMethods extends Task {
                     clsName = clsName.replaceAll("\\.", "/");
                     for (MethodInfo m : repo.getMethodInfo(clsName)) {
                         if ((m.getMethodAccess() & Opcodes.ACC_PUBLIC) != 0) {
-                            String methodInfo = clsName.replaceAll("\\.", "/") + ":" + m.getMethodName() + m.getMethodSignature();
+                            String methodInfo = clsName + ":" + m.getMethodName() + m.getMethodSignature();
                             methods.remove(methodInfo);
                         }
                     }
