@@ -155,6 +155,8 @@ public class FindDeadMethods extends Task {
                 }
             }
 
+            getProject().log("Method repository build", Project.MSG_VERBOSE);
+
             removeObjectMethods(repo, allMethods);
             removeMainMethods(repo, allMethods);
             removeNoArgCtors(repo, allMethods);
@@ -204,9 +206,10 @@ public class FindDeadMethods extends Task {
         for (MethodInfo methodInfo : info.getMethodInfo()) {
             clearDerivedMethods(methods, info, methodInfo.toString());
         }
+        getProject().log("Object methods removed", Project.MSG_VERBOSE);
     }
 
-    private static void removeMainMethods(ClassRepository repo, Set<String> methods) {
+    private void removeMainMethods(ClassRepository repo, Set<String> methods) {
         MethodInfo mainInfo = new MethodInfo("main", "([Ljava/lang/String;)V", Opcodes.ACC_STATIC);
         for (ClassInfo classInfo : repo.getAllClassInfos()) {
             Set<MethodInfo> methodInfo = classInfo.getMethodInfo();
@@ -214,9 +217,10 @@ public class FindDeadMethods extends Task {
                 methods.remove(classInfo.getClassName() + ":main([Ljava/lang/String;)V");
             }
         }
+        getProject().log("Main methods removed", Project.MSG_VERBOSE);
     }
 
-    private static void removeNoArgCtors(ClassRepository repo, Set<String> methods) {
+    private void removeNoArgCtors(ClassRepository repo, Set<String> methods) {
         MethodInfo ctorInfo = new MethodInfo("<init>", "()V", Opcodes.ACC_STATIC);
         for (ClassInfo classInfo : repo.getAllClassInfos()) {
             Set<String> infs = new HashSet<>(Arrays.asList(classInfo.getInterfaceNames()));
@@ -227,9 +231,10 @@ public class FindDeadMethods extends Task {
                 }
             }
         }
+        getProject().log("No arg constructors removed", Project.MSG_VERBOSE);
     }
 
-    private static void removeJUnitMethods(ClassRepository repo, Set<String> methods) {
+    private void removeJUnitMethods(ClassRepository repo, Set<String> methods) {
         for (ClassInfo classInfo : repo.getAllClassInfos()) {
             for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
                 if (methodInfo.isTest()) {
@@ -237,6 +242,8 @@ public class FindDeadMethods extends Task {
                 }
             }
         }
+        getProject().log("JUnit method removed", Project.MSG_VERBOSE);
+
     }
 
     private void removeReflectiveAnnotatedMethods(ClassRepository repo, Set<String> methods) {
@@ -265,6 +272,8 @@ public class FindDeadMethods extends Task {
                 }
             }
         }
+
+        getProject().log("Methods with reflective annotations removed", Project.MSG_VERBOSE);
     }
 
     private void removeInterfaceImplementationMethods(ClassRepository repo, Set<String> methods) throws IOException {
@@ -275,6 +284,8 @@ public class FindDeadMethods extends Task {
                 }
             }
         }
+
+        getProject().log("Interface implementing methods removed", Project.MSG_VERBOSE);
     }
 
     private void removeAnonymousInnerImplementationMethods(ClassRepository repo, Set<String> methods) throws IOException {
@@ -285,9 +296,10 @@ public class FindDeadMethods extends Task {
                 }
             }
         }
+        getProject().log("Anonymous inner class implementing methods removed", Project.MSG_VERBOSE);
     }
 
-    private static void removeSyntheticMethods(ClassRepository repo, Set<String> methods) {
+    private void removeSyntheticMethods(ClassRepository repo, Set<String> methods) {
         for (ClassInfo classInfo : repo.getAllClassInfos()) {
             for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
                 if (methodInfo.isSynthetic()) {
@@ -295,6 +307,7 @@ public class FindDeadMethods extends Task {
                 }
             }
         }
+        getProject().log("Synthetic methods removed", Project.MSG_VERBOSE);
     }
 
     private void removeStandardEnumMethods(ClassRepository repo, Set<String> methods) throws IOException {
@@ -307,9 +320,10 @@ public class FindDeadMethods extends Task {
             MethodInfo methodInfo = new MethodInfo("values", "()[?", Opcodes.ACC_PUBLIC);
             clearDerivedMethods(methods, info, methodInfo.toString());
         }
+        getProject().log("Standard enum methods removed", Project.MSG_VERBOSE);
     }
 
-    private static void removeSpecialSerializableMethods(ClassRepository repo, Set<String> methods) {
+    private void removeSpecialSerializableMethods(ClassRepository repo, Set<String> methods) {
         for (ClassInfo classInfo : repo.getAllClassInfos()) {
             for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
                 if ("writeObject".equals(methodInfo.getMethodName()) && "(Ljava/io/ObjectOutputStream;)V".equals(methodInfo.getMethodSignature())) {
@@ -323,9 +337,10 @@ public class FindDeadMethods extends Task {
                 }
             }
         }
+        getProject().log("Special Serializable methods removed", Project.MSG_VERBOSE);
     }
 
-    private static void removeAnnotations(ClassRepository repo, Set<String> methods) {
+    private void removeAnnotations(ClassRepository repo, Set<String> methods) {
         for (ClassInfo classInfo : repo.getAllClassInfos()) {
             if (classInfo.isAnnotation()) {
                 for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
@@ -333,6 +348,8 @@ public class FindDeadMethods extends Task {
                 }
             }
         }
+        getProject().log("Runtime Annotated methods removed", Project.MSG_VERBOSE);
+
     }
 
     private void removeSpringMethods(ClassRepository repo, Set<String> methods) {
@@ -417,6 +434,7 @@ public class FindDeadMethods extends Task {
                 log("Failed parsing possible spring bean xml file: " + xmlName);
             }
         }
+        getProject().log("XML based Spring methods removed", Project.MSG_VERBOSE);
     }
 
     private void removeSpringMethodsFromAnnotations(ClassRepository repo, Set<String> methods) {
@@ -427,10 +445,10 @@ public class FindDeadMethods extends Task {
                 }
             }
         }
-
+        getProject().log("Annotated Spring methods removed", Project.MSG_VERBOSE);
     }
 
-    private static void removeSPIClasses(ClassRepository repo, Set<String> methods) throws IOException {
+    private void removeSPIClasses(ClassRepository repo, Set<String> methods) throws IOException {
         Iterator<String> spiIterator = repo.serviceIterator();
         while (spiIterator.hasNext()) {
             String fileName = spiIterator.next();
@@ -447,6 +465,7 @@ public class FindDeadMethods extends Task {
                 }
             }
         }
+        getProject().log("SPI methods removed", Project.MSG_VERBOSE);
     }
 
     private void removeWebMethods(ClassRepository repo, Set<String> methods) throws IOException {
@@ -455,6 +474,7 @@ public class FindDeadMethods extends Task {
         for (MethodInfo methodInfo : info.getMethodInfo()) {
             clearDerivedMethods(methods, info, methodInfo.toString());
         }
+        getProject().log("Standard Web methods removed", Project.MSG_VERBOSE);
     }
 
     private void clearDerivedMethods(Set<String> methods, ClassInfo info, String methodInfo) throws IOException {
