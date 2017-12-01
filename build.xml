@@ -89,6 +89,7 @@
 	
 	<target name="-init" depends="yank" description="prepares repository for a build">
 		<mkdir dir="${classes.dir}"/>
+		<mkdir dir="${samples.target.dir}"/>
 		<mkdir dir="${javadoc.dir}"/>
 	</target>
 
