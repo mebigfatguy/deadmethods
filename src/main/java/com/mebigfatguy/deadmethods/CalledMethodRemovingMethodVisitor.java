@@ -37,7 +37,7 @@ public class CalledMethodRemovingMethodVisitor extends MethodVisitor {
     private State state;
 
     public CalledMethodRemovingMethodVisitor(ClassRepository repository, Set<String> allMethods) {
-        super(Opcodes.ASM5);
+        super(Opcodes.ASM6);
         repo = repository;
         methods = allMethods;
         state = State.NONE;
@@ -99,7 +99,7 @@ public class CalledMethodRemovingMethodVisitor extends MethodVisitor {
         for (Object o : bsmArgs) {
             if (o instanceof Handle) {
                 Handle handle = (Handle) o;
-                
+
                 String methodInfo = handle.getOwner() + ":" + handle.getName() + handle.getDesc();
                 methods.remove(methodInfo);
             }

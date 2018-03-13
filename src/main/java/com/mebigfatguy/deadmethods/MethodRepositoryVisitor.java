@@ -23,19 +23,17 @@ import org.objectweb.asm.Opcodes;
 
 public class MethodRepositoryVisitor extends MethodVisitor {
 
-	private final MethodInfo methodInfo;
+    private final MethodInfo methodInfo;
 
-	public MethodRepositoryVisitor(MethodInfo minfo) {
-	    super(Opcodes.ASM5);
-		methodInfo = minfo;
-	}
+    public MethodRepositoryVisitor(MethodInfo minfo) {
+        super(Opcodes.ASM6);
+        methodInfo = minfo;
+    }
 
-	@Override
+    @Override
     public AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
-        if ("Lorg/junit/Test;".equals(desc)
-        ||  "Lorg/junit/Before;".equals(desc)
-        ||  "Lorg/junit/After;".equals(desc)) {
-        	methodInfo.setTest(true);
+        if ("Lorg/junit/Test;".equals(desc) || "Lorg/junit/Before;".equals(desc) || "Lorg/junit/After;".equals(desc)) {
+            methodInfo.setTest(true);
         }
 
         String annotationName = desc.substring(1, desc.length() - 1).replaceAll("/", ".");
