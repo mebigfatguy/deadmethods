@@ -23,6 +23,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -429,9 +431,15 @@ public class FindDeadMethods extends Task {
                         }
                     }
                 }
-
             } catch (Exception ioe) {
                 log("Failed parsing possible spring bean xml file: " + xmlName);
+                try (StringWriter sw = new StringWriter()) {
+                    try (PrintWriter pw = new PrintWriter(sw)) {
+                        ioe.printStackTrace(pw);
+                    }
+                    log(sw.toString(), Project.MSG_VERBOSE);
+                } catch (IOException e) {
+                }
             }
         }
         getProject().log("XML based Spring methods removed", Project.MSG_VERBOSE);
