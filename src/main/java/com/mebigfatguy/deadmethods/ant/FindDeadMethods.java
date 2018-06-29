@@ -442,7 +442,7 @@ public class FindDeadMethods extends Task {
                 }
             }
         }
-        getProject().log("XML based Spring methods removed", Project.MSG_VERBOSE);
+        log("XML based Spring methods removed", Project.MSG_VERBOSE);
     }
 
     private void removeSpringMethodsFromAnnotations(ClassRepository repo, Set<String> methods) {
