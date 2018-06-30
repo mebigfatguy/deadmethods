@@ -37,7 +37,7 @@ happen because
 * Methods are part of an api, that clients are expected to use
 * Methods are called from unit tests, or other code not included in your deadmethods ant task
 
-Care should be taken to not indescriminately remove methods reported by this tool. This tool offers you
+Care should be taken to not indiscriminately remove methods reported by this tool. This tool offers you
 a starting point. Use due diligence to validate what the results are.
     
     
