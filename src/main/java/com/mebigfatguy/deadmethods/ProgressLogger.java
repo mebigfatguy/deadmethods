@@ -17,26 +17,9 @@
  */
 package com.mebigfatguy.deadmethods;
 
-public class PathPrefixIterator extends AbstractClassPathIterator {
-    String pathPrefix;
+public interface ProgressLogger {
 
-    public PathPrefixIterator(ClassPath classPath, String prefix) {
-        super(classPath);
-        pathPrefix = prefix;
-    }
+    void log(String message);
 
-    @Override
-    public boolean validPath(String path, boolean isDirectory) {
-        if (isDirectory) {
-            if (pathPrefix.startsWith(path)) {
-                return true;
-            }
-        }
-        return path.startsWith(pathPrefix);
-    }
-
-    @Override
-    public String adjustPath(String path) {
-        return path.substring(1);
-    }
+    void verbose(String message);
 }

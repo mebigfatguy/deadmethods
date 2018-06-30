@@ -15,28 +15,28 @@
  * See the License for the specific language governing permissions and limitations
  * under the License.
  */
-package com.mebigfatguy.deadmethods;
+package com.mebigfatguy.deadmethods.ant;
 
-public class PathPrefixIterator extends AbstractClassPathIterator {
-    String pathPrefix;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.Task;
 
-    public PathPrefixIterator(ClassPath classPath, String prefix) {
-        super(classPath);
-        pathPrefix = prefix;
+import com.mebigfatguy.deadmethods.ProgressLogger;
+
+public class AntProgressLogger implements ProgressLogger {
+
+    private Task task;
+
+    public AntProgressLogger(Task t) {
+        task = t;
     }
 
     @Override
-    public boolean validPath(String path, boolean isDirectory) {
-        if (isDirectory) {
-            if (pathPrefix.startsWith(path)) {
-                return true;
-            }
-        }
-        return path.startsWith(pathPrefix);
+    public void log(String message) {
+        task.getProject().log(message);
     }
 
     @Override
-    public String adjustPath(String path) {
-        return path.substring(1);
+    public void verbose(String message) {
+        task.getProject().log(message, Project.MSG_VERBOSE);
     }
 }

@@ -30,15 +30,12 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.stream.Collectors;
 
-import org.apache.tools.ant.types.Resource;
-import org.apache.tools.ant.types.ResourceCollection;
-
 public abstract class AbstractClassPathIterator implements Iterator<String> {
 
-    Iterator<Resource> frIt;
+    Iterator<String> frIt;
     Iterator<String> subIt = null;
 
-    public AbstractClassPathIterator(ResourceCollection classPath) {
+    public AbstractClassPathIterator(ClassPath classPath) {
         frIt = classPath.iterator();
     }
 
@@ -87,8 +84,8 @@ public abstract class AbstractClassPathIterator implements Iterator<String> {
     private void initializeSubIterator() {
         while ((subIt == null) && frIt.hasNext()) {
             try {
-                Resource fr = frIt.next();
-                Path dir = Paths.get(fr.toString());
+                String fr = frIt.next();
+                Path dir = Paths.get(fr);
                 if (!Files.isDirectory(dir)) {
                     Path jar = dir;
                     if (jar.toString().endsWith(".jar")) {

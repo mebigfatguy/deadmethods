@@ -17,28 +17,26 @@
  */
 package com.mebigfatguy.deadmethods;
 
-import org.apache.tools.ant.types.Path;
-
 public class PathIterator extends AbstractClassPathIterator {
-	String extension;
+    String extension;
 
-	public PathIterator(Path classPath, String fileExtension) {
-		super(classPath);
-		extension = fileExtension;
-	}
+    public PathIterator(ClassPath classPath, String fileExtension) {
+        super(classPath);
+        extension = fileExtension;
+    }
 
     @Override
     public boolean validPath(String path, boolean isDirectory) {
         if (isDirectory) {
             return true;
         }
-        
+
         return path.endsWith(extension);
     }
-    
+
     @Override
     public String adjustPath(String path) {
-        path =  path.substring(0, path.length() - extension.length());
+        path = path.substring(0, path.length() - extension.length());
         if (path.startsWith("/")) {
             path = path.substring(1);
         }

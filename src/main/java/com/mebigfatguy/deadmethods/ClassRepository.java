@@ -35,20 +35,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.tools.ant.types.Path;
-import org.apache.tools.ant.types.Resource;
-import org.apache.tools.ant.types.ResourceCollection;
 import org.objectweb.asm.ClassReader;
 
 public class ClassRepository implements Iterable<String> {
 
-    private final Path path;
+    private final ClassPath path;
     private final ClassLoader loader;
     private final Map<String, ClassInfo> classInfo;
 
-    public ClassRepository(Path classpath, Path auxClassPath) {
-        path = classpath;
-        loader = createClassLoader(classpath, auxClassPath);
+    public ClassRepository(ClassPath path2, ClassPath auxPath) {
+        path = path2;
+        loader = createClassLoader(path2, auxPath);
         classInfo = new HashMap<>();
     }
 
@@ -90,7 +87,7 @@ public class ClassRepository implements Iterable<String> {
         return new PathPrefixIterator(path, "/META-INF/services");
     }
 
-    private static final ClassLoader createClassLoader(final Path classpath, final Path auxClassPath) {
+    private static final ClassLoader createClassLoader(final ClassPath classpath, final ClassPath auxClassPath) {
         return AccessController.<URLClassLoader> doPrivileged(new PrivilegedAction<URLClassLoader>() {
             @Override
             public URLClassLoader run() {
@@ -104,14 +101,14 @@ public class ClassRepository implements Iterable<String> {
         });
     }
 
-    private static List<URL> convertPathToURLs(ResourceCollection clsPath) {
+    private static List<URL> convertPathToURLs(ClassPath clsPath) {
         List<URL> urls = new ArrayList<>();
 
-        Iterator<Resource> it = clsPath.iterator();
+        Iterator<String> it = clsPath.iterator();
         while (it.hasNext()) {
             try {
-                Resource resource = it.next();
-                File file = new File(resource.toString());
+                String resource = it.next();
+                File file = new File(resource);
                 if (file.exists()) {
                     if (file.getAbsolutePath().endsWith(".jar")) {
                         urls.add(new URL("jar", "", "file://" + file.getAbsolutePath() + "!/"));
