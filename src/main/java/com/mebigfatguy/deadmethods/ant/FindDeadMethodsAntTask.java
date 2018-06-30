@@ -35,7 +35,7 @@ import com.mebigfatguy.deadmethods.IgnoredMethod;
 import com.mebigfatguy.deadmethods.IgnoredPackage;
 import com.mebigfatguy.deadmethods.ReflectiveAnnotation;
 
-public class FindDeadMethods extends Task {
+public class FindDeadMethodsAntTask extends Task {
 
     Path path;
     Path auxPath;
@@ -109,7 +109,7 @@ public class FindDeadMethods extends Task {
             throw new IllegalArgumentException("args (" + Arrays.toString(args) + ") must contain classpath root");
         }
 
-        FindDeadMethods fdm = new FindDeadMethods();
+        FindDeadMethodsAntTask fdm = new FindDeadMethodsAntTask();
         Project project = new Project();
         fdm.setProject(project);
 
