@@ -19,15 +19,21 @@ package com.mebigfatguy.deadmethods.mvn;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import com.mebigfatguy.deadmethods.DeadMethods;
+import com.mebigfatguy.deadmethods.IgnoredClass;
+import com.mebigfatguy.deadmethods.IgnoredMethod;
+import com.mebigfatguy.deadmethods.IgnoredPackage;
 import com.sun.scenario.Settings;
 
 @Mojo(name = "finddeadmethods", requiresDependencyResolution = ResolutionScope.COMPILE, threadSafe = true)
@@ -49,5 +55,24 @@ public class FDMMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException {
 
         List<MavenProject> projects = session.getProjectDependencyGraph().getSortedProjects();
+
+        try {
+
+            Set<IgnoredPackage> ignoredPackages = null;
+            Set<IgnoredClass> ignoredClasses = null;
+            Set<IgnoredMethod> ignoredMethods = null;
+
+            DeadMethods dm = new DeadMethods(new MvnProgressLogger(this), new MvnClassPath(projects), new MvnClassPath(null), ignoredPackages, ignoredClasses,
+                    ignoredMethods);
+
+            Set<String> allMethods = dm.getDeadMethods();
+
+            Log log = this.getLog();
+            for (String m : allMethods) {
+                log.error(m);
+            }
+        } catch (Exception e) {
+            throw new MojoExecutionException("Finding dead methods failed", e);
+        }
     }
 }
