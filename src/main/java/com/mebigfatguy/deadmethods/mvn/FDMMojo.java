@@ -29,12 +29,12 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.settings.Settings;
 
 import com.mebigfatguy.deadmethods.DeadMethods;
 import com.mebigfatguy.deadmethods.IgnoredClass;
 import com.mebigfatguy.deadmethods.IgnoredMethod;
 import com.mebigfatguy.deadmethods.IgnoredPackage;
-import com.sun.scenario.Settings;
 
 @Mojo(name = "finddeadmethods", requiresDependencyResolution = ResolutionScope.COMPILE, threadSafe = true)
 public class FDMMojo extends AbstractMojo {
@@ -62,12 +62,12 @@ public class FDMMojo extends AbstractMojo {
             Set<IgnoredClass> ignoredClasses = null;
             Set<IgnoredMethod> ignoredMethods = null;
 
-            DeadMethods dm = new DeadMethods(new MvnProgressLogger(this), new MvnClassPath(projects), new MvnClassPath(null), ignoredPackages, ignoredClasses,
-                    ignoredMethods);
+            DeadMethods dm = new DeadMethods(new MvnProgressLogger(this), new MvnClassPath(projects), new MvnAuxClassPath(projects, settings), ignoredPackages,
+                    ignoredClasses, ignoredMethods);
 
             Set<String> allMethods = dm.getDeadMethods();
 
-            Log log = this.getLog();
+            Log log = getLog();
             for (String m : allMethods) {
                 log.error(m);
             }

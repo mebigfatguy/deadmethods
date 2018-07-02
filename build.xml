@@ -44,6 +44,8 @@
 		<pathelement location="${lib.dir}/maven-plugin-annotations-${maven-plugin-annotations.version}.jar"/>
 		<pathelement location="${lib.dir}/maven-plugin-api-${maven-plugin-api.version}.jar"/>
 		<pathelement location="${lib.dir}/maven-core-${maven-core.version}.jar"/>
+        <pathelement location="${lib.dir}/maven-model-${maven-model.version}.jar"/>
+        <pathelement location="${lib.dir}/maven-settings-${maven-settings.version}.jar"/>
 		<pathelement location="${lib.dir}/asm-${asm.version}.jar"/>
 		<pathelement location="${lib.dir}/junit-${junit.version}.jar"/>
 		<pathelement location="${lib.dir}/javax.servlet-api-${javax.servlet-api.version}.jar"/>
@@ -57,8 +59,7 @@
 		<pathelement location="${lib.dir}/javax.servlet-api-${javax.servlet-api.version}.jar"/>
 		<pathelement location="${lib.dir}/spring-beans-${spring-beans.version}.jar"/>		
 		<pathelement location="${lib.dir}/spring-context-${spring-context.version}.jar"/>
-		<pathelement location="${lib.dir}/maven-plugin-api-${maven-plugin-api.version}.jar"/>
-
+        <pathelement location="${lib.dir}/maven-plugin-api-${maven-plugin-api.version}.jar"/>
 	</path>
 	
 	<path id="deadmethods.classes.classpath">

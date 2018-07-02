@@ -17,29 +17,42 @@
  */
 package com.mebigfatguy.deadmethods.mvn;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
+import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.settings.Settings;
 
 import com.mebigfatguy.deadmethods.ClassPath;
 
-public class MvnClassPath implements ClassPath {
+public class MvnAuxClassPath implements ClassPath {
 
     private List<MavenProject> projects;
+    private String localRepo;
 
-    public MvnClassPath(List<MavenProject> projects) {
+    public MvnAuxClassPath(List<MavenProject> projects, Settings settings) {
         this.projects = projects;
+        localRepo = settings.getLocalRepository();
     }
 
     @Override
     public Iterator<String> iterator() {
-        return new MvnPathIterator();
+        return new MvnAuxPathIterator();
     }
 
-    class MvnPathIterator implements Iterator<String> {
+    class MvnAuxPathIterator implements Iterator<String> {
+        Iterator<Dependency> mvnIterator;
 
-        Iterator<MavenProject> mvnIterator = projects.iterator();
+        public MvnAuxPathIterator() {
+            Set<Dependency> dependencies = new HashSet<>();
+            for (MavenProject module : projects) {
+                dependencies.addAll(module.getDependencies());
+            }
+            mvnIterator = dependencies.iterator();
+        }
 
         @Override
         public boolean hasNext() {
@@ -48,8 +61,10 @@ public class MvnClassPath implements ClassPath {
 
         @Override
         public String next() {
-            MavenProject project = mvnIterator.next();
-            return project.getBuild().getOutputDirectory();
+            Dependency dependency = mvnIterator.next();
+
+            return localRepo + dependency.getGroupId().replace('.', '/') + "/" + dependency.getArtifactId() + "/" + dependency.getVersion() + "/"
+                    + dependency.getArtifactId() + "-" + dependency.getVersion() + "." + dependency.getType();
         }
     }
 }
