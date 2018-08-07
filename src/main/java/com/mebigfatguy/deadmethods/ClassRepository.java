@@ -44,8 +44,8 @@ public class ClassRepository implements Iterable<String> {
 
     public ClassRepository(ClassPath path2, ClassPath auxPath, ProgressLogger progressLogger) {
         path = path2;
-        loader = createClassLoader(path2, auxPath);
         logger = progressLogger;
+        loader = createClassLoader(path2, auxPath);
         classInfo = new ConcurrentHashMap<>();
         scanning = new AtomicBoolean();
     }
