@@ -1,5 +1,5 @@
 package test.enumerations;
 
 public enum W {
-	A, B, C;
+	A, B, C
 }

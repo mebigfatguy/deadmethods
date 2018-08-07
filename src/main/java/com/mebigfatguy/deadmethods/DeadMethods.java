@@ -61,7 +61,7 @@ public class DeadMethods {
     Set<ReflectiveAnnotation> reflectiveAnnotations = new HashSet<>();
 
     public DeadMethods(ProgressLogger logger, ClassPath path, ClassPath auxPath, Set<IgnoredPackage> ignoredPackages, Set<IgnoredClass> ignoredClasses,
-            Set<IgnoredMethod> ignoredMethods) {
+                       Set<IgnoredMethod> ignoredMethods) {
 
         this.logger = logger;
         this.path = path;
@@ -75,39 +75,48 @@ public class DeadMethods {
 
         loadDefaultReflectiveAnnotations();
 
-        ClassRepository repo = new ClassRepository(path, auxPath);
+
+        ClassRepository repo = new ClassRepository(path, auxPath, logger);
+        repo.startScanning();
         Set<String> allMethods = new TreeSet<>();
-        classloop: for (String className : repo) {
-            if (!className.startsWith("[")) {
-                ClassInfo classInfo = repo.getClassInfo(className);
-                String packageName = classInfo.getPackageName();
-                for (IgnoredPackage ip : ignoredPackages) {
-                    Matcher m = ip.getPattern().matcher(packageName);
-                    if (m.matches()) {
-                        continue classloop;
-                    }
-                }
-                String clsName = classInfo.getClassName();
-                for (IgnoredClass ic : ignoredClasses) {
-                    Matcher m = ic.getPattern().matcher(clsName);
-                    if (m.matches()) {
-                        continue classloop;
-                    }
-                }
 
-                Set<MethodInfo> methods = classInfo.getMethodInfo();
-
-                add: for (MethodInfo methodInfo : methods) {
-                    for (IgnoredMethod im : ignoredMethods) {
-                        Matcher m = im.getPattern().matcher(methodInfo.getMethodName());
+        try {
+            classloop:
+            for (String className : repo) {
+                if (!className.startsWith("[")) {
+                    ClassInfo classInfo = repo.getClassInfo(className);
+                    String packageName = classInfo.getPackageName();
+                    for (IgnoredPackage ip : ignoredPackages) {
+                        Matcher m = ip.getPattern().matcher(packageName);
                         if (m.matches()) {
-                            continue add;
+                            continue classloop;
+                        }
+                    }
+                    String clsName = classInfo.getClassName();
+                    for (IgnoredClass ic : ignoredClasses) {
+                        Matcher m = ic.getPattern().matcher(clsName);
+                        if (m.matches()) {
+                            continue classloop;
                         }
                     }
 
-                    allMethods.add(className + ":" + methodInfo.getMethodName() + methodInfo.getMethodSignature());
+                    Set<MethodInfo> methods = classInfo.getMethodInfo();
+
+                    add:
+                    for (MethodInfo methodInfo : methods) {
+                        for (IgnoredMethod im : ignoredMethods) {
+                            Matcher m = im.getPattern().matcher(methodInfo.getMethodName());
+                            if (m.matches()) {
+                                continue add;
+                            }
+                        }
+
+                        allMethods.add(className + ":" + methodInfo.getMethodName() + methodInfo.getMethodSignature());
+                    }
                 }
             }
+        } finally {
+            repo.terminate();
         }
 
         logger.verbose("Method repository build");
@@ -429,7 +438,7 @@ public class DeadMethods {
         logger.verbose("Standard Web methods removed");
     }
 
-    private void clearDerivedMethods(Set<String> methods, ClassInfo info, String methodInfo) throws IOException {
+    private void clearDerivedMethods(Set<String> methods, ClassInfo info, String methodInfo) {
         Set<ClassInfo> derivedInfos = info.getDerivedClasses();
 
         for (ClassInfo derivedInfo : derivedInfos) {

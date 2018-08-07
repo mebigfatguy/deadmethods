@@ -114,7 +114,7 @@ public class ClassInfo {
     }
 
     public Set<ClassInfo> getDerivedClasses() {
-        return Collections.<ClassInfo> unmodifiableSet(derivedClasses);
+        return Collections.unmodifiableSet(derivedClasses);
     }
 
     @Override

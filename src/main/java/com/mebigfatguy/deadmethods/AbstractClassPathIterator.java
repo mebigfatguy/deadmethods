@@ -34,9 +34,12 @@ public abstract class AbstractClassPathIterator implements Iterator<String> {
 
     Iterator<String> frIt;
     Iterator<String> subIt = null;
+    ProgressLogger logger;
 
-    public AbstractClassPathIterator(ClassPath classPath) {
+    public AbstractClassPathIterator(ClassPath classPath, ProgressLogger progressLogger) {
+
         frIt = classPath.iterator();
+        logger = progressLogger;
     }
 
     public abstract boolean validPath(String path, boolean isDirectory);
@@ -266,7 +269,7 @@ public abstract class AbstractClassPathIterator implements Iterator<String> {
                         }
                     }
                 } else {
-                    TaskFactory.getTask().log("Classpath element doesn't exist - ignored: " + file.toString());
+                    logger.log("Classpath element doesn't exist - ignored: " + file.toString());
                 }
             }
 

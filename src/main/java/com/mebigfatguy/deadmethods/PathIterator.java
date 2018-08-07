@@ -20,8 +20,8 @@ package com.mebigfatguy.deadmethods;
 public class PathIterator extends AbstractClassPathIterator {
     String extension;
 
-    public PathIterator(ClassPath classPath, String fileExtension) {
-        super(classPath);
+    public PathIterator(ClassPath classPath, String fileExtension, ProgressLogger progressLogger) {
+        super(classPath, progressLogger);
         extension = fileExtension;
     }
 

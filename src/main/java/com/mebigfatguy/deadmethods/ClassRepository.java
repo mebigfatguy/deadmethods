@@ -17,6 +17,8 @@
  */
 package com.mebigfatguy.deadmethods;
 
+import org.objectweb.asm.ClassReader;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,28 +27,44 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.objectweb.asm.ClassReader;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ClassRepository implements Iterable<String> {
 
     private final ClassPath path;
+    private final ProgressLogger logger;
     private final ClassLoader loader;
     private final Map<String, ClassInfo> classInfo;
+    private final AtomicBoolean scanning;
+    private ExecutorService executor;
 
-    public ClassRepository(ClassPath path2, ClassPath auxPath) {
+    public ClassRepository(ClassPath path2, ClassPath auxPath, ProgressLogger progressLogger) {
         path = path2;
         loader = createClassLoader(path2, auxPath);
-        classInfo = new HashMap<>();
+        logger = progressLogger;
+        classInfo = new ConcurrentHashMap<>();
+        scanning = new AtomicBoolean();
+    }
+
+    public void startScanning() {
+        if (scanning.getAndSet(true)) {
+            return;
+        }
+
+        executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
+        executor.execute(new ClassPopulator());
+    }
+
+    public void terminate() {
+        if (!scanning.getAndSet(true)) {
+            return;
+        }
+
+        executor.shutdown();
     }
 
     public ClassInfo getClassInfo(String clsName) throws IOException {
@@ -62,7 +80,7 @@ public class ClassRepository implements Iterable<String> {
     }
 
     public Collection<ClassInfo> getAllClassInfos() {
-        return Collections.<ClassInfo> unmodifiableCollection(classInfo.values());
+        return Collections.unmodifiableCollection(classInfo.values());
     }
 
     public Set<MethodInfo> getMethodInfo(String clsName) throws IOException {
@@ -71,24 +89,24 @@ public class ClassRepository implements Iterable<String> {
             info = loadClassIntoRepository(clsName);
         }
 
-        return Collections.<MethodInfo> unmodifiableSet(info.getMethodInfo());
+        return Collections.unmodifiableSet(info.getMethodInfo());
     }
 
     @Override
     public Iterator<String> iterator() {
-        return new PathIterator(path, ".class");
+        return new PathIterator(path, ".class", logger);
     }
 
     public Iterator<String> xmlIterator() {
-        return new PathIterator(path, ".xml");
+        return new PathIterator(path, ".xml", logger);
     }
 
     public Iterator<String> serviceIterator() {
-        return new PathPrefixIterator(path, "/META-INF/services");
+        return new PathPrefixIterator(path, "/META-INF/services", logger);
     }
 
-    private static final ClassLoader createClassLoader(final ClassPath classpath, final ClassPath auxClassPath) {
-        return AccessController.<URLClassLoader> doPrivileged(new PrivilegedAction<URLClassLoader>() {
+    private final ClassLoader createClassLoader(final ClassPath classpath, final ClassPath auxClassPath) {
+        return AccessController.doPrivileged(new PrivilegedAction<URLClassLoader>() {
             @Override
             public URLClassLoader run() {
                 Set<URL> urls = new HashSet<>();
@@ -101,7 +119,7 @@ public class ClassRepository implements Iterable<String> {
         });
     }
 
-    private static List<URL> convertPathToURLs(ClassPath clsPath) {
+    private List<URL> convertPathToURLs(ClassPath clsPath) {
         List<URL> urls = new ArrayList<>();
 
         Iterator<String> it = clsPath.iterator();
@@ -116,7 +134,7 @@ public class ClassRepository implements Iterable<String> {
                         urls.add(file.toURI().toURL());
                     }
                 } else {
-                    TaskFactory.getTask().log("ClassPath root does not exist: " + file.getAbsolutePath());
+                    logger.log("ClassPath root does not exist: " + file.getAbsolutePath());
                 }
             } catch (MalformedURLException murle) {
                 // do something
@@ -140,7 +158,10 @@ public class ClassRepository implements Iterable<String> {
             ClassRepositoryVisitor crv = new ClassRepositoryVisitor();
             cr.accept(crv, ClassReader.SKIP_DEBUG | ClassReader.SKIP_CODE);
             ClassInfo info = crv.getClassInfo();
-            classInfo.put(clsName, info);
+            ClassInfo existing = classInfo.putIfAbsent(clsName, info);
+            if (existing != null) {
+                info = existing;
+            }
 
             if (!"java/lang/Object".equals(clsName)) {
                 String superClassName = info.getSuperClassName();
@@ -158,7 +179,7 @@ public class ClassRepository implements Iterable<String> {
 
             return info;
         } catch (Exception e) {
-            TaskFactory.getTask().log("Failed opening class into repository: " + clsName);
+            logger.log("Failed opening class into repository: " + clsName);
             throw new IOException("Failed opening class into repository: " + clsName, e);
         }
     }
@@ -166,5 +187,35 @@ public class ClassRepository implements Iterable<String> {
     @Override
     public String toString() {
         return "ClassRepository[path = " + path + ", classInfo = " + classInfo + "]";
+    }
+
+    class ClassPopulator implements Runnable {
+
+        @Override
+        public void run() {
+            Iterator<String> it = iterator();
+            while (it.hasNext()) {
+                String className = it.next();
+                if (!className.startsWith("[")) {
+                    executor.execute(new ClassScanner(className));
+                }
+            }
+        }
+    }
+
+    class ClassScanner implements Runnable {
+
+        private String clsName;
+
+        public ClassScanner(String className) {
+            clsName = className;
+        }
+
+        public void run() {
+            try {
+                getClassInfo(clsName);
+            } catch (IOException e) {
+            }
+        }
     }
 }

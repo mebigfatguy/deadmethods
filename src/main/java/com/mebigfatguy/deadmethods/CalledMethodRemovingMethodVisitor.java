@@ -30,7 +30,7 @@ public class CalledMethodRemovingMethodVisitor extends MethodVisitor {
 
     enum State {
         NONE, NEW_TOS
-    };
+    }
 
     private final ClassRepository repo;
     private final Set<String> methods;

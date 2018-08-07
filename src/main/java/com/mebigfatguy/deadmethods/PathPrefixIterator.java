@@ -20,8 +20,8 @@ package com.mebigfatguy.deadmethods;
 public class PathPrefixIterator extends AbstractClassPathIterator {
     String pathPrefix;
 
-    public PathPrefixIterator(ClassPath classPath, String prefix) {
-        super(classPath);
+    public PathPrefixIterator(ClassPath classPath, String prefix, ProgressLogger progressLogger) {
+        super(classPath, progressLogger);
         pathPrefix = prefix;
     }
 
