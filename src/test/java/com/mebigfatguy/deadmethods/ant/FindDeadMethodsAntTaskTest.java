@@ -3,7 +3,9 @@ package com.mebigfatguy.deadmethods.ant;
 import org.apache.tools.ant.BuildEvent;
 import org.apache.tools.ant.BuildListener;
 import org.apache.tools.ant.Project;
+import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
+import org.apache.tools.ant.types.selectors.FilenameSelector;
 import org.junit.Test;
 
 import java.io.File;
@@ -24,6 +26,13 @@ public class FindDeadMethodsAntTaskTest {
         t.addConfiguredClasspath(cp);
 
         Path aux = new Path(p);
+        FileSet fs = new FileSet();
+        fs.setProject(p);
+        fs.setDir(new File(base, "lib"));
+        FilenameSelector fileNameSelector = new FilenameSelector();
+        fileNameSelector.setName("*.jar");
+        fs.addFilename(fileNameSelector);
+        aux.addFileset(fs);
         t.addConfiguredAuxClasspath(aux);
 
         t.execute();
