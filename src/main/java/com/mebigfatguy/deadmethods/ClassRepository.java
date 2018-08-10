@@ -35,6 +35,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ClassRepository implements Iterable<String> {
 
+    private static final int DEFAULT_SCAN_GROUP_SIZE = 10;
+
     private final ClassPath path;
     private final ProgressLogger logger;
     private final ClassLoader loader;
@@ -199,27 +201,38 @@ public class ClassRepository implements Iterable<String> {
         @Override
         public void run() {
             Iterator<String> it = iterator();
+            List<String> scanGroup = new ArrayList<>(DEFAULT_SCAN_GROUP_SIZE);
             while (it.hasNext()) {
                 String className = it.next();
                 if (!className.startsWith("[")) {
-                    executor.execute(new ClassScanner(className));
+                    scanGroup.add(className);
+                    if (scanGroup.size() >= DEFAULT_SCAN_GROUP_SIZE) {
+                        executor.execute(new ClassScanner(scanGroup));
+                        scanGroup = new ArrayList<>(DEFAULT_SCAN_GROUP_SIZE);
+                    }
                 }
+            }
+
+            if (!scanGroup.isEmpty()) {
+                executor.execute(new ClassScanner(scanGroup));
             }
         }
     }
 
     class ClassScanner implements Runnable {
 
-        private String clsName;
+        private List<String> clsNames;
 
-        public ClassScanner(String className) {
-            clsName = className;
+        public ClassScanner(List<String> classNames) {
+            clsNames = classNames;
         }
 
         public void run() {
-            try {
-                getClassInfo(clsName);
-            } catch (IOException e) {
+            for (String clsName : clsNames) {
+                try {
+                    getClassInfo(clsName);
+                } catch (IOException e) {
+                }
             }
         }
     }
