@@ -55,6 +55,11 @@ public class ClassRepository implements Iterable<String> {
             return;
         }
 
+        try {
+            getClassInfo("java/lang/Object");
+        } catch (IOException e) {
+        }
+        
         executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
         executor.execute(new ClassPopulator());
 
