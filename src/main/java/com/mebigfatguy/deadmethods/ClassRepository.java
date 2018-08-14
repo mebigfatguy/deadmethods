@@ -59,12 +59,12 @@ public class ClassRepository implements Iterable<String> {
             getClassInfo("java/lang/Object");
         } catch (IOException e) {
         }
-        
+
         executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
         executor.execute(new ClassPopulator());
 
         try {
-            Thread.sleep(500);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
         }
     }
