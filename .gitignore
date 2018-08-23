@@ -10,3 +10,7 @@ deadmethods-*.zip
 version.properties
 .~lock.yank.*
 /target
+
+.idea/
+deadmethods.iml
+
