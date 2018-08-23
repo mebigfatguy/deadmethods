@@ -146,6 +146,8 @@
 				<attribute name="Bundle-ClassPath" value="."/>
 				<attribute name="Bundle-Vendor" value="DeadMethods Project"/>
 				<attribute name="Bundle-ActivationPolicy" value="lazy"/>
+				<attribute name="Export-Package" value="com.mebigfatguy.deadmethods,com.mebigfatguy.deadmethods.ant,com.mebigfatguy.deadmethods.mvn" />
+                <attribute name="Import-Package" value="org.objectweb.asm,org.apache.tools.ant,org.apache.maven.execution,org.apache.maven.model,org.apache.maven.plugin,org.apache.maven.plugin.logging,org.apache.maven.plugins,org.apache.maven.project,org.apache.maven.settings" />
 			</manifest>
 		</jar>
 	</target>
