@@ -72,9 +72,10 @@ public class FindDeadMethodsAntTaskFromXMLTest {
 			NodeList cpElements = (NodeList) xpe.evaluate(d, XPathConstants.NODESET);
 			for (int i = 0; i < cpElements.getLength(); i++) {
 				Element cpElement = (Element) cpElements.item(i);
+				String path = cpElement.getAttribute("location");
 
 				Path cp = new Path(p);
-				// cp.setLocation(??);
+				cp.setLocation(new File(replaceMacro(path, properties)));
 				t.addConfiguredClasspath(cp);
 			}
 
