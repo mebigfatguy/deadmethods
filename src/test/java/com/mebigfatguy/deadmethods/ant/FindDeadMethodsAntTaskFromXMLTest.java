@@ -79,6 +79,17 @@ public class FindDeadMethodsAntTaskFromXMLTest {
 				t.addConfiguredClasspath(cp);
 			}
 
+			xpe = xp.compile("/project/target/deadmethods/auxClasspath/pathelement");
+			cpElements = (NodeList) xpe.evaluate(d, XPathConstants.NODESET);
+			for (int i = 0; i < cpElements.getLength(); i++) {
+				Element cpElement = (Element) cpElements.item(i);
+				String path = cpElement.getAttribute("location");
+
+				Path cp = new Path(p);
+				cp.setLocation(new File(replaceMacro(path, properties)));
+				t.addConfiguredAuxClasspath(cp);
+			}
+
 			return t;
 		} catch (IOException | ParserConfigurationException | SAXException | XPathExpressionException e) {
 			throw new BuildException("Failed parsing ant xml file: " + f, e);
