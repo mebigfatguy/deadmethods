@@ -33,6 +33,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.mebigfatguy.deadmethods.ReflectiveAnnotation;
+
 @RunWith(Parameterized.class)
 public class FindDeadMethodsAntTaskFromXMLTest {
 
@@ -88,6 +90,16 @@ public class FindDeadMethodsAntTaskFromXMLTest {
 				Path cp = new Path(p);
 				cp.setLocation(new File(replaceMacro(path, properties)));
 				t.addConfiguredAuxClasspath(cp);
+			}
+
+			xpe = xp.compile("/project/target/deadmethods/reflectiveAnnotation");
+			NodeList raElements = (NodeList) xpe.evaluate(d, XPathConstants.NODESET);
+			for (int i = 0; i < raElements.getLength(); i++) {
+				Element raElement = (Element) raElements.item(i);
+				String name = raElement.getAttribute("name");
+
+				ReflectiveAnnotation ra = t.createReflectiveAnnotation();
+				ra.setName(replaceMacro(name, properties));
 			}
 
 			return t;
