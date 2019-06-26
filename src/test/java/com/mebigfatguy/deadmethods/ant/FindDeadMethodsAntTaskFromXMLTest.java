@@ -33,6 +33,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.mebigfatguy.deadmethods.IgnoredPackage;
 import com.mebigfatguy.deadmethods.ReflectiveAnnotation;
 
 @RunWith(Parameterized.class)
@@ -100,6 +101,16 @@ public class FindDeadMethodsAntTaskFromXMLTest {
 
 				ReflectiveAnnotation ra = t.createReflectiveAnnotation();
 				ra.setName(replaceMacro(name, properties));
+			}
+
+			xpe = xp.compile("/project/target/deadmethods/ignoredPackage");
+			NodeList ipElements = (NodeList) xpe.evaluate(d, XPathConstants.NODESET);
+			for (int i = 0; i < ipElements.getLength(); i++) {
+				Element ipElement = (Element) ipElements.item(i);
+				String pattern = ipElement.getAttribute("pattern");
+
+				IgnoredPackage ip = t.createIgnoredPackage();
+				ip.setPattern(replaceMacro(pattern, properties));
 			}
 
 			return t;
