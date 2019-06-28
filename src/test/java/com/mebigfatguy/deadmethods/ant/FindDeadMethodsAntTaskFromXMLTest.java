@@ -34,6 +34,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.mebigfatguy.deadmethods.IgnoredClass;
+import com.mebigfatguy.deadmethods.IgnoredMethod;
 import com.mebigfatguy.deadmethods.IgnoredPackage;
 import com.mebigfatguy.deadmethods.ReflectiveAnnotation;
 
@@ -122,6 +123,16 @@ public class FindDeadMethodsAntTaskFromXMLTest {
 
 				IgnoredClass ic = t.createIgnoredClass();
 				ic.setPattern(replaceMacro(pattern, properties));
+			}
+
+			xpe = xp.compile("/project/target/deadmethods/ignoredMethod");
+			NodeList imElements = (NodeList) xpe.evaluate(d, XPathConstants.NODESET);
+			for (int i = 0; i < imElements.getLength(); i++) {
+				Element imElement = (Element) imElements.item(i);
+				String pattern = imElement.getAttribute("pattern");
+
+				IgnoredMethod im = t.createIgnoredMethod();
+				im.setPattern(replaceMacro(pattern, properties));
 			}
 
 			return t;
