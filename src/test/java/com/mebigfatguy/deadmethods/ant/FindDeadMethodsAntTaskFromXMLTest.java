@@ -20,7 +20,9 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.tools.ant.BuildEvent;
 import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.BuildListener;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.Path;
 import org.junit.Test;
@@ -55,6 +57,8 @@ public class FindDeadMethodsAntTaskFromXMLTest {
 	@Test
 	public void testAnt() {
 		FindDeadMethodsAntTask t = parseXML(xmlInput);
+
+		t.getProject().addBuildListener(new DMBuildListener());
 		t.execute();
 	}
 
@@ -198,4 +202,36 @@ public class FindDeadMethodsAntTaskFromXMLTest {
 		return rawValue.toString();
 	}
 
+	class DMBuildListener implements BuildListener {
+
+		@Override
+		public void buildFinished(BuildEvent event) {
+		}
+
+		@Override
+		public void buildStarted(BuildEvent event) {
+		}
+
+		@Override
+		public void messageLogged(BuildEvent event) {
+			System.out.println(event.getMessage());
+		}
+
+		@Override
+		public void targetFinished(BuildEvent event) {
+		}
+
+		@Override
+		public void targetStarted(BuildEvent event) {
+		}
+
+		@Override
+		public void taskFinished(BuildEvent event) {
+		}
+
+		@Override
+		public void taskStarted(BuildEvent event) {
+		}
+
+	}
 }
