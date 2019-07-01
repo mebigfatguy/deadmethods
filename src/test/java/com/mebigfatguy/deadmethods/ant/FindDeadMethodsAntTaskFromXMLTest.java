@@ -44,6 +44,7 @@ import com.mebigfatguy.deadmethods.ReflectiveAnnotation;
 public class FindDeadMethodsAntTaskFromXMLTest {
 
 	private File xmlInput;
+	private String envVar = "";
 
 	@Parameters
 	public static Collection<File> data() {
@@ -166,6 +167,8 @@ public class FindDeadMethodsAntTaskFromXMLTest {
 
 			if (!name.isEmpty()) {
 				properties.put(name, replaceMacro(value, properties));
+			} else if (propNode.hasAttribute("environment")) {
+				envVar = propNode.getAttribute("environment");
 			}
 		}
 
@@ -189,7 +192,25 @@ public class FindDeadMethodsAntTaskFromXMLTest {
 			String macroName = m.group(1);
 			String foundValue = properties.get(macroName);
 			if (foundValue == null) {
-				foundValue = value;
+				if (macroName.startsWith(envVar + ".")) {
+					String envName = macroName.substring(envVar.length() + 1);
+					foundValue = System.getenv(envName);
+					if (foundValue == null) {
+						switch (envName) {
+						case "JAVA_HOME":
+							foundValue = System.getProperty("java.home");
+							if (foundValue.endsWith("jre")) {
+								foundValue = foundValue.substring(0, foundValue.length() - "/jre".length());
+							}
+							break;
+						default:
+							foundValue = value;
+							break;
+						}
+					}
+				} else {
+					foundValue = value;
+				}
 			}
 
 			rawValue.append(foundValue);
