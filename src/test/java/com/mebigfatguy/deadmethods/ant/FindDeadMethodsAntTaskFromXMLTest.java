@@ -24,7 +24,9 @@ import org.apache.tools.ant.BuildEvent;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.BuildListener;
 import org.apache.tools.ant.Project;
+import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
+import org.apache.tools.ant.types.selectors.FilenameSelector;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -85,7 +87,13 @@ public class FindDeadMethodsAntTaskFromXMLTest {
 				String path = cpElement.getAttribute("location");
 
 				Path cp = new Path(p);
-				cp.setLocation(new File(replaceMacro(path, properties)));
+				FileSet fs = new FileSet();
+				fs.setProject(p);
+				fs.setDir(new File(replaceMacro(path, properties)));
+				FilenameSelector fileNameSelector = new FilenameSelector();
+				fileNameSelector.setName("*.jar");
+				fs.addFilename(fileNameSelector);
+				cp.addFileset(fs);
 				t.addConfiguredClasspath(cp);
 			}
 
@@ -96,7 +104,13 @@ public class FindDeadMethodsAntTaskFromXMLTest {
 				String path = cpElement.getAttribute("location");
 
 				Path cp = new Path(p);
-				cp.setLocation(new File(replaceMacro(path, properties)));
+				FileSet fs = new FileSet();
+				fs.setProject(p);
+				fs.setDir(new File(replaceMacro(path, properties)));
+				FilenameSelector fileNameSelector = new FilenameSelector();
+				fileNameSelector.setName("*.jar");
+				fs.addFilename(fileNameSelector);
+				cp.addFileset(fs);
 				t.addConfiguredAuxClasspath(cp);
 			}
 
