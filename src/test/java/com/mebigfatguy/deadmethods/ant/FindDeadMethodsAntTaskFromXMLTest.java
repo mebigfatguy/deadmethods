@@ -48,7 +48,7 @@ public class FindDeadMethodsAntTaskFromXMLTest {
 
 	@Parameters
 	public static Collection<File> data() {
-		return Collections.singletonList(new File("/home/dave/dev/pgbu_platform-2.0/dm_build.xml"));
+		return Collections.singletonList(new File(System.getProperty("dm.input")));
 	}
 
 	public FindDeadMethodsAntTaskFromXMLTest(File test) {
