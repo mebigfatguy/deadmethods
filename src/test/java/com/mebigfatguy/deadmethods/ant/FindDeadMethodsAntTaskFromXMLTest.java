@@ -76,6 +76,8 @@ public class FindDeadMethodsAntTaskFromXMLTest {
 
 			Map<String, String> properties = parseProperties(d);
 
+			Path cp = new Path(p);
+
 			XPathFactory xpf = XPathFactory.newInstance();
 			XPath xp = xpf.newXPath();
 			XPathExpression xpe = xp.compile("/project/target/deadmethods/classpath/pathelement");
@@ -84,10 +86,13 @@ public class FindDeadMethodsAntTaskFromXMLTest {
 				Element cpElement = (Element) cpElements.item(i);
 				String path = cpElement.getAttribute("location");
 
-				Path cp = new Path(p);
-				cp.setLocation(new File(replaceMacro(path, properties)));
-				t.addConfiguredClasspath(cp);
+				Path jarPath = new Path(p);
+				jarPath.setLocation(new File(replaceMacro(path, properties)));
+				cp.add(jarPath);
 			}
+			t.addConfiguredClasspath(cp);
+
+			cp = new Path(p);
 
 			xpe = xp.compile("/project/target/deadmethods/auxClasspath/pathelement");
 			cpElements = (NodeList) xpe.evaluate(d, XPathConstants.NODESET);
@@ -95,10 +100,11 @@ public class FindDeadMethodsAntTaskFromXMLTest {
 				Element cpElement = (Element) cpElements.item(i);
 				String path = cpElement.getAttribute("location");
 
-				Path cp = new Path(p);
-				cp.setLocation(new File(replaceMacro(path, properties)));
-				t.addConfiguredAuxClasspath(cp);
+				Path jarPath = new Path(p);
+				jarPath.setLocation(new File(replaceMacro(path, properties)));
+				cp.add(jarPath);
 			}
+			t.addConfiguredAuxClasspath(cp);
 
 			xpe = xp.compile("/project/target/deadmethods/reflectiveAnnotation");
 			NodeList raElements = (NodeList) xpe.evaluate(d, XPathConstants.NODESET);
