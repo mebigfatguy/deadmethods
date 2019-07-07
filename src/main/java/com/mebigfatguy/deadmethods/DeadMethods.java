@@ -333,6 +333,7 @@ public class DeadMethods {
 			throws ParserConfigurationException, XPathExpressionException {
 		removeSpringMethodsFromXML(repo, methods);
 		removeSpringMethodsFromAnnotations(repo, methods);
+
 	}
 
 	private void removeSpringMethodsFromXML(ClassRepository repo, Set<String> methods)
