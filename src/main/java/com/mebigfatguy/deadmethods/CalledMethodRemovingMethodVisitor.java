@@ -45,14 +45,15 @@ public class CalledMethodRemovingMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-		String methodInfo = owner + ":" + name + desc;
+        String methodSig = name + desc;
+		String methodInfo = owner + ":" + methodSig;
 		methods.remove(methodInfo);
 
 		try {
 			if (!owner.startsWith("[")) {
 				ClassInfo info = repo.getClassInfo(owner);
-				clearDerivedMethods(info, name + desc);
-				clearInheritedMethods(info, name + desc);
+				clearDerivedMethods(info, methodSig);
+				clearInheritedMethods(info, methodSig);
 			}
 
 			processReflection(opcode, owner, name);
