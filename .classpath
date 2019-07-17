@@ -14,8 +14,8 @@
 	<classpathentry kind="lib" path="lib/maven-model-3.5.4.jar"/>
 	<classpathentry kind="lib" path="lib/maven-settings-3.5.4.jar"/>
 	<classpathentry kind="lib" path="lib/asm-7.1.jar"/>
-	<classpathentry kind="lib" path="lib/spring-beans-5.1.7.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/spring-context-5.1.7.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/ant-1.10.7.jar"/>
+	<classpathentry kind="lib" path="lib/spring-beans-5.1.10.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-context-5.1.10.RELEASE.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
