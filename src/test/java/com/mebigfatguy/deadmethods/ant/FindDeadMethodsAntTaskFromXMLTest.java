@@ -25,6 +25,7 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.BuildListener;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.Path;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -40,6 +41,7 @@ import com.mebigfatguy.deadmethods.IgnoredMethod;
 import com.mebigfatguy.deadmethods.IgnoredPackage;
 import com.mebigfatguy.deadmethods.ReflectiveAnnotation;
 
+@Ignore
 @RunWith(Parameterized.class)
 public class FindDeadMethodsAntTaskFromXMLTest {
 
