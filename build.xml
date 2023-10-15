@@ -1,8 +1,8 @@
 <!--
 /*
  * deadmethods - A unused methods detector
- * Copyright 2011-2018 MeBigFatGuy.com
- * Copyright 2011-2018 Dave Brosius
+ * Copyright 2011-2022 MeBigFatGuy.com
+ * Copyright 2011-2022 Dave Brosius
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,7 +73,7 @@
    <target name="yank" unless="no.yank" xmlns:yank="antlib:com.mebigfatguy.yank">
         <mkdir dir="${lib.dir}" />
         <yank:yank yankFile="${basedir}/yank.xls" destination="${lib.dir}" source="true" separateClassifierTypes="true">
-            <server url="http://repo1.maven.org/maven2" />
+            <server url="https://repo1.maven.org/maven2" />
             <generateVersions propertyFileName="${basedir}/version.properties" />
         </yank:yank>
     </target>
@@ -83,7 +83,7 @@
         <echo message=""/>
         <echo message="    this project uses yank (https://github.com/mebigfatguy/yank) for dependency management"/>
         <echo message="    download yank.jar and place in ant/lib directory"/>
-        <echo message="    http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mebigfatguy.yank%22"/>
+        <echo message="    https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mebigfatguy.yank%22"/>
         <antcall target="build"/>
     </target>
 
