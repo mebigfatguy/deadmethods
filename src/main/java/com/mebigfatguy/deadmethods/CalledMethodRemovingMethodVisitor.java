@@ -37,7 +37,7 @@ public class CalledMethodRemovingMethodVisitor extends MethodVisitor {
 	private State state;
 
 	public CalledMethodRemovingMethodVisitor(ClassRepository repository, Set<String> allMethods) {
-		super(Opcodes.ASM6);
+		super(Opcodes.ASM9);
 		repo = repository;
 		methods = allMethods;
 		state = State.NONE;

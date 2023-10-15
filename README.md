@@ -45,6 +45,6 @@ a starting point. Use due diligence to validate what the results are.
 
     groupId: com.mebigfatguy.deadmethods
     artifactId: deadmethods
-    version: 0.6.0
+    version: 0.9.0
 
 
