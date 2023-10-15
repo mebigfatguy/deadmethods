@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.mebigfatguy.deadmethods</groupId>
 	<artifactId>deadmethods</artifactId>
-	<version>0.9.0</version>
+	<version>0.9.1</version>
 
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
