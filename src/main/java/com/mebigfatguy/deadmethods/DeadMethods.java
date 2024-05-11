@@ -99,7 +99,7 @@ public class DeadMethods {
 					}
 
 					Set<MethodInfo> methods = classInfo.getMethodInfo();
-
+                    
 					add: for (MethodInfo methodInfo : methods) {
 						for (IgnoredMethod im : ignoredMethods) {
 							Matcher m = im.getPattern().matcher(methodInfo.getMethodName());
@@ -127,6 +127,7 @@ public class DeadMethods {
 		removeAnonymousInnerImplementationMethods(repo, allMethods);
 		removeSyntheticMethods(repo, allMethods);
 		removeStandardEnumMethods(repo, allMethods);
+		removeStaticInitializerMethods(repo, allMethods);
 		removeSpecialSerializableMethods(repo, allMethods);
 		removeAnnotations(repo, allMethods);
 		removeSpringMethods(repo, allMethods);
@@ -280,6 +281,18 @@ public class DeadMethods {
 		}
 		logger.verbose("Standard enum methods removed");
 	}
+
+	private void removeStaticInitializerMethods(ClassRepository repo, Set<String> methods) throws IOException {
+		for (ClassInfo classInfo : repo.getAllClassInfos()) {
+			for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
+				if ("<clinit>".equals(methodInfo.getMethodName())) {
+					methods.remove(classInfo.getClassName() + ":" + methodInfo);
+				}
+			}
+		}
+		logger.verbose("static initializer methods removed");
+	}
+
 
 	private void removeSpecialSerializableMethods(ClassRepository repo, Set<String> methods) {
 		for (ClassInfo classInfo : repo.getAllClassInfos()) {
