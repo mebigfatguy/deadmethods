@@ -470,12 +470,25 @@ public class DeadMethods {
 	}
 
 	private void removeWebMethods(ClassRepository repo, Set<String> methods) throws IOException {
-		ClassInfo info = repo.getClassInfo("javax/servlet/http/HttpServlet");
-
-		for (MethodInfo methodInfo : info.getMethodInfo()) {
-			clearDerivedMethods(methods, info, methodInfo.toString());
+		try {
+			ClassInfo info = repo.getClassInfo("javax/servlet/http/HttpServlet");
+	
+			for (MethodInfo methodInfo : info.getMethodInfo()) {
+				clearDerivedMethods(methods, info, methodInfo.toString());
+			}
+			logger.verbose("Standard javax Web methods removed");
+		} catch (IOException e) {
 		}
-		logger.verbose("Standard Web methods removed");
+		
+		try {
+			ClassInfo info = repo.getClassInfo("jakarta/servlet/http/HttpServlet");
+	
+			for (MethodInfo methodInfo : info.getMethodInfo()) {
+				clearDerivedMethods(methods, info, methodInfo.toString());
+			}
+			logger.verbose("Standard jakarta Web methods removed");
+		} catch (IOException e) {
+		}
 	}
 
 	private void clearDerivedMethods(Set<String> methods, ClassInfo info, String methodInfo) {
