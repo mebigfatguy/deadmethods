@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.mebigfatguy.deadmethods</groupId>
 	<artifactId>deadmethods</artifactId>
-	<version>0.9.3</version>
+	<version>0.9.4</version>
 
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
@@ -59,12 +59,12 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-beans</artifactId>
-			<version>5.3.39</version>
+			<version>6.1.16</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
-			<version>5.3.39</version>
+			<version>6.1.16</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.ant</groupId>
