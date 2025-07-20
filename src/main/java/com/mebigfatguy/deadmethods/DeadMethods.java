@@ -477,7 +477,7 @@ public class DeadMethods {
 				clearDerivedMethods(methods, info, methodInfo.toString());
 			}
 			logger.verbose("Standard javax Web methods removed");
-		} catch (IOException e) {
+		} catch (Exception e) {
 		}
 		
 		try {
@@ -487,7 +487,7 @@ public class DeadMethods {
 				clearDerivedMethods(methods, info, methodInfo.toString());
 			}
 			logger.verbose("Standard jakarta Web methods removed");
-		} catch (IOException e) {
+		} catch (Exception e) {
 		}
 	}
 
