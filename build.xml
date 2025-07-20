@@ -38,6 +38,7 @@
 	<property name="javac.debug" value="on"/>
 	
 	<property name="sonatype.dir" value="${user.home}/.deadmethods-${deadmethods.version}-sonatype" />
+	<property name="sonatype.version.dir" value="${sonatype.dir}/com/mebigfatguy/deadmethods/deadmethods/${deadmethods.version}" />
 
 	<path id="deadmethods.classpath">
 		<pathelement location="${lib.dir}/ant-${ant_.version}.jar"/>
@@ -129,6 +130,7 @@
 
 	<target name="jar" depends="compile" description="produces the deadmethods jar file">
 		<jar destfile="${target.dir}/deadmethods-${deadmethods.version}.jar">
+            <zipfileset dir="${basedir}" includes="pom.xml" prefix="META-INF/maven/com.mebigfatguy.deadmethods/deadmethod"/>
 			<fileset dir="${classes.dir}">
                 <include name="**/*.class"/>
                 <include name="**/*.xml"/>
@@ -204,30 +206,39 @@
 	</target>
 	
     <target name="sonatype" depends="release" description="prepare an artifact bundle for sonatype">
-        <mkdir dir="${sonatype.dir}"/>
-        <copy todir="${sonatype.dir}" file="${target.dir}/deadmethods-${deadmethods.version}.jar"/>
-        <copy tofile="${sonatype.dir}/deadmethods-${deadmethods.version}-sources.jar" file="${target.dir}/deadmethods-${deadmethods.version}-sources.jar"/>
-        <jar destfile="${sonatype.dir}/deadmethods-${deadmethods.version}-javadoc.jar" basedir="${target.dir}" includes="javadoc/**"/>
-        <copy tofile="${sonatype.dir}/deadmethods-${deadmethods.version}.pom" file="${basedir}/pom.xml"/>
+        <mkdir dir="${sonatype.version.dir}"/>
+        <copy tofile="${sonatype.version.dir}/deadmethods-${deadmethods.version}.jar" file="${target.dir}/deadmethods-${deadmethods.version}.jar"/>
+        <copy tofile="${sonatype.version.dir}/deadmethods-${deadmethods.version}-sources.jar" file="${target.dir}/deadmethods-${deadmethods.version}-sources.jar"/>
+        <copy tofile="${sonatype.version.dir}/deadmethods-${deadmethods.version}.pom" file="${basedir}/pom.xml"/>
+        <jar destfile="${sonatype.version.dir}/deadmethods-${deadmethods.version}-javadoc.jar" basedir="${target.dir}" includes="javadoc/**"/>
+
         
+        <checksum file="${sonatype.version.dir}/deadmethods-${deadmethods.version}.pom" todir="${sonatype.version.dir}" algorithm="md5"/> 
+        <checksum file="${sonatype.version.dir}/deadmethods-${deadmethods.version}.pom" todir="${sonatype.version.dir}" algorithm="sha1"/>
+        <checksum file="${sonatype.version.dir}/deadmethods-${deadmethods.version}.jar" todir="${sonatype.version.dir}" algorithm="md5"/>        
+        <checksum file="${sonatype.version.dir}/deadmethods-${deadmethods.version}.jar" todir="${sonatype.version.dir}" algorithm="sha1"/>
+        <checksum file="${sonatype.version.dir}/deadmethods-${deadmethods.version}-sources.jar" todir="${sonatype.version.dir}" algorithm="md5"/>        
+        <checksum file="${sonatype.version.dir}/deadmethods-${deadmethods.version}-sources.jar" todir="${sonatype.version.dir}" algorithm="sha1"/>
+        <checksum file="${sonatype.version.dir}/deadmethods-${deadmethods.version}-javadoc.jar" todir="${sonatype.version.dir}" algorithm="md5"/>        
+        <checksum file="${sonatype.version.dir}/deadmethods-${deadmethods.version}-javadoc.jar" todir="${sonatype.version.dir}" algorithm="sha1"/>
+
         <exec executable="gpg">
             <arg value="-abi" />
-            <arg value="${sonatype.dir}/deadmethods-${deadmethods.version}.jar" />
+            <arg value="${sonatype.version.dir}/deadmethods-${deadmethods.version}.jar" />
         </exec>
         <exec executable="gpg">
             <arg value="-abi" />
-            <arg value="${sonatype.dir}/deadmethods-${deadmethods.version}.pom" />
+            <arg value="${sonatype.version.dir}/deadmethods-${deadmethods.version}.pom" />
         </exec>
         <exec executable="gpg">
             <arg value="-abi" />
-            <arg value="${sonatype.dir}/deadmethods-${deadmethods.version}-sources.jar" />
+            <arg value="${sonatype.version.dir}/deadmethods-${deadmethods.version}-sources.jar" />
         </exec>        
         <exec executable="gpg">
             <arg value="-abi" />
-            <arg value="${sonatype.dir}/deadmethods-${deadmethods.version}-javadoc.jar" />
+            <arg value="${sonatype.version.dir}/deadmethods-${deadmethods.version}-javadoc.jar" />
         </exec>
-        <jar destfile="${sonatype.dir}/bundle.jar" basedir="${sonatype.dir}" includes="deadmethods*">
-        </jar>
+        <zip destfile="${sonatype.dir}/bundle.jar" basedir="${sonatype.dir}" includes="**/deadmethods*"/>
         <echo message="" />
         <echo message="" />
         <echo message="====================================================================================================================================" />
