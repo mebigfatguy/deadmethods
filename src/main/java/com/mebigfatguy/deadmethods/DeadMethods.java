@@ -156,6 +156,7 @@ public class DeadMethods {
 			}
 		} catch (IOException e) {
 			// just go on assuming no annotations
+			logger.verbose("Failed reading reflective annotations: " +  e.getClass().getSimpleName() + ": " + e.getMessage());
 		}
 	}
 
@@ -248,53 +249,61 @@ public class DeadMethods {
 
 	private void removeAnonymousInnerImplementationMethods(ClassRepository repo, Set<String> methods)
 			throws IOException {
+		long count = 0;
 		for (ClassInfo classInfo : repo.getAllClassInfos()) {
 			if (classInfo.isAnonymous()) {
 				for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
-					clearDerivedMethods(methods, classInfo, methodInfo.toString());
+					count += clearDerivedMethods(methods, classInfo, methodInfo.toString());
 				}
 			}
 		}
-		logger.verbose("Anonymous inner class implementing methods removed");
+		logger.verbose(count + "Anonymous inner class implementing methods removed");
 	}
 
 	private void removeSyntheticMethods(ClassRepository repo, Set<String> methods) {
+		long count = 0;
 		for (ClassInfo classInfo : repo.getAllClassInfos()) {
 			for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
 				if (methodInfo.isSynthetic()) {
 					methods.remove(classInfo.getClassName() + ":" + methodInfo);
+					count++;
 				}
 			}
 		}
-		logger.verbose("Synthetic methods removed");
+		logger.verbose(count + " Synthetic methods removed");
 	}
 
 	private void removeStandardEnumMethods(ClassRepository repo, Set<String> methods) throws IOException {
+		long count = 0;
 		ClassInfo info = repo.getClassInfo("java/lang/Enum");
 		{
 			MethodInfo methodInfo = new MethodInfo("valueOf", "(Ljava/lang/String;)?", Opcodes.ACC_PUBLIC);
-			clearDerivedMethods(methods, info, methodInfo.toString());
+			count += clearDerivedMethods(methods, info, methodInfo.toString());
 		}
 		{
 			MethodInfo methodInfo = new MethodInfo("values", "()[?", Opcodes.ACC_PUBLIC);
-			clearDerivedMethods(methods, info, methodInfo.toString());
+			count += clearDerivedMethods(methods, info, methodInfo.toString());
 		}
-		logger.verbose("Standard enum methods removed");
+		logger.verbose(count + " Standard enum methods removed");
 	}
 
 	private void removeStaticInitializerMethods(ClassRepository repo, Set<String> methods) throws IOException {
+		long count = 0;
+		
 		for (ClassInfo classInfo : repo.getAllClassInfos()) {
 			for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
 				if ("<clinit>".equals(methodInfo.getMethodName())) {
 					methods.remove(classInfo.getClassName() + ":" + methodInfo);
+					count++;
 				}
 			}
 		}
-		logger.verbose("static initializer methods removed");
+		logger.verbose(count + "Static initializer methods removed");
 	}
 
 
 	private void removeSpecialSerializableMethods(ClassRepository repo, Set<String> methods) {
+		long count = 0;
 		for (ClassInfo classInfo : repo.getAllClassInfos()) {
 			for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
 				String methodName = methodInfo.getMethodName();
@@ -302,43 +311,48 @@ public class DeadMethods {
 				case "writeObject":
 					if ("(Ljava/io/ObjectOutputStream;)V".equals(methodInfo.getMethodSignature())) {
 						methods.remove(classInfo.getClassName() + ":" + methodInfo);
+						count++;
 					}
 					break;
 
 				case "readObject":
 					if ("(Ljava/io/ObjectInputStream;)V".equals(methodInfo.getMethodSignature())) {
 						methods.remove(classInfo.getClassName() + ":" + methodInfo);
+						count++;
 					}
 					break;
 
 				case "writeExternal":
 					if ("(Ljava/io/ObjectOutput;)V".equals(methodInfo.getMethodSignature())) {
 						methods.remove(classInfo.getClassName() + ":" + methodInfo);
+						count++;
 					}
 					break;
 
 				case "readExternal":
 					if ("(Ljava/io/ObjectInput;)V".equals(methodInfo.getMethodSignature())) {
 						methods.remove(classInfo.getClassName() + ":" + methodInfo);
-
+						count++;
 					}
 					break;
 				}
 			}
 		}
-		logger.verbose("Special Serializable methods removed");
+		logger.verbose(count + " Special Serializable methods removed");
 
 	}
 
 	private void removeAnnotations(ClassRepository repo, Set<String> methods) {
+		long count = 0;
 		for (ClassInfo classInfo : repo.getAllClassInfos()) {
 			if (classInfo.isAnnotation()) {
 				for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
 					methods.remove(classInfo.getClassName() + ":" + methodInfo);
+					count++;
 				}
 			}
 		}
-		logger.verbose("Runtime Annotated methods removed");
+		logger.verbose(count + " Runtime Annotated methods removed");
 
 	}
 
@@ -369,6 +383,7 @@ public class DeadMethods {
 		XPathExpression propertyRefExpression = xp.compile("@ref");
 		XPathExpression refBeanExpression = xp.compile("ref/@bean");
 
+		long count = 0;
 		Iterator<String> xmlIterator = repo.xmlIterator();
 		while (xmlIterator.hasNext()) {
 			String xmlName = xmlIterator.next() + ".xml";
@@ -389,10 +404,12 @@ public class DeadMethods {
 							if (initMethod != null) {
 								String initMethodName = initMethod.getValue();
 								methods.remove(classInfo.getClassName() + ":" + initMethodName + "()V");
+								count++;
 							}
 							if (destroyMethod != null) {
 								String destroyMethodName = destroyMethod.getValue();
 								methods.remove(classInfo.getClassName() + ":" + destroyMethodName + "()V");
+								count++;
 							}
 							for (int j = 0; j < properties.getLength(); j++) {
 								Element property = (Element) properties.item(j);
@@ -416,6 +433,7 @@ public class DeadMethods {
 										String methodSig = "(L" + refClassAttr.getValue().replaceAll("\\.", "/")
 												+ ";)V";
 										methods.remove(classInfo.getClassName() + ":" + methodName + methodSig);
+										count++;
 									}
 								}
 							}
@@ -433,22 +451,25 @@ public class DeadMethods {
 				}
 			}
 		}
-		logger.verbose("XML based Spring methods removed");
+		logger.verbose(count + " XML based Spring methods removed");
 	}
 
 	private void removeSpringMethodsFromAnnotations(ClassRepository repo, Set<String> methods) {
+		long count = 0;
 		for (ClassInfo classInfo : repo.getAllClassInfos()) {
 			for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
 				if ("<init>".equals(methodInfo.getMethodName())
 						&& methodInfo.hasAnnotation("org.springframework.beans.factory.annotation.Autowired")) {
 					methods.remove(classInfo.getClassName() + ":" + methodInfo);
+					count++;
 				}
 			}
 		}
-		logger.verbose("Annotated Spring methods removed");
+		logger.verbose(count + " Annotated Spring methods removed");
 	}
 
 	private void removeSPIClasses(ClassRepository repo, Set<String> methods) throws IOException {
+		long count = 0;
 		Iterator<String> spiIterator = repo.serviceIterator();
 		while (spiIterator.hasNext()) {
 			String fileName = spiIterator.next();
@@ -461,39 +482,41 @@ public class DeadMethods {
 						if ((m.getMethodAccess() & Opcodes.ACC_PUBLIC) != 0) {
 							String methodInfo = clsName + ":" + m.getMethodName() + m.getMethodSignature();
 							methods.remove(methodInfo);
+							count++;
 						}
 					}
 				}
 			}
 		}
-		logger.verbose("SPI methods removed");
+		logger.verbose(count + " SPI methods removed");
 	}
 
 	private void removeWebMethods(ClassRepository repo, Set<String> methods) throws IOException {
 		try {
 			ClassInfo info = repo.getClassInfo("javax/servlet/http/HttpServlet");
+			long count = 0;
 	
 			for (MethodInfo methodInfo : info.getMethodInfo()) {
-				clearDerivedMethods(methods, info, methodInfo.toString());
+				count += clearDerivedMethods(methods, info, methodInfo.toString());
 			}
-			logger.verbose("Standard javax Web methods removed");
+			logger.verbose(count + " Standard javax Web methods removed");
 		} catch (Exception e) {
 		}
 		
 		try {
 			ClassInfo info = repo.getClassInfo("jakarta/servlet/http/HttpServlet");
-	
+			long count = 0;
 			for (MethodInfo methodInfo : info.getMethodInfo()) {
-				clearDerivedMethods(methods, info, methodInfo.toString());
+				count += clearDerivedMethods(methods, info, methodInfo.toString());
 			}
-			logger.verbose("Standard jakarta Web methods removed");
+			logger.verbose(count + " Standard jakarta Web methods removed");
 		} catch (Exception e) {
 		}
 	}
 
-	private void clearDerivedMethods(Set<String> methods, ClassInfo info, String methodInfo) {
+	private long clearDerivedMethods(Set<String> methods, ClassInfo info, String methodInfo) {
 		Set<ClassInfo> derivedInfos = info.getDerivedClasses();
-
+		long count = 0;
 		for (ClassInfo derivedInfo : derivedInfos) {
 			// regex chokes because of the $ in output classname, so do it the old way
 			int qMarkPos = methodInfo.indexOf('?');
@@ -506,7 +529,10 @@ public class DeadMethods {
 				appliedMethodInfo = methodInfo;
 			}
 			methods.remove(derivedInfo.getClassName() + ":" + appliedMethodInfo);
-			clearDerivedMethods(methods, derivedInfo, methodInfo);
+			count++;
+			count += clearDerivedMethods(methods, derivedInfo, methodInfo);
 		}
+		
+		return count;
 	}
 }
