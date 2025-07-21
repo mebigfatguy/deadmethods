@@ -51,7 +51,26 @@ import org.w3c.dom.NodeList;
 
 public class DeadMethods {
 	private static final String DEFAULT_REFLECTIVE_ANNOTATION_PATH = "/com/mebigfatguy/deadmethods/defaultReflectiveAnnotations.properties";
-
+	private static final Set<String> WEB_METHODS = new HashSet<>();
+	
+	static {
+		WEB_METHODS.add("javax.ws.rs.HEAD");
+		WEB_METHODS.add("javax.ws.rs.GET");
+		WEB_METHODS.add("javax.ws.rs.PUT");
+		WEB_METHODS.add("javax.ws.rs.POST");
+		WEB_METHODS.add("javax.ws.rs.DELETE");
+		WEB_METHODS.add("javax.ws.rs.OPTIONS");
+		WEB_METHODS.add("javax.ws.rs.PATCH");
+		
+		WEB_METHODS.add("jakarta.ws.rs.HEAD");
+		WEB_METHODS.add("jakarta.ws.rs.GET");
+		WEB_METHODS.add("jakarta.ws.rs.PUT");
+		WEB_METHODS.add("jakarta.ws.rs.POST");
+		WEB_METHODS.add("jakarta.ws.rs.DELETE");
+		WEB_METHODS.add("jakarta.ws.rs.OPTIONS");
+		WEB_METHODS.add("jakarta.ws.rs.PATCH");
+	}
+	
 	private ProgressLogger logger;
 	private ClassPath path;
 	private ClassPath auxPath;
@@ -77,46 +96,44 @@ public class DeadMethods {
 
 		ClassRepository repo = new ClassRepository(path, auxPath, logger);
 		repo.startScanning();
+		repo.terminate();
+		
+		logger.verbose("Start filtering classes for ignored packages, classes and methods");
 		Set<String> allMethods = new TreeSet<>();
-
-		try {
-			classloop: for (String className : repo) {
-				if (!className.startsWith("[")) {
-					ClassInfo classInfo = repo.getClassInfo(className);
-					String packageName = classInfo.getPackageName();
-					for (IgnoredPackage ip : ignoredPackages) {
-						Matcher m = ip.getPattern().matcher(packageName);
-						if (m.matches()) {
-							continue classloop;
-						}
-					}
-					String clsName = classInfo.getClassName();
-					for (IgnoredClass ic : ignoredClasses) {
-						Matcher m = ic.getPattern().matcher(clsName);
-						if (m.matches()) {
-							continue classloop;
-						}
-					}
-
-					Set<MethodInfo> methods = classInfo.getMethodInfo();
-                    
-					add: for (MethodInfo methodInfo : methods) {
-						for (IgnoredMethod im : ignoredMethods) {
-							Matcher m = im.getPattern().matcher(methodInfo.getMethodName());
-							if (m.matches()) {
-								continue add;
-							}
-						}
-
-						allMethods.add(className + ":" + methodInfo.getMethodName() + methodInfo.getMethodSignature());
+		classloop: for (String className : repo) {
+			if (!className.startsWith("[")) {
+				ClassInfo classInfo = repo.getClassInfo(className);
+				String packageName = classInfo.getPackageName();
+				for (IgnoredPackage ip : ignoredPackages) {
+					Matcher m = ip.getPattern().matcher(packageName);
+					if (m.matches()) {
+						continue classloop;
 					}
 				}
-			}
-		} finally {
-			repo.terminate();
-		}
+				String clsName = classInfo.getClassName();
+				for (IgnoredClass ic : ignoredClasses) {
+					Matcher m = ic.getPattern().matcher(clsName);
+					if (m.matches()) {
+						continue classloop;
+					}
+				}
 
-		logger.verbose("Method repository build");
+				Set<MethodInfo> methods = classInfo.getMethodInfo();
+                
+				add: for (MethodInfo methodInfo : methods) {
+					for (IgnoredMethod im : ignoredMethods) {
+						Matcher m = im.getPattern().matcher(methodInfo.getMethodName());
+						if (m.matches()) {
+							continue add;
+						}
+					}
+
+					allMethods.add(className + ":" + methodInfo.getMethodName() + methodInfo.getMethodSignature());
+				}
+			}
+		}
+		logger.verbose("Finish filtering classes for ignored packages, classes and methods");
+		logger.verbose("Method repository built");
 
 		removeObjectMethods(repo, allMethods);
 		removeMainMethods(repo, allMethods);
@@ -510,7 +527,8 @@ public class DeadMethods {
 			for (MethodInfo methodInfo : info.getMethodInfo()) {
 				count += clearDerivedMethods(methods, info, methodInfo.toString());
 			}
-			logger.verbose(count + " Standard javax Web methods removed");
+						
+			logger.verbose(count + " Standard javax Servlet methods removed");
 		} catch (Exception e) {
 		}
 		
@@ -520,9 +538,21 @@ public class DeadMethods {
 			for (MethodInfo methodInfo : info.getMethodInfo()) {
 				count += clearDerivedMethods(methods, info, methodInfo.toString());
 			}
-			logger.verbose(count + " Standard jakarta Web methods removed");
+			
+			logger.verbose(count + " Standard jakarta Servlet methods removed");
 		} catch (Exception e) {
 		}
+		
+		long count = 0;
+		for (ClassInfo classInfo : repo.getAllClassInfos()) {
+			for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
+				if (methodInfo.hasAtLeastOneAnnotation(WEB_METHODS)) {
+					methods.remove(classInfo.getClassName() + ":" + methodInfo);
+					count++;
+				}
+			}
+		}
+		logger.verbose(count + " Standard web rs annotated methods removed");
 	}
 
 	private long clearDerivedMethods(Set<String> methods, ClassInfo info, String methodInfo) {

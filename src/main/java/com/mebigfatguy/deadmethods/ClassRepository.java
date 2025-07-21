@@ -66,6 +66,7 @@ public class ClassRepository implements Iterable<String> {
         }
 
         try {
+        	logger.verbose("Start scanning of class files");
             getClassInfo("java/lang/Object");
         } catch (IOException e) {
         }
@@ -94,6 +95,7 @@ public class ClassRepository implements Iterable<String> {
         }
 
         executor.shutdown();
+    	logger.verbose("Finish scanning of class files");
     }
 
     public ClassInfo getClassInfo(String clsName) throws IOException {
@@ -158,15 +160,15 @@ public class ClassRepository implements Iterable<String> {
                 File file = new File(resource);
                 if (file.exists()) {
                     if (file.getAbsolutePath().endsWith(".jar")) {
-                        urls.add(new URI("jar", "", "file://" + file.getAbsolutePath() + "!/").toURL());
+                        urls.add(new URL("jar", "", "file://" + file.getAbsolutePath() + "!/"));
                     } else {
                         urls.add(file.toURI().toURL());
                     }
                 } else {
                     logger.log("ClassPath root does not exist: " + file.getAbsolutePath());
                 }
-            } catch (URISyntaxException | MalformedURLException e) {
-                // do something
+            } catch (MalformedURLException e) {
+            	logger.verbose("Failed loading jar or file " + clsPath + " - " + e.getClass().getSimpleName() + ": " + e.getMessage());
             }
         }
 

@@ -75,6 +75,10 @@ public class MethodInfo {
     public boolean hasAnnotation(String annotation) {
         return (annotations != null) && annotations.contains(annotation);
     }
+    
+    public boolean hasAtLeastOneAnnotation(Set<String> searchAnnotations) {
+    	return annotations != null && !annotations.isEmpty() && annotations.stream().anyMatch(s -> searchAnnotations.contains(s));
+    }
 
     @Override
     public int hashCode() {
