@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessController;
@@ -156,14 +158,14 @@ public class ClassRepository implements Iterable<String> {
                 File file = new File(resource);
                 if (file.exists()) {
                     if (file.getAbsolutePath().endsWith(".jar")) {
-                        urls.add(new URL("jar", "", "file://" + file.getAbsolutePath() + "!/"));
+                        urls.add(new URI("jar", "", "file://" + file.getAbsolutePath() + "!/").toURL());
                     } else {
                         urls.add(file.toURI().toURL());
                     }
                 } else {
                     logger.log("ClassPath root does not exist: " + file.getAbsolutePath());
                 }
-            } catch (MalformedURLException murle) {
+            } catch (URISyntaxException | MalformedURLException e) {
                 // do something
             }
         }
