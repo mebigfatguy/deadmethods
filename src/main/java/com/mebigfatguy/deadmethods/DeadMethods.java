@@ -161,25 +161,29 @@ public class DeadMethods {
 	}
 
 	private void removeObjectMethods(ClassRepository repo, Set<String> methods) throws IOException {
+		long count = 0;
 		ClassInfo info = repo.getClassInfo("java/lang/Object");
 		for (MethodInfo methodInfo : info.getMethodInfo()) {
-			clearDerivedMethods(methods, info, methodInfo.toString());
+			count += clearDerivedMethods(methods, info, methodInfo.toString());
 		}
-		logger.verbose("Object methods removed");
+		logger.verbose(count + " Object methods removed");
 	}
 
 	private void removeMainMethods(ClassRepository repo, Set<String> methods) {
+		long count = 0;
 		MethodInfo mainInfo = new MethodInfo("main", "([Ljava/lang/String;)V", Opcodes.ACC_STATIC);
 		for (ClassInfo classInfo : repo.getAllClassInfos()) {
 			Set<MethodInfo> methodInfo = classInfo.getMethodInfo();
 			if (methodInfo.contains(mainInfo)) {
 				methods.remove(classInfo.getClassName() + ":main([Ljava/lang/String;)V");
+				count++;
 			}
 		}
-		logger.verbose("Main methods removed");
+		logger.verbose(count + " Main methods removed");
 	}
 
 	private void removeNoArgCtors(ClassRepository repo, Set<String> methods) {
+		long count = 0;
 		MethodInfo ctorInfo = new MethodInfo("<init>", "()V", Opcodes.ACC_STATIC);
 		for (ClassInfo classInfo : repo.getAllClassInfos()) {
 			Set<String> infs = new HashSet<>(Arrays.asList(classInfo.getInterfaceNames()));
@@ -187,25 +191,29 @@ public class DeadMethods {
 				Set<MethodInfo> methodInfo = classInfo.getMethodInfo();
 				if (methodInfo.contains(ctorInfo)) {
 					methods.remove(classInfo.getClassName() + ":" + methodInfo);
+					count++;
 				}
 			}
 		}
-		logger.verbose("No arg constructors removed");
+		logger.verbose(count +" No arg constructors removed");
 	}
 
 	private void removeJUnitMethods(ClassRepository repo, Set<String> methods) {
+		long count = 0;
 		for (ClassInfo classInfo : repo.getAllClassInfos()) {
 			for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
 				if (methodInfo.isTest()) {
 					methods.remove(classInfo.getClassName() + ":" + methodInfo);
+					count++;
 				}
 			}
 		}
-		logger.verbose("JUnit method removed");
+		logger.verbose(count + " JUnit method removed");
 
 	}
 
 	private void removeReflectiveAnnotatedMethods(ClassRepository repo, Set<String> methods) {
+		long count = 0;
 		for (ClassInfo classInfo : repo.getAllClassInfos()) {
 			if (classInfo.hasAnnotations()) {
 				for (ReflectiveAnnotation ra : reflectiveAnnotations) {
@@ -213,6 +221,7 @@ public class DeadMethods {
 						for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
 							if ((methodInfo.getMethodAccess() & Opcodes.ACC_PUBLIC) != 0) {
 								methods.remove(classInfo.getClassName() + ":" + methodInfo);
+								count++;
 							}
 						}
 						break;
@@ -225,6 +234,7 @@ public class DeadMethods {
 					for (ReflectiveAnnotation ra : reflectiveAnnotations) {
 						if (methodInfo.hasAnnotation(ra.toString())) {
 							methods.remove(classInfo.getClassName() + ":" + methodInfo);
+							count++;
 							break;
 						}
 					}
@@ -232,19 +242,20 @@ public class DeadMethods {
 			}
 		}
 
-		logger.verbose("Methods with reflective annotations removed");
+		logger.verbose(count + " Methods with reflective annotations removed");
 	}
 
 	private void removeInterfaceImplementationMethods(ClassRepository repo, Set<String> methods) throws IOException {
+		long count = 0;
 		for (ClassInfo classInfo : repo.getAllClassInfos()) {
 			if (classInfo.isInterface()) {
 				for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
-					clearDerivedMethods(methods, classInfo, methodInfo.toString());
+					count += clearDerivedMethods(methods, classInfo, methodInfo.toString());
 				}
 			}
 		}
 
-		logger.verbose("Interface implementing methods removed");
+		logger.verbose(count + " Interface implementing methods removed");
 	}
 
 	private void removeAnonymousInnerImplementationMethods(ClassRepository repo, Set<String> methods)
@@ -257,7 +268,7 @@ public class DeadMethods {
 				}
 			}
 		}
-		logger.verbose(count + "Anonymous inner class implementing methods removed");
+		logger.verbose(count + " Anonymous inner class implementing methods removed");
 	}
 
 	private void removeSyntheticMethods(ClassRepository repo, Set<String> methods) {
@@ -298,7 +309,7 @@ public class DeadMethods {
 				}
 			}
 		}
-		logger.verbose(count + "Static initializer methods removed");
+		logger.verbose(count + " Static initializer methods removed");
 	}
 
 
