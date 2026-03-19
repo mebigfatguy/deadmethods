@@ -17,6 +17,9 @@
  */
 package com.mebigfatguy.deadmethods.ant;
 
+import java.io.IOException;
+import java.util.function.Supplier;
+
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 
@@ -25,6 +28,7 @@ import com.mebigfatguy.deadmethods.ProgressLogger;
 public class AntProgressLogger implements ProgressLogger {
 
     private Task task;
+    private boolean disable = false;
 
     public AntProgressLogger(Task t) {
         task = t;
@@ -32,11 +36,25 @@ public class AntProgressLogger implements ProgressLogger {
 
     @Override
     public void log(String message) {
-        task.getProject().log(message);
+    	if (!disable) {
+    		task.getProject().log(message);
+    	}
     }
 
     @Override
     public void verbose(String message) {
-        task.getProject().log(message, Project.MSG_VERBOSE);
+    	if (!disable) {
+    		task.getProject().log(message, Project.MSG_VERBOSE);
+    	}
     }
+
+	@Override
+	public <T> T disableWith(LogSupplier<T> producer) throws IOException {
+		disable = true;
+		try {
+			return producer.get();
+		} finally {
+			disable = false;
+		}
+	}
 }

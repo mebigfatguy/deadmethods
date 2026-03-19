@@ -17,9 +17,18 @@
  */
 package com.mebigfatguy.deadmethods;
 
+import java.io.IOException;
+
 public interface ProgressLogger {
 
     void log(String message);
 
     void verbose(String message);
+    
+    <T> T disableWith(LogSupplier<T> producer) throws IOException;
+    
+    @FunctionalInterface
+    public interface LogSupplier<T> {
+    	T get() throws IOException;
+    }
 }

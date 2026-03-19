@@ -521,9 +521,11 @@ public class DeadMethods {
 
 	private void removeWebMethods(ClassRepository repo, Set<String> methods) throws IOException {
 		try {
-			ClassInfo info = repo.getClassInfo("javax/servlet/http/HttpServlet");
+			ClassInfo info = logger.disableWith(() -> {
+				return repo.getClassInfo("javax/servlet/http/HttpServlet");
+			});
+			
 			long count = 0;
-	
 			for (MethodInfo methodInfo : info.getMethodInfo()) {
 				count += clearDerivedMethods(methods, info, methodInfo.toString());
 			}
@@ -533,7 +535,10 @@ public class DeadMethods {
 		}
 		
 		try {
-			ClassInfo info = repo.getClassInfo("jakarta/servlet/http/HttpServlet");
+			ClassInfo info = logger.disableWith(() -> {
+				return repo.getClassInfo("jakarta/servlet/http/HttpServlet");
+			});
+			
 			long count = 0;
 			for (MethodInfo methodInfo : info.getMethodInfo()) {
 				count += clearDerivedMethods(methods, info, methodInfo.toString());

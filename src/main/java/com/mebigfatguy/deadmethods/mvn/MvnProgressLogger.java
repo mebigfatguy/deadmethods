@@ -17,6 +17,9 @@
  */
 package com.mebigfatguy.deadmethods.mvn;
 
+import java.io.IOException;
+import java.util.function.Supplier;
+
 import org.apache.maven.plugin.logging.Log;
 
 import com.mebigfatguy.deadmethods.ProgressLogger;
@@ -24,6 +27,7 @@ import com.mebigfatguy.deadmethods.ProgressLogger;
 public class MvnProgressLogger implements ProgressLogger {
 
     private Log log;
+    private boolean disable = false;
 
     public MvnProgressLogger(FDMMojo mojo) {
         log = mojo.getLog();
@@ -31,12 +35,25 @@ public class MvnProgressLogger implements ProgressLogger {
 
     @Override
     public void log(String message) {
-        log.error(message);
-
+    	if (!disable) {
+    		log.error(message);
+    	}
     }
 
     @Override
     public void verbose(String message) {
-        log.debug(message);
+    	if (!disable) {
+    		log.debug(message);
+    	}
     }
+    
+	@Override
+	public <T> T disableWith(LogSupplier<T> producer) throws IOException {
+		disable = true;
+		try {
+			return producer.get();
+		} finally {
+			disable = false;
+		}
+	}
 }
