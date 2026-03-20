@@ -137,17 +137,12 @@ public class ClassRepository implements Iterable<String> {
     }
 
     private final ClassLoader createClassLoader(final ClassPath classpath, final ClassPath auxClassPath) {
-        return AccessController.doPrivileged(new PrivilegedAction<URLClassLoader>() {
-            @Override
-            public URLClassLoader run() {
-                Set<URL> urls = new HashSet<>();
+        Set<URL> urls = new HashSet<>();
 
-                urls.addAll(convertPathToURLs(classpath));
-                urls.addAll(convertPathToURLs(auxClassPath));
+        urls.addAll(convertPathToURLs(classpath));
+        urls.addAll(convertPathToURLs(auxClassPath));
 
-                return new URLClassLoader(urls.toArray(new URL[urls.size()]));
-            }
-        });
+        return new URLClassLoader(urls.toArray(new URL[urls.size()]));
     }
 
     private List<URL> convertPathToURLs(ClassPath clsPath) {
