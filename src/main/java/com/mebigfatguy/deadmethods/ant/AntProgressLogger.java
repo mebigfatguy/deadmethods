@@ -17,18 +17,14 @@
  */
 package com.mebigfatguy.deadmethods.ant;
 
-import java.io.IOException;
-import java.util.function.Supplier;
-
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 
-import com.mebigfatguy.deadmethods.ProgressLogger;
+import com.mebigfatguy.deadmethods.AbstractProgressLogger;
 
-public class AntProgressLogger implements ProgressLogger {
+public class AntProgressLogger extends AbstractProgressLogger {
 
     private Task task;
-    private boolean disable = false;
 
     public AntProgressLogger(Task t) {
         task = t;
@@ -36,25 +32,16 @@ public class AntProgressLogger implements ProgressLogger {
 
     @Override
     public void log(String message) {
-    	if (!disable) {
+    	if (!isDisabled()) {
     		task.getProject().log(message);
     	}
     }
 
     @Override
     public void verbose(String message) {
-    	if (!disable) {
+    	if (!isDisabled()) {
     		task.getProject().log(message, Project.MSG_VERBOSE);
     	}
     }
 
-	@Override
-	public <T> T disableWith(LogSupplier<T> producer) throws IOException {
-		disable = true;
-		try {
-			return producer.get();
-		} finally {
-			disable = false;
-		}
-	}
 }
