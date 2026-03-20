@@ -4,8 +4,7 @@ import java.io.IOException;
 
 public abstract class AbstractProgressLogger implements ProgressLogger {
 
-	private static final ThreadLocal<Boolean> DISABLED = new ThreadLocal<>() {
-
+	private static final ThreadLocal<Boolean> DISABLED = new ThreadLocal<Boolean>() {
 		@Override
 		protected Boolean initialValue() {
 			return Boolean.FALSE;
