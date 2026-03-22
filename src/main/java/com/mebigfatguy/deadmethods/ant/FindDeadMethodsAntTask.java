@@ -33,7 +33,6 @@ import com.mebigfatguy.deadmethods.DeadMethods;
 import com.mebigfatguy.deadmethods.IgnoredClass;
 import com.mebigfatguy.deadmethods.IgnoredMethod;
 import com.mebigfatguy.deadmethods.IgnoredPackage;
-import com.mebigfatguy.deadmethods.ReflectiveAnnotation;
 
 public class FindDeadMethodsAntTask extends Task {
 
@@ -42,7 +41,7 @@ public class FindDeadMethodsAntTask extends Task {
     Set<IgnoredPackage> ignoredPackages = new HashSet<>();
     Set<IgnoredClass> ignoredClasses = new HashSet<>();
     Set<IgnoredMethod> ignoredMethods = new HashSet<>();
-    Set<ReflectiveAnnotation> reflectiveAnnotations = new HashSet<>();
+    Set<String> reflectiveAnnotations = new HashSet<>();
 
     public void addConfiguredClasspath(final Path classpath) {
         path = classpath;
@@ -69,11 +68,9 @@ public class FindDeadMethodsAntTask extends Task {
         ignoredMethods.add(im);
         return im;
     }
-
-    public ReflectiveAnnotation createReflectiveAnnotation() {
-        ReflectiveAnnotation ra = new ReflectiveAnnotation();
-        reflectiveAnnotations.add(ra);
-        return ra;
+    
+    public void createReflectiveAnnotation(String name) {
+    	reflectiveAnnotations.add(name);
     }
 
     @Override
@@ -89,7 +86,7 @@ public class FindDeadMethodsAntTask extends Task {
         try {
 
             DeadMethods dm = new DeadMethods(new AntProgressLogger(this), new AntClassPath(path), new AntClassPath(auxPath), ignoredPackages, ignoredClasses,
-                    ignoredMethods);
+                    ignoredMethods, reflectiveAnnotations);
 
             Set<String> allMethods = dm.getDeadMethods();
 
@@ -116,8 +113,7 @@ public class FindDeadMethodsAntTask extends Task {
         Path path = new Path(project);
         path.setLocation(new File(args[0]));
         fdm.addConfiguredClasspath(path);
-        ReflectiveAnnotation ra = fdm.createReflectiveAnnotation();
-        ra.setName("test.reflective.ReflectiveUse");
+        fdm.createReflectiveAnnotation("test.reflective.ReflectiveUse");
         IgnoredPackage ip = fdm.createIgnoredPackage();
         ip.setPattern("test\\.ignored");
 

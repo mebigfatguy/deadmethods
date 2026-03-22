@@ -71,6 +71,10 @@ public class MethodInfo {
     public boolean hasAnnotations() {
         return annotations != null;
     }
+    
+    public Set<String> getAnnotations() {
+    	return annotations;
+    }
 
     public boolean hasAnnotation(String annotation) {
         return (annotations != null) && annotations.contains(annotation);

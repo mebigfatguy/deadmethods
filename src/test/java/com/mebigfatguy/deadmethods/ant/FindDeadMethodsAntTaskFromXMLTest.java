@@ -39,7 +39,6 @@ import org.xml.sax.SAXException;
 import com.mebigfatguy.deadmethods.IgnoredClass;
 import com.mebigfatguy.deadmethods.IgnoredMethod;
 import com.mebigfatguy.deadmethods.IgnoredPackage;
-import com.mebigfatguy.deadmethods.ReflectiveAnnotation;
 
 @RunWith(Parameterized.class)
 public class FindDeadMethodsAntTaskFromXMLTest {
@@ -112,9 +111,7 @@ public class FindDeadMethodsAntTaskFromXMLTest {
 			for (int i = 0; i < raElements.getLength(); i++) {
 				Element raElement = (Element) raElements.item(i);
 				String name = raElement.getAttribute("name");
-
-				ReflectiveAnnotation ra = t.createReflectiveAnnotation();
-				ra.setName(replaceMacro(name, properties));
+				t.createReflectiveAnnotation(replaceMacro(name, properties));
 			}
 
 			xpe = xp.compile("/project/target/deadmethods/ignoredPackage");

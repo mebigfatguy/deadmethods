@@ -26,6 +26,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Properties;
@@ -77,10 +78,10 @@ public class DeadMethods {
 	private Set<IgnoredPackage> ignoredPackages;
 	private Set<IgnoredClass> ignoredClasses;
 	private Set<IgnoredMethod> ignoredMethods;
-	Set<ReflectiveAnnotation> reflectiveAnnotations = new HashSet<>();
+	private Set<String> reflectiveAnnotations = new HashSet<>();
 
 	public DeadMethods(ProgressLogger logger, ClassPath path, ClassPath auxPath, Set<IgnoredPackage> ignoredPackages,
-			Set<IgnoredClass> ignoredClasses, Set<IgnoredMethod> ignoredMethods) {
+			Set<IgnoredClass> ignoredClasses, Set<IgnoredMethod> ignoredMethods, Set<String> reflectiveAnnotations) {
 
 		this.logger = logger;
 		this.path = path;
@@ -88,6 +89,7 @@ public class DeadMethods {
 		this.ignoredPackages = ignoredPackages;
 		this.ignoredClasses = ignoredClasses;
 		this.ignoredMethods = ignoredMethods;
+		this.reflectiveAnnotations.addAll(reflectiveAnnotations == null ? Collections.emptySet() : reflectiveAnnotations);
 	}
 
 	public Set<String> getDeadMethods() throws IOException, ParserConfigurationException, XPathExpressionException {
@@ -162,14 +164,13 @@ public class DeadMethods {
 	}
 
 	private void loadDefaultReflectiveAnnotations() {
+		
 		try (BufferedInputStream bis = new BufferedInputStream(
 				DeadMethods.class.getResourceAsStream(DEFAULT_REFLECTIVE_ANNOTATION_PATH))) {
 			Properties p = new Properties();
 			p.load(bis);
 			for (Object k : p.keySet()) {
-				ReflectiveAnnotation ra = new ReflectiveAnnotation();
-				ra.setName(k.toString().trim());
-				reflectiveAnnotations.add(ra);
+				reflectiveAnnotations.add((String) k);
 			}
 		} catch (IOException e) {
 			// just go on assuming no annotations
@@ -230,26 +231,28 @@ public class DeadMethods {
 	}
 
 	private void removeReflectiveAnnotatedMethods(ClassRepository repo, Set<String> methods) {
+				
 		long count = 0;
 		for (ClassInfo classInfo : repo.getAllClassInfos()) {
 			if (classInfo.hasAnnotations()) {
-				for (ReflectiveAnnotation ra : reflectiveAnnotations) {
-					if (classInfo.hasAnnotation(ra.toString())) {
+				Set<String> clsAnnotations = classInfo.getAnnotations();
+				for (String clsAnnotation : clsAnnotations) {
+					if (reflectiveAnnotations.contains(clsAnnotation)) {
 						for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
 							if ((methodInfo.getMethodAccess() & Opcodes.ACC_PUBLIC) != 0) {
 								methods.remove(classInfo.getClassName() + ":" + methodInfo);
 								count++;
 							}
 						}
-						break;
 					}
 				}
 			}
 
 			for (MethodInfo methodInfo : classInfo.getMethodInfo()) {
 				if (methodInfo.hasAnnotations()) {
-					for (ReflectiveAnnotation ra : reflectiveAnnotations) {
-						if (methodInfo.hasAnnotation(ra.toString())) {
+					Set<String> mthAnnotations = methodInfo.getAnnotations();
+					for (String mthAnnotation : mthAnnotations) {
+						if (reflectiveAnnotations.contains(mthAnnotation)) {
 							methods.remove(classInfo.getClassName() + ":" + methodInfo);
 							count++;
 							break;

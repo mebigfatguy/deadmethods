@@ -61,9 +61,10 @@ public class FDMMojo extends AbstractMojo {
             Set<IgnoredPackage> ignoredPackages = null;
             Set<IgnoredClass> ignoredClasses = null;
             Set<IgnoredMethod> ignoredMethods = null;
+            Set<String> reflectiveAnnotations = null;
 
             DeadMethods dm = new DeadMethods(new MvnProgressLogger(this), new MvnClassPath(projects), new MvnAuxClassPath(projects, settings), ignoredPackages,
-                    ignoredClasses, ignoredMethods);
+                    ignoredClasses, ignoredMethods, reflectiveAnnotations);
 
             Set<String> allMethods = dm.getDeadMethods();
 
