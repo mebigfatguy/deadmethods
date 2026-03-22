@@ -41,7 +41,7 @@ public class FindDeadMethodsAntTask extends Task {
     Set<IgnoredPackage> ignoredPackages = new HashSet<>();
     Set<IgnoredClass> ignoredClasses = new HashSet<>();
     Set<IgnoredMethod> ignoredMethods = new HashSet<>();
-    Set<String> reflectiveAnnotations = new HashSet<>();
+    Set<ReflectiveAnnotation> reflectiveAnnotations = new HashSet<>();
 
     public void addConfiguredClasspath(final Path classpath) {
         path = classpath;
@@ -69,8 +69,10 @@ public class FindDeadMethodsAntTask extends Task {
         return im;
     }
     
-    public void createReflectiveAnnotation(String name) {
-    	reflectiveAnnotations.add(name);
+    public ReflectiveAnnotation createReflectiveAnnotation() {
+    	ReflectiveAnnotation ra = new ReflectiveAnnotation();
+    	reflectiveAnnotations.add(ra);
+    	return ra;
     }
 
     @Override
@@ -86,7 +88,7 @@ public class FindDeadMethodsAntTask extends Task {
         try {
 
             DeadMethods dm = new DeadMethods(new AntProgressLogger(this), new AntClassPath(path), new AntClassPath(auxPath), ignoredPackages, ignoredClasses,
-                    ignoredMethods, reflectiveAnnotations);
+                    ignoredMethods, convertAnnotations(reflectiveAnnotations));
 
             Set<String> allMethods = dm.getDeadMethods();
 
@@ -97,6 +99,15 @@ public class FindDeadMethodsAntTask extends Task {
         } catch (Exception e) {
             throw new BuildException("Finding dead methods failed", e);
         }
+    }
+    
+    private static final Set<String> convertAnnotations(Set<ReflectiveAnnotation> reflectiveAnnotations) {
+    	Set<String> annotations = new HashSet<String>(reflectiveAnnotations.size());
+    	for (ReflectiveAnnotation a : reflectiveAnnotations) {
+    		annotations.add(a.toString());
+    	}
+    	
+    	return annotations;
     }
 
     /** for testing only */
@@ -113,7 +124,8 @@ public class FindDeadMethodsAntTask extends Task {
         Path path = new Path(project);
         path.setLocation(new File(args[0]));
         fdm.addConfiguredClasspath(path);
-        fdm.createReflectiveAnnotation("test.reflective.ReflectiveUse");
+        ReflectiveAnnotation reflectiveAnnotation = fdm.createReflectiveAnnotation();
+        reflectiveAnnotation.setName("test.reflective.ReflectiveUse");
         IgnoredPackage ip = fdm.createIgnoredPackage();
         ip.setPattern("test\\.ignored");
 

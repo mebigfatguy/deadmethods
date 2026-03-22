@@ -111,7 +111,8 @@ public class FindDeadMethodsAntTaskFromXMLTest {
 			for (int i = 0; i < raElements.getLength(); i++) {
 				Element raElement = (Element) raElements.item(i);
 				String name = raElement.getAttribute("name");
-				t.createReflectiveAnnotation(replaceMacro(name, properties));
+				ReflectiveAnnotation ra = t.createReflectiveAnnotation();
+				ra.setName(replaceMacro(name, properties));
 			}
 
 			xpe = xp.compile("/project/target/deadmethods/ignoredPackage");
