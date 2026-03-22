@@ -21,12 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.objectweb.asm.ClassReader;
@@ -79,8 +76,8 @@ public class ClassRepository implements Iterable<String> {
 				t.setPriority(Thread.MAX_PRIORITY-1);
 				return t;
 			}
-        	
         });
+        
         executor.execute(new ClassPopulator());
 
         try {
@@ -94,8 +91,17 @@ public class ClassRepository implements Iterable<String> {
             return;
         }
 
-        executor.shutdown();
-    	logger.verbose("Finish scanning of class files");
+        try {
+	        executor.shutdown();
+	        executor.awaitTermination(1, TimeUnit.DAYS);
+	        
+	        logger.verbose("Finish scanning of class files");
+        } catch (InterruptedException e) {
+        	logger.verbose("Scanning interrupted");
+        	return;
+        } finally {
+        	executor.shutdownNow(); 	    
+        }
     }
 
     public ClassInfo getClassInfo(String clsName) throws IOException {
@@ -224,7 +230,7 @@ public class ClassRepository implements Iterable<String> {
             while (it.hasNext()) {
                 String className = it.next();
                 if (!className.startsWith("[")) {
-                    executor.execute(new ClassScanner(className));
+                    executor.submit(new ClassScanner(className));
                 }
             }
         }

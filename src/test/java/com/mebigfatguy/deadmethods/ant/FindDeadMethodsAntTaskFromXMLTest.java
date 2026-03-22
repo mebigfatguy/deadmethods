@@ -41,7 +41,6 @@ import com.mebigfatguy.deadmethods.IgnoredMethod;
 import com.mebigfatguy.deadmethods.IgnoredPackage;
 import com.mebigfatguy.deadmethods.ReflectiveAnnotation;
 
-@Ignore
 @RunWith(Parameterized.class)
 public class FindDeadMethodsAntTaskFromXMLTest {
 

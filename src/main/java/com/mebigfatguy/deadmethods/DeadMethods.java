@@ -225,7 +225,7 @@ public class DeadMethods {
 				}
 			}
 		}
-		logger.verbose(count + " JUnit method removed");
+		logger.verbose(count + " JUnit methods removed");
 
 	}
 
