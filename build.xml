@@ -160,7 +160,6 @@
 				<include name="**/*.java"/>
                 <include name="**/*.xml"/>
 				<include name="**/*.license"/>
-				<include name="lib/*.jar"/>
 			</fileset>
 		</zip>
 	</target>
