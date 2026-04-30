@@ -155,13 +155,7 @@
 	</target>
 
 	<target name="srczip" description="builds the source distribution zip file">
-		<zip destfile="${target.dir}/deadmethods-${deadmethods.version}-sources.jar" basedir="${basedir}">
-			<fileset dir="${src.dir}">
-				<include name="**/*.java"/>
-                <include name="**/*.xml"/>
-				<include name="**/*.license"/>
-			</fileset>
-		</zip>
+		<zip destfile="${target.dir}/deadmethods-${deadmethods.version}-sources.jar" basedir="${basedir}" excludes="**/*.jar"/>
 	</target>
 
 	<target name="javadoc" depends="-init" description="build the javadoc for the project">
