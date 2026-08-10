@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -161,7 +162,8 @@ public class ClassRepository implements Iterable<String> {
                 File file = new File(resource);
                 if (file.exists()) {
                     if (file.getAbsolutePath().endsWith(".jar")) {
-                        urls.add(new URL("jar", "", "file://" + file.getAbsolutePath() + "!/"));
+                        URI fileUri = file.toURI();
+                        urls.add(new URL("jar:"+  fileUri.toASCIIString() + "!/"));
                     } else {
                         urls.add(file.toURI().toURL());
                     }
