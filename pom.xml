@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.mebigfatguy.deadmethods</groupId>
 	<artifactId>deadmethods</artifactId>
-	<version>0.9.7</version>
+	<version>0.9.8</version>
 
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
@@ -48,7 +48,7 @@
 		<dependency>
 			<groupId>org.ow2.asm</groupId>
 			<artifactId>asm</artifactId>
-			<version>9.9.1</version>
+			<version>9.10.1</version>
 		</dependency>
 		<dependency>
 			<groupId>jakarta.servlet</groupId>
@@ -59,13 +59,13 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-beans</artifactId>
-			<version>6.2.17</version>
+			<version>6.2.19</version>
             <scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
-			<version>6.2.17</version>
+			<version>6.2.19</version>
             <scope>test</scope>
 		</dependency>
 		<dependency>
