@@ -79,7 +79,7 @@ public class ClassRepository implements Iterable<String> {
 			}
         });
         
-        executor.execute(new ClassPopulator());
+        executor.execute(new ClassPopulator(executor));
 
         try {
             Thread.sleep(2000);
@@ -93,7 +93,6 @@ public class ClassRepository implements Iterable<String> {
         }
 
         try {
-	        executor.shutdown();
 	        executor.awaitTermination(1, TimeUnit.DAYS);
 	        
 	        logger.verbose("Finish scanning of class files");
@@ -226,6 +225,12 @@ public class ClassRepository implements Iterable<String> {
 
     class ClassPopulator implements Runnable {
 
+    		private ExecutorService executor;
+    		
+    		public ClassPopulator(ExecutorService executor) {
+    			this.executor = executor;
+    		}
+    		
         @Override
         public void run() {
             Iterator<String> it = iterator();
@@ -235,6 +240,7 @@ public class ClassRepository implements Iterable<String> {
                     executor.submit(new ClassScanner(className));
                 }
             }
+            executor.shutdown();
         }
     }
 
