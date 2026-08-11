@@ -140,6 +140,7 @@ public class DeadMethods {
 		removeObjectMethods(repo, allMethods);
 		removeMainMethods(repo, allMethods);
 		removeNoArgCtors(repo, allMethods);
+		removeRecordAccessors(repo, allMethods);
 		removeJUnitMethods(repo, allMethods);
 		removeReflectiveAnnotatedMethods(repo, allMethods);
 		removeInterfaceImplementationMethods(repo, allMethods);
@@ -214,6 +215,20 @@ public class DeadMethods {
 			}
 		}
 		logger.verbose(count +" No arg constructors removed");
+	}
+	
+	private void removeRecordAccessors(ClassRepository repo, Set<String> methods) {
+		long count = 0;
+		for (ClassInfo classInfo : repo.getAllClassInfos()) {
+			if (classInfo.isRecord() && classInfo.hasRecordAccessors()) {
+				for (String accessor : classInfo.getRecordAccessors()) {
+					if (methods.remove(classInfo.getClassName() + ":" + accessor)) {
+						count++;
+					}
+				}
+			}
+		}
+		logger.verbose(count + " record accessors removed");
 	}
 
 	private void removeJUnitMethods(ClassRepository repo, Set<String> methods) {

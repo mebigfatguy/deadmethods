@@ -21,6 +21,7 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.RecordComponentVisitor;
 
 /** collects high level details about this class */
 public class ClassRepositoryVisitor extends ClassVisitor {
@@ -46,8 +47,14 @@ public class ClassRepositoryVisitor extends ClassVisitor {
         classInfo.addAnnotation(annotationName);
         return null;
     }
-
+    
     @Override
+	public RecordComponentVisitor visitRecordComponent(String name, String descriptor, String signature) {
+    		classInfo.addRecordAccessor(name, descriptor);
+    		return null;
+    }
+
+	@Override
     public MethodVisitor visitMethod(final int access, final String name, final String desc, final String signature, final String[] exceptions) {
         MethodInfo minfo = classInfo.addMethod(name, desc, access);
         return new MethodRepositoryVisitor(minfo);

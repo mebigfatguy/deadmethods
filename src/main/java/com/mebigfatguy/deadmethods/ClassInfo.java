@@ -30,6 +30,7 @@ public class ClassInfo {
     private final int classAccess;
     private final boolean isAnonymous;
     private Set<String> annotations;
+    private Set<String> recordAccessors;
     private final Set<MethodInfo> methodInfo;
     private final Set<ClassInfo> derivedClasses;
 
@@ -81,11 +82,15 @@ public class ClassInfo {
     public boolean isAnnotation() {
         return (classAccess & Opcodes.ACC_ANNOTATION) != 0;
     }
+    
+    public boolean isRecord() {
+		return (classAccess & Opcodes.ACC_RECORD) != 0;
+    }
 
     public boolean isAnonymous() {
         return isAnonymous;
     }
-
+        
     public int getAccess() {
         return classAccess;
     }
@@ -107,6 +112,22 @@ public class ClassInfo {
 
     public boolean hasAnnotation(String annotation) {
         return (annotations != null) && annotations.contains(annotation);
+    }
+    
+    public void addRecordAccessor(String name, String descriptor) {
+    		if (recordAccessors == null) {
+    			recordAccessors = new HashSet<>();
+    		}
+    		
+    		recordAccessors.add(name + "()" + descriptor);
+    }
+    
+    public boolean hasRecordAccessors() {
+        return recordAccessors != null;
+    }
+    
+    public Set<String> getRecordAccessors() {
+    		return recordAccessors;
     }
 
     public Set<MethodInfo> getMethodInfo() {
